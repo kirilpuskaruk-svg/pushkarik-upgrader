@@ -4,12 +4,12 @@
  */
 
 const RARITIES = {
-  common: { name: 'Звичайний', color: '#8fa3bf', glow: 'rgba(143, 163, 191, 0.25)', border: '#5b6f8a' },
-  rare: { name: 'Рідкісний', color: '#3b82f6', glow: 'rgba(59, 130, 246, 0.35)', border: '#2563eb' },
-  epic: { name: 'Епічний', color: '#a855f7', glow: 'rgba(168, 85, 247, 0.45)', border: '#9333ea' },
-  legendary: { name: 'Легендарний', color: '#f59e0b', glow: 'rgba(245, 158, 11, 0.5)', border: '#d97706' },
-  mythic: { name: 'Міфічний', color: '#ef4444', glow: 'rgba(239, 68, 68, 0.6)', border: '#dc2626' },
-  ancient: { name: 'Надзвичайний', color: '#ec4899', glow: 'rgba(236, 72, 153, 0.7)', border: '#db2777' }
+  common: { name: 'Армійське', color: '#4b69ff', glow: 'rgba(75, 105, 255, 0.25)', border: '#4b69ff' },
+  rare: { name: 'Заборонене', color: '#8847ff', glow: 'rgba(136, 71, 255, 0.35)', border: '#8847ff' },
+  epic: { name: 'Засекречене', color: '#d32ce6', glow: 'rgba(211, 44, 230, 0.5)', border: '#d32ce6' },
+  legendary: { name: 'Таємне', color: '#eb4b4b', glow: 'rgba(235, 75, 75, 0.6)', border: '#eb4b4b' },
+  mythic: { name: 'Надзвичайне (★)', color: '#ffd700', glow: 'rgba(255, 215, 0, 0.7)', border: '#ffd700' },
+  ancient: { name: 'Контрабанда / Grail', color: '#ffaa00', glow: 'rgba(255, 170, 0, 0.8)', border: '#ffaa00' }
 };
 
 const ITEM_CATALOG = [
