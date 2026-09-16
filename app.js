@@ -1299,7 +1299,7 @@ class GoogleAuthManager {
   }
 
   loadUser() {
-    const saved = localStorage.getItem('upgrader_demo_google_user_v7');
+    const saved = localStorage.getItem('upgrader_demo_google_user_v10_real_only');
     if (saved) {
       try {
         this.user = JSON.parse(saved);
@@ -1311,7 +1311,7 @@ class GoogleAuthManager {
 
   login(userObj) {
     this.user = userObj;
-    localStorage.setItem('upgrader_demo_google_user_v7', JSON.stringify(userObj));
+    localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(userObj));
     updateUi();
     audio.playWin();
     if (particleInstance) particleInstance.burst();
@@ -1319,7 +1319,7 @@ class GoogleAuthManager {
 
   logout() {
     this.user = null;
-    localStorage.removeItem('upgrader_demo_google_user_v7');
+    localStorage.removeItem('upgrader_demo_google_user_v10_real_only');
     updateUi();
     audio.playClick();
   }
