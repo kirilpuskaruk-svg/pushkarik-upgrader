@@ -1255,7 +1255,7 @@ function renderProfileStats() {
             <div style="font-size: 11px; color: var(--text-dim);">${googleAuth.user.email}</div>
           </div>
         </div>
-        <button onclick="googleAuth.logout()" class="quick-action-btn danger">Вийти</button>
+        <button onclick="window.logoutGoogleAccount()" class="quick-action-btn danger">Вийти</button>
       `;
     } else {
       banner.innerHTML = `
@@ -1430,4 +1430,13 @@ window.loginWithCustomGoogleEmail = function() {
   const nameParts = email.split('@')[0].split('.');
   const name = nameParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
   window.loginWithGoogleAccount(name, email);
+};
+
+
+// Global window bindings for Google Logout
+window.googleAuth = googleAuth;
+window.logoutGoogleAccount = function() {
+  googleAuth.logout();
+  const profileModal = document.getElementById('profileModal');
+  if (profileModal) profileModal.classList.remove('open');
 };
