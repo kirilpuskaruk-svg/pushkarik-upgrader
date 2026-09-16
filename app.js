@@ -728,6 +728,10 @@ function handleUpgradeClick() {
     alert('Оберіть бажаний предмет із каталогу цілей!');
     return;
   }
+  if (state.selectedTarget.price <= state.selectedSource.price) {
+    alert('Апгрейд можливий тільки на дорожчий скін! Обрана ціль дешевша або рівна вашому скіну.');
+    return;
+  }
 
   const chance = state.calculateChance();
   if (chance <= 0) return;
@@ -857,9 +861,19 @@ function renderHeader() {
       upBtn.textContent = 'КРУТИТЬСЯ...';
     } else {
       upBtn.classList.remove('spinning');
-      const canUpgrade = state.selectedSource && state.selectedTarget;
-      upBtn.disabled = !canUpgrade;
-      upBtn.textContent = canUpgrade ? 'UPGRADE' : 'ОБЕРІТЬ ПРЕДМЕТИ';
+      if (!state.selectedSource) {
+        upBtn.disabled = true;
+        upBtn.textContent = 'ОБЕРІТЬ СВІЙ СКІН';
+      } else if (!state.selectedTarget) {
+        upBtn.disabled = true;
+        upBtn.textContent = 'ОБЕРІТЬ БАЖАНУ ЦІЛЬ';
+      } else if (state.selectedTarget.price <= state.selectedSource.price) {
+        upBtn.disabled = true;
+        upBtn.textContent = 'ЦІЛЬ МАЄ БУТИ ДОРОЖЧОЮ';
+      } else {
+        upBtn.disabled = false;
+        upBtn.textContent = 'UPGRADE';
+      }
     }
   }
 }
@@ -1070,6 +1084,10 @@ window.selectSourceItem = function(instanceId) {
   const found = state.inventory.find(i => i.instanceId === instanceId);
   if (found) {
     state.selectedSource = found;
+    // If current target is cheaper or equal to new source, clear it (no downgrade)
+    if (state.selectedTarget && state.selectedTarget.price <= found.price) {
+      state.selectedTarget = null;
+    }
     audio.playClick();
     updateUi();
   }
@@ -1094,13 +1112,23 @@ function renderCatalogCards(grid) {
   grid.innerHTML = filtered.map(item => {
     const isSelected = state.selectedTarget && state.selectedTarget.id === item.id;
     const rarity = RARITIES[item.rarity] || RARITIES.common;
+    const isCheaper = state.selectedSource && item.price <= state.selectedSource.price;
+    const mult = state.selectedSource && item.price > state.selectedSource.price 
+      ? (item.price / state.selectedSource.price).toFixed(2) 
+      : null;
+
     return `
-      <div class="game-item-card ${isSelected ? 'equipped-target' : ''}" style="color: ${rarity.color};" onclick="selectTargetItem('${item.id}')">
+      <div class="game-item-card ${isSelected ? 'equipped-target' : ''} ${isCheaper ? 'card-disabled-cheaper' : ''}" 
+           style="color: ${rarity.color};" 
+           onclick="selectTargetItem('${item.id}')"
+           title="${isCheaper ? 'Цей скін дешевший за ваш. Апгрейд можливий тільки на дорожчий!' : ''}">
         <div class="card-top-meta">
           <span class="card-rarity-badge" style="color: ${rarity.color}; background: ${rarity.glow}; border: 1px solid ${rarity.border};">
             ${rarity.name}
           </span>
           ${isSelected ? '<span class="card-selected-tag">ЦІЛЬ</span>' : ''}
+          ${isCheaper ? '<span class="card-cheaper-tag">🔒 Дешевше</span>' : ''}
+          ${mult ? `<span class="card-multiplier-preview">x${mult}</span>` : ''}
         </div>
         <div class="card-art-box">
           <img src="${item.image}" alt="${item.name}" class="real-skin-img" loading="lazy" />
@@ -1110,7 +1138,7 @@ function renderCatalogCards(grid) {
           <p class="card-sub">${item.category}</p>
           <div class="card-bottom-row">
             <div class="card-price">${item.price.toFixed(2)} <span>DP</span></div>
-            <button class="card-use-btn">${isSelected ? 'Ціль обрана' : 'Обрати'}</button>
+            <button class="card-use-btn">${isSelected ? 'Ціль обрана' : (isCheaper ? '🔒 Дешевше' : 'Обрати')}</button>
           </div>
         </div>
       </div>
@@ -1122,6 +1150,12 @@ window.selectTargetItem = function(itemId) {
   if (state.isSpinning) return;
   const found = ITEM_CATALOG.find(i => i.id === itemId);
   if (found) {
+    // STRICT RULE: Upgrade target must be strictly more expensive than source item!
+    if (state.selectedSource && found.price <= state.selectedSource.price) {
+      audio.playFail();
+      alert('❌ Неможливо обрати цей скін!\nВаш скін коштує ' + state.selectedSource.price.toFixed(2) + ' DP, а ціль — ' + found.price.toFixed(2) + ' DP.\nАпгрейд можливий ТІЛЬКИ на дорожчий скін!');
+      return;
+    }
     state.selectedTarget = found;
     audio.playClick();
     updateUi();
