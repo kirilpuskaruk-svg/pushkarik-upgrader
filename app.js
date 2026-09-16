@@ -109,11 +109,11 @@ const audio = new SoundSynth();
 // 2. STATE & LOCALSTORAGE
 // ==========================================
 const STORAGE_KEYS = {
-  INVENTORY: 'upgrader_demo_inventory_v2',
-  BALANCE: 'upgrader_demo_balance_v2',
-  STATS: 'upgrader_demo_stats_v2',
-  HISTORY: 'upgrader_demo_history_v2',
-  SOUND: 'upgrader_demo_sound_v2'
+  INVENTORY: 'upgrader_demo_inventory_v5_clean',
+  BALANCE: 'upgrader_demo_balance_v5_clean',
+  STATS: 'upgrader_demo_stats_v5_clean',
+  HISTORY: 'upgrader_demo_history_v5_clean',
+  SOUND: 'upgrader_demo_sound_v5_clean'
 };
 
 class AppState {
