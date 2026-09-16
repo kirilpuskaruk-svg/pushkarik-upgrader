@@ -522,6 +522,13 @@ let wheelInstance = null;
 let particleInstance = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+  const closeGoogleAuthBtn = document.getElementById('closeGoogleAuthBtn');
+  if (closeGoogleAuthBtn) {
+    closeGoogleAuthBtn.addEventListener('click', () => {
+      const modal = document.getElementById('googleAuthModal');
+      if (modal) modal.classList.remove('open');
+    });
+  }
   wheelInstance = new RadialWheel('radialCanvas');
   particleInstance = new ParticleSystem('particleCanvas');
 
@@ -849,6 +856,7 @@ function updateUi() {
     }
   }
   renderHeader();
+  renderHeaderGoogleAuth();
   renderSlots();
   renderRadialCenter();
   renderTabContent();
@@ -1236,6 +1244,30 @@ function renderHistoryTable() {
 }
 
 function renderProfileStats() {
+  const banner = document.getElementById('googleProfileBanner');
+  if (banner) {
+    if (googleAuth.user) {
+      banner.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="${googleAuth.user.picture}" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #4285f4;" />
+          <div>
+            <div style="font-weight: 800; color: #fff; font-size: 14px;">${googleAuth.user.name} <span class="google-badge">✓ Google</span></div>
+            <div style="font-size: 11px; color: var(--text-dim);">${googleAuth.user.email}</div>
+          </div>
+        </div>
+        <button onclick="googleAuth.logout()" class="quick-action-btn danger">Вийти</button>
+      `;
+    } else {
+      banner.innerHTML = `
+        <div style="font-size: 12px; color: var(--text-muted);">
+          🔑 Граєте як <strong>Гість</strong>. Увійдіть через Google для синхронізації акаунта.
+        </div>
+        <button onclick="triggerGooglePrompt()" class="google-login-btn" style="padding: 4px 10px; font-size: 12px;">
+          Увійти
+        </button>
+      `;
+    }
+  }
   const total = state.stats.total;
   const wins = state.stats.wins;
   const losses = state.stats.losses;
@@ -1254,4 +1286,122 @@ function renderProfileStats() {
   if (rateEl) rateEl.textContent = `${winrate}%`;
   if (bestMultEl) bestMultEl.textContent = `x${state.stats.bestMultiplier.toFixed(2)}`;
   if (wonValEl) wonValEl.textContent = `${state.stats.totalWonValue.toFixed(2)} DP`;
+}
+
+
+// ==========================================
+// GOOGLE AUTHENTICATION MANAGER
+// ==========================================
+class GoogleAuthManager {
+  constructor() {
+    this.user = null;
+    this.loadUser();
+  }
+
+  loadUser() {
+    const saved = localStorage.getItem('upgrader_demo_google_user_v7');
+    if (saved) {
+      try {
+        this.user = JSON.parse(saved);
+      } catch(e) {
+        this.user = null;
+      }
+    }
+  }
+
+  login(userObj) {
+    this.user = userObj;
+    localStorage.setItem('upgrader_demo_google_user_v7', JSON.stringify(userObj));
+    updateUi();
+    audio.playWin();
+    if (particleInstance) particleInstance.burst();
+  }
+
+  logout() {
+    this.user = null;
+    localStorage.removeItem('upgrader_demo_google_user_v7');
+    updateUi();
+    audio.playClick();
+  }
+
+  decodeJwt(token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch(e) {
+      return null;
+    }
+  }
+}
+
+const googleAuth = new GoogleAuthManager();
+
+// Google GIS Callback
+window.onGoogleSignIn = function(response) {
+  if (response && response.credential) {
+    const payload = googleAuth.decodeJwt(response.credential);
+    if (payload) {
+      googleAuth.login({
+        name: payload.name || 'Google User',
+        email: payload.email || 'user@gmail.com',
+        picture: payload.picture || 'https://lh3.googleusercontent.com/a/default-user',
+        sub: payload.sub
+      });
+      const modal = document.getElementById('googleAuthModal');
+      if (modal) modal.classList.remove('open');
+    }
+  }
+};
+
+function triggerGooglePrompt() {
+  const modal = document.getElementById('googleAuthModal');
+  if (modal) modal.classList.add('open');
+}
+
+// Render Google Auth UI components
+function renderHeaderGoogleAuth() {
+  const container = document.getElementById('googleHeaderContainer');
+  if (!container) return;
+
+  if (googleAuth.user) {
+    container.innerHTML = `
+      <div class="google-user-chip" id="profileBtn">
+        <img src="${googleAuth.user.picture}" class="google-avatar-img" alt="Avatar" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
+        <span style="font-size: 13px; font-weight: 700; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${googleAuth.user.name.split(' ')[0]}</span>
+        <span class="google-badge">✓ Google</span>
+      </div>
+    `;
+    const btn = document.getElementById('profileBtn');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        renderProfileStats();
+        const pModal = document.getElementById('profileModal');
+        if (pModal) pModal.classList.add('open');
+        audio.playClick();
+      });
+    }
+  } else {
+    container.innerHTML = `
+      <button id="googleSignInTriggerBtn" class="google-login-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Увійти через Google</span>
+      </button>
+    `;
+    const triggerBtn = document.getElementById('googleSignInTriggerBtn');
+    if (triggerBtn) {
+      triggerBtn.addEventListener('click', () => {
+        triggerGooglePrompt();
+        audio.playClick();
+      });
+    }
+  }
 }
