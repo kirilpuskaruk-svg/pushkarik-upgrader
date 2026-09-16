@@ -202,6 +202,8 @@ class AppState {
 
   calculateChance() {
     if (!this.selectedSource || !this.selectedTarget) return 0;
+    // Down-grade is physically impossible in an upgrader
+    if (this.selectedTarget.price <= this.selectedSource.price) return 0;
     const ratio = (this.selectedSource.price / this.selectedTarget.price) * 100;
     const demoChance = ratio * 0.95;
     return Math.min(Math.max(demoChance, 1.00), 95.00);
@@ -209,6 +211,7 @@ class AppState {
 
   calculateMultiplier() {
     if (!this.selectedSource || !this.selectedTarget) return 1.0;
+    if (this.selectedTarget.price <= this.selectedSource.price) return 1.0;
     const mult = this.selectedTarget.price / this.selectedSource.price;
     return Math.max(mult, 1.01);
   }
@@ -839,6 +842,12 @@ function showResultModal(isWin, item, roll, chance) {
 // 7. RENDER FUNCTIONS
 // ==========================================
 function updateUi() {
+  // STRICT SAFETY ENFORCEMENT: Target must always be more expensive than source!
+  if (state.selectedSource && state.selectedTarget) {
+    if (state.selectedTarget.price <= state.selectedSource.price) {
+      state.selectedTarget = null;
+    }
+  }
   renderHeader();
   renderSlots();
   renderRadialCenter();
