@@ -1104,6 +1104,12 @@ window.selectSourceItem = function(instanceId) {
 
 function renderCatalogCards(grid) {
   let filtered = [...ITEM_CATALOG];
+
+  // HIDE ALL CHEAPER OR EQUAL SKINS COMPLETELY WHEN A SOURCE ITEM IS SELECTED
+  if (state.selectedSource) {
+    filtered = filtered.filter(i => i.price > state.selectedSource.price);
+  }
+
   if (state.catalogFilter.search) {
     filtered = filtered.filter(i => i.name.toLowerCase().includes(state.catalogFilter.search));
   }
@@ -1118,25 +1124,30 @@ function renderCatalogCards(grid) {
     filtered.sort((a, b) => a.name.localeCompare(b.name));
   }
 
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state-view">
+        <h3>Немає доступних цілей для апгрейду</h3>
+        <p>${state.selectedSource ? 'Всі доступні скіни в цьому розділі дешевші за ваш предмет (' + state.selectedSource.price.toFixed(2) + ' DP).' : 'Спробуйте змінити параметри пошуку або фільтри.'}</p>
+      </div>
+    `;
+    return;
+  }
+
   grid.innerHTML = filtered.map(item => {
     const isSelected = state.selectedTarget && state.selectedTarget.id === item.id;
     const rarity = RARITIES[item.rarity] || RARITIES.common;
-    const isCheaper = state.selectedSource && item.price <= state.selectedSource.price;
-    const mult = state.selectedSource && item.price > state.selectedSource.price 
-      ? (item.price / state.selectedSource.price).toFixed(2) 
-      : null;
+    const mult = state.selectedSource ? (item.price / state.selectedSource.price).toFixed(2) : null;
 
     return `
-      <div class="game-item-card ${isSelected ? 'equipped-target' : ''} ${isCheaper ? 'card-disabled-cheaper' : ''}" 
+      <div class="game-item-card ${isSelected ? 'equipped-target' : ''}" 
            style="color: ${rarity.color};" 
-           onclick="selectTargetItem('${item.id}')"
-           title="${isCheaper ? 'Цей скін дешевший за ваш. Апгрейд можливий тільки на дорожчий!' : ''}">
+           onclick="selectTargetItem('${item.id}')">
         <div class="card-top-meta">
           <span class="card-rarity-badge" style="color: ${rarity.color}; background: ${rarity.glow}; border: 1px solid ${rarity.border};">
             ${rarity.name}
           </span>
           ${isSelected ? '<span class="card-selected-tag">ЦІЛЬ</span>' : ''}
-          ${isCheaper ? '<span class="card-cheaper-tag">🔒 Дешевше</span>' : ''}
           ${mult ? `<span class="card-multiplier-preview">x${mult}</span>` : ''}
         </div>
         <div class="card-art-box">
@@ -1147,7 +1158,7 @@ function renderCatalogCards(grid) {
           <p class="card-sub">${item.category}</p>
           <div class="card-bottom-row">
             <div class="card-price">${item.price.toFixed(2)} <span>DP</span></div>
-            <button class="card-use-btn">${isSelected ? 'Ціль обрана' : (isCheaper ? '🔒 Дешевше' : 'Обрати')}</button>
+            <button class="card-use-btn">${isSelected ? 'Ціль обрана' : 'Обрати'}</button>
           </div>
         </div>
       </div>
