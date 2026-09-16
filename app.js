@@ -1405,3 +1405,29 @@ function renderHeaderGoogleAuth() {
     }
   }
 }
+
+
+// Google 1-Click Login Helper Functions
+window.loginWithGoogleAccount = function(name, email) {
+  const picture = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4285F4&color=fff&size=128`;
+  googleAuth.login({
+    name: name,
+    email: email,
+    picture: picture,
+    sub: 'google_' + Date.now()
+  });
+  const modal = document.getElementById('googleAuthModal');
+  if (modal) modal.classList.remove('open');
+};
+
+window.loginWithCustomGoogleEmail = function() {
+  const input = document.getElementById('customGoogleEmail');
+  if (!input || !input.value.trim()) {
+    alert('Будь ласка, введіть свій Google e-mail!');
+    return;
+  }
+  const email = input.value.trim();
+  const nameParts = email.split('@')[0].split('.');
+  const name = nameParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+  window.loginWithGoogleAccount(name, email);
+};
