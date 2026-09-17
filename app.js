@@ -610,8 +610,10 @@ window.tryThisUpgrade = function(itemId) {
   switchToCatalogTab();
 };
 
-// Real User Live Drops Stream Sync System (100% Real Users, No Bots)
-const REAL_DROPS_STORAGE_KEY = 'upgrader_demo_real_drops_stream_v13';
+// Real User Live Drops Stream Sync System (Global Cross-Device Realtime + Local Fallback)
+const REAL_DROPS_STORAGE_KEY = 'upgrader_demo_real_drops_stream_v14';
+const GLOBAL_NTFY_TOPIC_URL = 'https://ntfy.sh/upgrader_demo_global_stream_v14';
+
 let realLiveChannel = null;
 
 try {
@@ -624,6 +626,47 @@ try {
     };
   }
 } catch(e) {}
+
+// Global Cross-Device Real-Time SSE Listener (Syncs friends across different phones & computers!)
+function initGlobalRealtimeStream() {
+  fetch(`${GLOBAL_NTFY_TOPIC_URL}/json?poll=1`)
+    .then(res => res.text())
+    .then(text => {
+      if (!text.trim()) return;
+      const lines = text.trim().split('\n');
+      const fetchedDrops = [];
+      lines.forEach(line => {
+        try {
+          const parsed = JSON.parse(line);
+          if (parsed.message) {
+            const dropData = JSON.parse(parsed.message);
+            fetchedDrops.push(dropData);
+          }
+        } catch(e) {}
+      });
+      if (fetchedDrops.length > 0) {
+        fetchedDrops.reverse().forEach(d => {
+          saveRealDropToHistory(d);
+          renderSingleRealDropCard(d, true);
+        });
+      }
+    })
+    .catch(() => {});
+
+  try {
+    const eventSource = new EventSource(`${GLOBAL_NTFY_TOPIC_URL}/sse`);
+    eventSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.message) {
+          const dropData = JSON.parse(payload.message);
+          saveRealDropToHistory(dropData);
+          renderSingleRealDropCard(dropData, true);
+        }
+      } catch(e) {}
+    };
+  } catch(e) {}
+}
 
 // Cross-tab storage listener fallback
 window.addEventListener('storage', (e) => {
@@ -649,6 +692,9 @@ function getSavedRealDrops() {
 function saveRealDropToHistory(dropData) {
   try {
     const list = getSavedRealDrops();
+    if (list.some(d => d.timestamp && d.timestamp === dropData.timestamp && d.user.name === dropData.user.name)) {
+      return;
+    }
     list.unshift(dropData);
     if (list.length > 40) list.pop();
     localStorage.setItem(REAL_DROPS_STORAGE_KEY, JSON.stringify(list));
@@ -662,7 +708,15 @@ function renderSingleRealDropCard(dropData, isNew = false) {
   const emptyPlaceholder = container.querySelector('.empty-stream-placeholder');
   if (emptyPlaceholder) container.removeChild(emptyPlaceholder);
 
+  if (dropData.timestamp && container.querySelector(`[data-drop-time="${dropData.timestamp}"]`)) {
+    return;
+  }
+
   const card = createDropStreamCard(dropData);
+  if (dropData.timestamp) {
+    card.setAttribute('data-drop-time', dropData.timestamp);
+  }
+
   if (isNew) {
     container.insertBefore(card, container.firstChild);
     if (container.children.length > 30) {
@@ -683,12 +737,14 @@ function initLiveDropStream() {
   if (savedDrops.length === 0) {
     container.innerHTML = `
       <div class="empty-stream-placeholder" style="padding: 10px 20px; font-size: 12px; color: var(--text-dim); display: flex; align-items: center; gap: 8px;">
-        <span>⚡</span> <strong>Лів-стрім реальних гравців</strong>. Тут відображаються тільки реальні апгрейди гравців сайту. Зробіть свій апгрейд!
+        <span>⚡</span> <strong>Лів-стрім реальних гравців онлайн</strong>. Битви реальних людей передаються наживо між усіма пристроями!
       </div>
     `;
   } else {
     savedDrops.forEach(dropData => renderSingleRealDropCard(dropData, false));
   }
+
+  initGlobalRealtimeStream();
 }
 
 function pushToLiveStream(item, win, chance, userOverride = null, rollVal = null, sourceItem = null) {
@@ -723,11 +779,20 @@ function pushToLiveStream(item, win, chance, userOverride = null, rollVal = null
   };
 
   saveRealDropToHistory(dropData);
+
   if (realLiveChannel) {
     try {
       realLiveChannel.postMessage(dropData);
     } catch(e) {}
   }
+
+  try {
+    fetch(GLOBAL_NTFY_TOPIC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dropData)
+    }).catch(() => {});
+  } catch(e) {}
 
   renderSingleRealDropCard(dropData, true);
 
