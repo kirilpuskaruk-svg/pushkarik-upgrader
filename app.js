@@ -1500,7 +1500,7 @@ function renderInventoryCards(grid) {
           ${isSelected ? '<span class="card-selected-tag">ОБРАНО</span>' : ''}
         </div>
         <div class="card-art-box">
-          <img src="${item.image}" alt="${item.name}" class="real-skin-img" loading="lazy" />
+          <img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
         </div>
         <div class="card-info-box">
           <h4 class="card-title" title="${item.name}">${item.name}</h4>
@@ -1578,7 +1578,7 @@ function renderCatalogCards(grid) {
           ${mult ? `<span class="card-multiplier-preview">x${mult}</span>` : ''}
         </div>
         <div class="card-art-box">
-          <img src="${item.image}" alt="${item.name}" class="real-skin-img" loading="lazy" />
+          <img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
         </div>
         <div class="card-info-box">
           <h4 class="card-title" title="${item.name}">${item.name}</h4>

@@ -350,7 +350,7 @@ const ITEM_CATALOG = [
     "category": "Sniper",
     "rarity": "ancient",
     "price": 5200.00,
-    "image": "gungnir.png"
+    "image": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf-jFk7uW-V6N4LvedB3WvzedxuPUnHnjnzUl0sWrdztitI3rDZgJzAsZ1QOFY4UPqldDgMO_l41HXit9AmTK-0H227dAsvQ"
   }
 ];
 
