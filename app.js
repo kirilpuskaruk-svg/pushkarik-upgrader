@@ -217,7 +217,9 @@ class AppState {
   }
 }
 
+Object.freeze(AppState.prototype);
 const state = new AppState();
+Object.seal(state);
 
 // ==========================================
 // 3. RADIAL GAUGE CANVAS ENGINE
@@ -1121,10 +1123,15 @@ window.upgradeDroppedPackItem = function(instanceId) {
   switchToCatalogTab();
 };
 
+// Secure native CSPRNG reference captured at script load time (Anti-DevTools Tampering)
+const _nativeGetRandomValues = (window.crypto && window.crypto.getRandomValues)
+  ? window.crypto.getRandomValues.bind(window.crypto)
+  : null;
+
 function getSecureRoll() {
-  if (window.crypto && window.crypto.getRandomValues) {
+  if (_nativeGetRandomValues) {
     const array = new Uint32Array(1);
-    window.crypto.getRandomValues(array);
+    _nativeGetRandomValues(array);
     return (array[0] / 4294967296) * 100;
   }
   return Math.random() * 100;
