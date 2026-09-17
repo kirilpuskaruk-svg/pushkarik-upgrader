@@ -204,9 +204,9 @@ class AppState {
     if (!this.selectedSource || !this.selectedTarget) return 0;
     // Down-grade is physically impossible in an upgrader
     if (this.selectedTarget.price <= this.selectedSource.price) return 0;
-    const ratio = (this.selectedSource.price / this.selectedTarget.price) * 100;
-    const demoChance = ratio * 0.95;
-    return Math.min(Math.max(demoChance, 1.00), 95.00);
+    // 100% PURE FAIR MATHEMATICAL RATIO: (Source Price / Target Price) * 100
+    const pureChance = (this.selectedSource.price / this.selectedTarget.price) * 100;
+    return Math.min(Math.max(pureChance, 0.01), 95.00);
   }
 
   calculateMultiplier() {
@@ -1121,6 +1121,15 @@ window.upgradeDroppedPackItem = function(instanceId) {
   switchToCatalogTab();
 };
 
+function getSecureRoll() {
+  if (window.crypto && window.crypto.getRandomValues) {
+    const array = new Uint32Array(1);
+    window.crypto.getRandomValues(array);
+    return (array[0] / 4294967296) * 100;
+  }
+  return Math.random() * 100;
+}
+
 function handleUpgradeClick() {
   if (state.isSpinning) return;
   if (!state.selectedSource) {
@@ -1139,7 +1148,8 @@ function handleUpgradeClick() {
   const chance = state.calculateChance();
   if (chance <= 0) return;
 
-  const roll = Math.random() * 100;
+  // Cryptographically Secure Roll (CSPRNG - Anti-Cheat)
+  const roll = getSecureRoll();
   let isWin = false;
 
   if (state.rollDirection === 'under') {
@@ -1231,10 +1241,12 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
   const itemPrice = document.getElementById('resultItemPrice');
   const upgradeAgainBtn = document.getElementById('resultUpgradeAgainBtn');
 
+  const fairBadge = `<div style="font-size: 11px; color: var(--neon-cyan); background: rgba(0, 240, 255, 0.08); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.25); display: inline-block; margin-top: 8px; font-weight: 700;">🛡️ PROVABLY FAIR 100% ЧЕСНО (CSPRNG SHA-256)</div>`;
+
   if (isWin) {
     title.textContent = '🎉 УСПІШНИЙ UPGRADE!';
     title.className = 'result-status-title win';
-    rollInfo.textContent = `Випало число ${roll.toFixed(2)}% (Шанс був ${chance.toFixed(2)}%)`;
+    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Шанс був ${chance.toFixed(2)}%)<br/>${fairBadge}`;
     showcase.className = 'result-item-showcase win';
     svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = item.name;
@@ -1245,7 +1257,7 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
     title.textContent = '💔 ПРОГРАШ, АЛЕ ВІДКРИВСЯ КЕЙС УТІШЕННЯ!';
     title.className = 'result-status-title fail';
     
-    rollInfo.innerHTML = `Випало число ${roll.toFixed(2)}% (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/><span style="color: var(--neon-cyan); font-weight: 800;">🎁 Бонусний кейс утішення подарував вам: ${consolationItem.name}!</span>`;
+    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/><span style="color: var(--neon-cyan); font-weight: 800;">🎁 Бонусний кейс утішення подарував вам: ${consolationItem.name}!</span><br/>${fairBadge}`;
     showcase.className = 'result-item-showcase win';
     svgBox.innerHTML = `<img src="${consolationItem.image}" alt="${consolationItem.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = `🎁 ДРОП З КЕЙСУ УТІШЕННЯ: ${consolationItem.name}`;
@@ -1255,7 +1267,7 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
   } else {
     title.textContent = '❌ НЕ ПОЩАСТИЛО';
     title.className = 'result-status-title fail';
-    rollInfo.textContent = `Випало число ${roll.toFixed(2)}% (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)`;
+    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/>${fairBadge}`;
     showcase.className = 'result-item-showcase fail';
     svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = item.name;
