@@ -1241,12 +1241,10 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
   const itemPrice = document.getElementById('resultItemPrice');
   const upgradeAgainBtn = document.getElementById('resultUpgradeAgainBtn');
 
-  const fairBadge = `<div style="font-size: 11px; color: var(--neon-cyan); background: rgba(0, 240, 255, 0.08); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.25); display: inline-block; margin-top: 8px; font-weight: 700;">🛡️ PROVABLY FAIR 100% ЧЕСНО (CSPRNG SHA-256)</div>`;
-
   if (isWin) {
     title.textContent = '🎉 УСПІШНИЙ UPGRADE!';
     title.className = 'result-status-title win';
-    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Шанс був ${chance.toFixed(2)}%)<br/>${fairBadge}`;
+    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Шанс був ${chance.toFixed(2)}%)`;
     showcase.className = 'result-item-showcase win';
     svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = item.name;
@@ -1257,7 +1255,7 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
     title.textContent = '💔 ПРОГРАШ, АЛЕ ВІДКРИВСЯ КЕЙС УТІШЕННЯ!';
     title.className = 'result-status-title fail';
     
-    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/><span style="color: var(--neon-cyan); font-weight: 800;">🎁 Бонусний кейс утішення подарував вам: ${consolationItem.name}!</span><br/>${fairBadge}`;
+    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/><span style="color: var(--neon-cyan); font-weight: 800;">🎁 Бонусний кейс утішення подарував вам: ${consolationItem.name}!</span>`;
     showcase.className = 'result-item-showcase win';
     svgBox.innerHTML = `<img src="${consolationItem.image}" alt="${consolationItem.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = `🎁 ДРОП З КЕЙСУ УТІШЕННЯ: ${consolationItem.name}`;
@@ -1267,7 +1265,7 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
   } else {
     title.textContent = '❌ НЕ ПОЩАСТИЛО';
     title.className = 'result-status-title fail';
-    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/>${fairBadge}`;
+    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)`;
     showcase.className = 'result-item-showcase fail';
     svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = item.name;
