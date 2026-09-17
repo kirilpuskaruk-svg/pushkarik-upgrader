@@ -351,6 +351,111 @@ const ITEM_CATALOG = [
     "rarity": "ancient",
     "price": 5200.00,
     "image": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf-jFk7uW-V6N4LvedB3WvzedxuPUnHnjnzUl0sWrdztitI3rDZgJzAsZ1QOFY4UPqldDgMO_l41HXit9AmTK-0H227dAsvQ"
+  },
+  // CS2 AGENTS (Агенти CS2)
+  {
+    "id": "agent_1",
+    "name": "Sir Bloody Miami Darryl | The Professionals",
+    "category": "Agent",
+    "rarity": "legendary",
+    "price": 88.00,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WWj-gn47Q-GH7qxkhwsWjWyN6pJynGZld0CJR3QOdbtRa4lIGxY7_g7wfAy9USZdxTISw"
+  },
+  {
+    "id": "agent_2",
+    "name": "Special Agent Ava | FBI Special Agent",
+    "category": "Agent",
+    "rarity": "legendary",
+    "price": 14.50,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn-mSlx3i9L9s6gZaBlJv2cB37V19RmuuM_T2Hqxkw1sG3UzJq6eXyRcgkgWMR_C-ddrR_rltD15rQ5qA"
+  },
+  {
+    "id": "agent_3",
+    "name": "Cmdr. Mae 'Dead Cold' Jamison | SWAT",
+    "category": "Agent",
+    "rarity": "legendary",
+    "price": 11.80,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSWQDGVlbx34-Q8HC3nk012tWzTzY79JHiQOgYpW8B3EeYN40HtxtzlNuz8p1uJLMIs6sE"
+  },
+  {
+    "id": "agent_4",
+    "name": "Bloody Darryl The Strapped | The Professionals",
+    "category": "Agent",
+    "rarity": "epic",
+    "price": 22.00,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WWlKAhtLhqHXDilxgm4z7dztesJH2SbgApCMchFrQNsRSxw4XhYeK0swbYlcsbmucxTysR"
+  },
+  {
+    "id": "agent_5",
+    "name": "Safecracker Voltzmann | The Professionals",
+    "category": "Agent",
+    "rarity": "epic",
+    "price": 16.50,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WXj7536LVoFivmkEghsWXQmd37IniRPwUoCMFwEeAItxCwkdXvNr624wXAy9USEc8H9qQ"
+  },
+  {
+    "id": "agent_6",
+    "name": "1st Lieutenant Farlow | SWAT",
+    "category": "Agent",
+    "rarity": "epic",
+    "price": 8.20,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSVQGLFx7h0tbU6GHG1lERz62WEm9j6cimebgB0WZd4Ee4Ks0a-lNbjZrj8p1uJLRQDiME"
+  },
+  {
+    "id": "agent_7",
+    "name": "Rezan the Redshirt | Sabre",
+    "category": "Agent",
+    "rarity": "epic",
+    "price": 6.50,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oZTh8Sla4c24abZkIf6HBSnClrkg5eBoGSvikU915G_dyo2vcimTOFAoX8cmR7MDsBS_m4G2Zui2-UWA3FkeyBmz"
+  },
+  {
+    "id": "agent_8",
+    "name": "'Two Times' McCoy | TACP Cavalry",
+    "category": "Agent",
+    "rarity": "epic",
+    "price": 9.50,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6XRk-fO8YaVjNPzdCGbJxb1zs-JvGCrql0h3tm7cyov_JS-XblImDcAhQe8OtBK4k4bgZPSiuVIHzmbjrQ"
+  },
+  {
+    "id": "agent_9",
+    "name": "John 'Van Healen' Kask | SWAT",
+    "category": "Agent",
+    "rarity": "rare",
+    "price": 4.80,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSUQDLIle0jtOM-SXm2xBkjsW_dyImhc3iWOgcmAsR0TLVe4BjrkIWzN-P8p1uJ4p5BSY8"
+  },
+  {
+    "id": "agent_10",
+    "name": "Sergeant Bombson | SWAT",
+    "category": "Agent",
+    "rarity": "rare",
+    "price": 3.90,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSaQD6Umbp15-RtHX21kxl-sG-Gy9f6ci2XPA8lDMAiTbJc5BfuwNXgYbn8p1uJ3rbO8bk"
+  },
+  {
+    "id": "agent_11",
+    "name": "'Blueberries' Buckshot | NSWC SEAL",
+    "category": "Agent",
+    "rarity": "rare",
+    "price": 4.20,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6XRk-fO8YaVjNPrdXWLElL5ytbBsTXrqzUxzsWmHzN-gI3-TbwQmC5pzQLELsUbrx9bmP_SiuVJe8Pfo4Q"
+  },
+  {
+    "id": "agent_12",
+    "name": "Bio-Haz Specialist | SWAT",
+    "category": "Agent",
+    "rarity": "common",
+    "price": 3.10,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSbQDPGkO0i4bE4THq1xRh3sjuEz9muJX7EZlIiC8RyQbIPsBPtk9fmNrj8p1uJwRLd8H0"
+  },
+  {
+    "id": "agent_13",
+    "name": "Chem-Haz Specialist | SWAT",
+    "category": "Agent",
+    "rarity": "common",
+    "price": 2.80,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nz6iNP0OSveq1sLuSZQGKRmOpyseJsF3rkzR4ht2_TwtugcH7DbAQgW5VyFLIDuxnqmtPiNb78p1uJZinYneA"
   }
 ];
 
