@@ -620,17 +620,19 @@ function openDropDetailsModal(dropData) {
         <div class="player-inv-value">Оцінка: ${totalInvValue.toFixed(2)} DP</div>
       </div>
       <div class="player-inv-grid">
-        ${playerInventory.map(invItem => `
-          <div class="player-inv-card" onclick="tryThisUpgrade('${invItem.id}')" title="Клікніть щоб апгрейдити ${invItem.name}">
-            <img src="${invItem.image}" alt="${invItem.name}" loading="lazy" />
-            <div class="skin-name">${invItem.name}</div>
+        ${playerInventory.map(invItem => {
+          const skinRarity = RARITIES[invItem.rarity] || RARITIES.common;
+          return `
+          <div class="player-inv-card" onclick="tryThisUpgrade('${invItem.id}')" title="Клікніть щоб апгрейдити ${invItem.name}" style="border-color: ${skinRarity.border}; box-shadow: 0 0 10px ${skinRarity.glow};">
+            <img src="${invItem.image}" alt="${invItem.name}" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+            <div class="skin-name" title="${invItem.name}">${invItem.name}</div>
             <div class="skin-price">${invItem.price.toFixed(2)} DP</div>
           </div>
-        `).join('')}
+        `}).join('')}
       </div>
     </div>
 
-    <button onclick="tryThisUpgrade('${item.id}')" class="google-login-btn" style="width: 100%; margin-top: 16px; padding: 12px; font-size: 13px; justify-content: center; background: linear-gradient(135deg, var(--neon-cyan), #00a2ff); color: #000; font-weight: 900; border: none;">
+    <button onclick="tryThisUpgrade('${item.id}')" class="google-login-btn" style="width: 100%; margin-top: 16px; padding: 12px; font-size: 13px; justify-content: center; background: linear-gradient(135deg, var(--neon-cyan), #00a2ff); color: #000; font-weight: 900; border: none; border-radius: var(--radius-md); box-shadow: 0 4px 15px rgba(0, 240, 255, 0.4); cursor: pointer;">
       🔁 Спробувати апгрейд цього скіна
     </button>
   `;

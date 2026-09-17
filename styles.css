@@ -1627,10 +1627,10 @@ body {
 /* Player Inventory Preview in Modal */
 .player-inv-section {
   margin-top: 16px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
+  background: rgba(13, 17, 26, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-md);
-  padding: 12px;
+  padding: 14px;
   text-align: left;
 }
 .player-inv-header {
@@ -1638,11 +1638,11 @@ body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 .player-inv-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   color: #fff;
   display: flex;
@@ -1650,44 +1650,50 @@ body {
   gap: 6px;
 }
 .player-inv-value {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--neon-green);
 }
 .player-inv-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  max-height: 190px;
+  gap: 10px;
+  max-height: 220px;
   overflow-y: auto;
-  padding-right: 4px;
+  overflow-x: hidden;
+  padding-right: 6px;
+  box-sizing: border-box;
 }
 .player-inv-grid::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 .player-inv-grid::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 240, 255, 0.35);
   border-radius: 4px;
 }
 .player-inv-card {
-  background: var(--bg-surface-elevated);
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   padding: 8px 6px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  min-width: 0;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
 }
 .player-inv-card:hover {
   transform: translateY(-2px);
-  border-color: var(--neon-cyan);
-  box-shadow: 0 4px 12px rgba(0, 240, 255, 0.25);
+  box-shadow: 0 6px 16px rgba(0, 240, 255, 0.3);
+  background: rgba(0, 240, 255, 0.08);
 }
 .player-inv-card img {
   width: 100%;
-  height: 44px;
+  height: 48px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
 }
 .player-inv-card .skin-name {
   font-size: 10px;
@@ -1699,7 +1705,7 @@ body {
   margin-top: 4px;
 }
 .player-inv-card .skin-price {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--neon-green);
   margin-top: 2px;
