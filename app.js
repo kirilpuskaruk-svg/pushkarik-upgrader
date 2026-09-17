@@ -610,52 +610,88 @@ window.tryThisUpgrade = function(itemId) {
   switchToCatalogTab();
 };
 
+// Real User Live Drops Stream Sync System (100% Real Users, No Bots)
+const REAL_DROPS_STORAGE_KEY = 'upgrader_demo_real_drops_stream_v13';
+let realLiveChannel = null;
+
+try {
+  if (typeof BroadcastChannel !== 'undefined') {
+    realLiveChannel = new BroadcastChannel('upgrader_real_drops_channel');
+    realLiveChannel.onmessage = (event) => {
+      if (event.data) {
+        renderSingleRealDropCard(event.data, true);
+      }
+    };
+  }
+} catch(e) {}
+
+// Cross-tab storage listener fallback
+window.addEventListener('storage', (e) => {
+  if (e.key === REAL_DROPS_STORAGE_KEY && e.newValue) {
+    try {
+      const drops = JSON.parse(e.newValue);
+      if (drops.length > 0) {
+        renderSingleRealDropCard(drops[0], true);
+      }
+    } catch(err) {}
+  }
+});
+
+function getSavedRealDrops() {
+  try {
+    const data = localStorage.getItem(REAL_DROPS_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch(e) {
+    return [];
+  }
+}
+
+function saveRealDropToHistory(dropData) {
+  try {
+    const list = getSavedRealDrops();
+    list.unshift(dropData);
+    if (list.length > 40) list.pop();
+    localStorage.setItem(REAL_DROPS_STORAGE_KEY, JSON.stringify(list));
+  } catch(e) {}
+}
+
+function renderSingleRealDropCard(dropData, isNew = false) {
+  const container = document.getElementById('liveDropsStreamInner');
+  if (!container) return;
+
+  const emptyPlaceholder = container.querySelector('.empty-stream-placeholder');
+  if (emptyPlaceholder) container.removeChild(emptyPlaceholder);
+
+  const card = createDropStreamCard(dropData);
+  if (isNew) {
+    container.insertBefore(card, container.firstChild);
+    if (container.children.length > 30) {
+      container.removeChild(container.lastChild);
+    }
+  } else {
+    container.appendChild(card);
+  }
+}
+
 function initLiveDropStream() {
   const container = document.getElementById('liveDropsStreamInner');
   if (!container) return;
 
   container.innerHTML = '';
-  const sampleItems = ITEM_CATALOG.filter(i => ['rare', 'epic', 'legendary', 'mythic', 'ancient'].includes(i.rarity));
+  const savedDrops = getSavedRealDrops();
 
-  for (let i = 0; i < 15; i++) {
-    const user = MOCK_USERS_DATA[Math.floor(Math.random() * MOCK_USERS_DATA.length)];
-    const item = sampleItems[Math.floor(Math.random() * sampleItems.length)];
-    const win = Math.random() > 0.45;
-    const chance = Math.random() * 65 + 15;
-    const roll = win ? (Math.random() * chance) : (chance + Math.random() * (100 - chance));
-    
-    const card = createDropStreamCard({ user, item, win, chance, roll });
-    container.appendChild(card);
+  if (savedDrops.length === 0) {
+    container.innerHTML = `
+      <div class="empty-stream-placeholder" style="padding: 10px 20px; font-size: 12px; color: var(--text-dim); display: flex; align-items: center; gap: 8px;">
+        <span>⚡</span> <strong>Лів-стрім реальних гравців</strong>. Тут відображаються тільки реальні апгрейди гравців сайту. Зробіть свій апгрейд!
+      </div>
+    `;
+  } else {
+    savedDrops.forEach(dropData => renderSingleRealDropCard(dropData, false));
   }
-
-  // Periodic background simulation of live player drops
-  setInterval(() => {
-    const user = MOCK_USERS_DATA[Math.floor(Math.random() * MOCK_USERS_DATA.length)];
-    const item = sampleItems[Math.floor(Math.random() * sampleItems.length)];
-    const win = Math.random() > 0.45;
-    const chance = Math.random() * 65 + 15;
-    const roll = win ? (Math.random() * chance) : (chance + Math.random() * (100 - chance));
-
-    pushToLiveStream(item, win, chance, user, roll);
-
-    // Dynamic Header Counters update
-    totalUpgradesCounterValue++;
-    const totalEl = document.getElementById('totalUpgradesCounter');
-    if (totalEl) totalEl.textContent = totalUpgradesCounterValue.toLocaleString('uk-UA');
-
-    const onlineEl = document.getElementById('onlineCounter');
-    if (onlineEl && Math.random() > 0.7) {
-      const currentOnline = parseInt(onlineEl.textContent.replace(/\s/g, '')) || 4821;
-      const nextOnline = currentOnline + (Math.floor(Math.random() * 7) - 3);
-      onlineEl.textContent = nextOnline.toLocaleString('uk-UA');
-    }
-  }, 4500);
 }
 
 function pushToLiveStream(item, win, chance, userOverride = null, rollVal = null, sourceItem = null) {
-  const container = document.getElementById('liveDropsStreamInner');
-  if (!container) return;
-
   let playerUser = userOverride;
   if (!playerUser) {
     if (googleAuth.user) {
@@ -667,7 +703,7 @@ function pushToLiveStream(item, win, chance, userOverride = null, rollVal = null
       };
     } else {
       playerUser = {
-        name: 'Ви (You)',
+        name: 'Гравець (Guest)',
         avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=150&q=80',
         verified: false
       };
@@ -676,19 +712,29 @@ function pushToLiveStream(item, win, chance, userOverride = null, rollVal = null
 
   const roll = rollVal !== null ? rollVal : (win ? Math.random() * chance : chance + Math.random() * (100 - chance));
 
-  const card = createDropStreamCard({
+  const dropData = {
     user: playerUser,
     item: item,
     win: win,
     chance: chance,
     roll: roll,
-    sourceItem: sourceItem
-  });
+    sourceItem: sourceItem,
+    timestamp: Date.now()
+  };
 
-  container.insertBefore(card, container.firstChild);
-  if (container.children.length > 25) {
-    container.removeChild(container.lastChild);
+  saveRealDropToHistory(dropData);
+  if (realLiveChannel) {
+    try {
+      realLiveChannel.postMessage(dropData);
+    } catch(e) {}
   }
+
+  renderSingleRealDropCard(dropData, true);
+
+  // Update total upgrades counter
+  totalUpgradesCounterValue++;
+  const totalEl = document.getElementById('totalUpgradesCounter');
+  if (totalEl) totalEl.textContent = totalUpgradesCounterValue.toLocaleString('uk-UA');
 }
 
 // ==========================================
