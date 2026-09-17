@@ -471,17 +471,30 @@ class ParticleSystem {
 // ==========================================
 // 5. LIVE DROPS STREAM & PLAYER FEED SIMULATION
 // ==========================================
+const REAL_HUMAN_AVATARS = [
+  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80',
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80'
+];
+
 const MOCK_USERS_DATA = [
-  { name: 'NeonSamurai', avatar: 'https://ui-avatars.com/api/?name=NeonSamurai&background=eb4b4b&color=fff', verified: true },
-  { name: 'CyberGhost_UA', avatar: 'https://ui-avatars.com/api/?name=CyberGhost&background=4285F4&color=fff', verified: true },
-  { name: 'ApexHunter', avatar: 'https://ui-avatars.com/api/?name=ApexHunter&background=d32ce6&color=fff', verified: false },
-  { name: 'Valkyrie99', avatar: 'https://ui-avatars.com/api/?name=Valkyrie99&background=8847ff&color=fff', verified: true },
-  { name: 'ShadowKev', avatar: 'https://ui-avatars.com/api/?name=ShadowKev&background=ffd700&color=fff', verified: false },
-  { name: 'PixelStorm', avatar: 'https://ui-avatars.com/api/?name=PixelStorm&background=00f0ff&color=fff', verified: true },
-  { name: 'QuackLord', avatar: 'https://ui-avatars.com/api/?name=QuackLord&background=00ff88&color=fff', verified: true },
-  { name: 'SlayerPro', avatar: 'https://ui-avatars.com/api/?name=SlayerPro&background=ffaa00&color=fff', verified: false },
-  { name: 'QuantumZero', avatar: 'https://ui-avatars.com/api/?name=QuantumZero&background=ff4444&color=fff', verified: true },
-  { name: 'HyperGlitch', avatar: 'https://ui-avatars.com/api/?name=HyperGlitch&background=1a73e8&color=fff', verified: false }
+  { name: 'NeonSamurai', avatar: REAL_HUMAN_AVATARS[0], verified: true },
+  { name: 'CyberGhost_UA', avatar: REAL_HUMAN_AVATARS[1], verified: true },
+  { name: 'ApexHunter', avatar: REAL_HUMAN_AVATARS[2], verified: false },
+  { name: 'Valkyrie99', avatar: REAL_HUMAN_AVATARS[3], verified: true },
+  { name: 'ShadowKev', avatar: REAL_HUMAN_AVATARS[4], verified: false },
+  { name: 'PixelStorm', avatar: REAL_HUMAN_AVATARS[5], verified: true },
+  { name: 'QuackLord', avatar: REAL_HUMAN_AVATARS[6], verified: true },
+  { name: 'SlayerPro', avatar: REAL_HUMAN_AVATARS[7], verified: false },
+  { name: 'QuantumZero', avatar: REAL_HUMAN_AVATARS[8], verified: true },
+  { name: 'HyperGlitch', avatar: REAL_HUMAN_AVATARS[9], verified: false }
 ];
 
 let totalUpgradesCounterValue = 438920;
@@ -655,7 +668,7 @@ function pushToLiveStream(item, win, chance, userOverride = null, rollVal = null
     } else {
       playerUser = {
         name: 'Ви (You)',
-        avatar: 'https://ui-avatars.com/api/?name=You&background=00f0ff&color=000',
+        avatar: 'https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=150&q=80',
         verified: false
       };
     }
@@ -1580,7 +1593,9 @@ function renderHeaderGoogleAuth() {
 
 // Google 1-Click Login Helper Functions
 window.loginWithGoogleAccount = function(name, email) {
-  const picture = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4285F4&color=fff&size=128`;
+  const hash = (name + email).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const avatarIndex = hash % REAL_HUMAN_AVATARS.length;
+  const picture = REAL_HUMAN_AVATARS[avatarIndex];
   googleAuth.login({
     name: name,
     email: email,
