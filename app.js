@@ -1135,7 +1135,37 @@ function getSecureRoll() {
   return Math.random() * 100;
 }
 
-function handleUpgradeClick() {
+// Anti-Cheat / Anti-Bot Rate Limiting & Detection System
+let _lastUpgradeTime = 0;
+let _botAttempts = 0;
+let _isBanned = false;
+
+function handleUpgradeClick(e) {
+  // 1. Anti-Auto-Clicker & Script Injection Detection (Hardware Trusted Event Check)
+  if (!e || !e.isTrusted) {
+    _botAttempts++;
+    console.error('[ANTI-CHEAT] 🚨 Відхилено! Виявлено автоклікер або скрипт. (e.isTrusted === false)');
+    if (_botAttempts > 3) {
+      _isBanned = true;
+      alert('🚨 ANTI-CHEAT: Виявлено використання сторонніх скриптів або ботів! Апгрейди тимчасово заблоковано.');
+    }
+    return;
+  }
+
+  // 2. Ban Check
+  if (_isBanned) {
+    alert('🚨 ANTI-CHEAT: Ваш клієнт заблоковано за підозрілу активність. Оновіть сторінку.');
+    return;
+  }
+
+  // 3. Rate Limiting (Prevent Macro Spam)
+  const now = Date.now();
+  if (now - _lastUpgradeTime < 1500) {
+    console.warn('[ANTI-CHEAT] ⏳ Занадто швидко! Спрацював Rate-Limit (1.5 сек cooldown).');
+    return;
+  }
+  _lastUpgradeTime = now;
+
   if (state.isSpinning) return;
   if (!state.selectedSource) {
     alert('Оберіть предмет зі свого інвентарю для покращення!');
