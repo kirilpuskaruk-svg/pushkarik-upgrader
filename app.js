@@ -1183,14 +1183,18 @@ function finishUpgrade(isWin, roll, chance) {
     state.balance += 1.00;
     state.saveBalance();
 
-    // Loss Consolation Case: automatically drops a budget skin into inventory on loss!
-    const budgetSkins = ITEM_CATALOG.filter(i => i.rarity === 'common' || i.rarity === 'rare');
-    const template = budgetSkins[Math.floor(Math.random() * budgetSkins.length)];
-    consolationItem = { ...template, instanceId: 'inst_' + Date.now() + '_consolation' };
-    
-    state.inventory.unshift(consolationItem);
-    state.lastWonItem = consolationItem;
-    state.saveInventory();
+    // 20% chance for Loss Consolation Case drop on lose roll (rare bonus!)
+    const hasConsolationDrop = Math.random() < 0.20;
+    if (hasConsolationDrop) {
+      const budgetSkins = ITEM_CATALOG.filter(i => i.rarity === 'common' || i.rarity === 'rare');
+      const template = budgetSkins[Math.floor(Math.random() * budgetSkins.length)];
+      consolationItem = { ...template, instanceId: 'inst_' + Date.now() + '_consolation' };
+      state.inventory.unshift(consolationItem);
+      state.lastWonItem = consolationItem;
+      state.saveInventory();
+    } else {
+      state.lastWonItem = null;
+    }
 
     audio.playFail();
   }
@@ -1235,18 +1239,26 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
     itemPrice.innerHTML = `${item.price.toFixed(2)} <span>DP</span>`;
     upgradeAgainBtn.style.display = 'block';
     upgradeAgainBtn.textContent = 'Апгрейдити виграний скін ➔';
-  } else {
+  } else if (consolationItem) {
     title.textContent = '💔 ПРОГРАШ, АЛЕ ВІДКРИВСЯ КЕЙС УТІШЕННЯ!';
     title.className = 'result-status-title fail';
     
-    const displaySkin = consolationItem || item;
-    rollInfo.innerHTML = `Випало число ${roll.toFixed(2)}% (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/><span style="color: var(--neon-cyan); font-weight: 800;">🎁 Авто-кейс утішення подарував вам: ${displaySkin.name}!</span>`;
+    rollInfo.innerHTML = `Випало число ${roll.toFixed(2)}% (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/><span style="color: var(--neon-cyan); font-weight: 800;">🎁 Бонусний кейс утішення подарував вам: ${consolationItem.name}!</span>`;
     showcase.className = 'result-item-showcase win';
-    svgBox.innerHTML = `<img src="${displaySkin.image}" alt="${displaySkin.name}" class="real-skin-img" />`;
-    itemName.textContent = `🎁 ДРОП З КЕЙСУ УТІШЕННЯ: ${displaySkin.name}`;
-    itemPrice.innerHTML = `${displaySkin.price.toFixed(2)} <span>DP</span>`;
+    svgBox.innerHTML = `<img src="${consolationItem.image}" alt="${consolationItem.name}" class="real-skin-img" />`;
+    itemName.textContent = `🎁 ДРОП З КЕЙСУ УТІШЕННЯ: ${consolationItem.name}`;
+    itemPrice.innerHTML = `${consolationItem.price.toFixed(2)} <span>DP</span>`;
     upgradeAgainBtn.style.display = 'block';
     upgradeAgainBtn.textContent = '⚡ Апгрейдити скін з кейсу утішення ➔';
+  } else {
+    title.textContent = '❌ НЕ ПОЩАСТИЛО';
+    title.className = 'result-status-title fail';
+    rollInfo.textContent = `Випало число ${roll.toFixed(2)}% (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)`;
+    showcase.className = 'result-item-showcase fail';
+    svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" />`;
+    itemName.textContent = item.name;
+    itemPrice.innerHTML = `${item.price.toFixed(2)} <span>DP</span>`;
+    upgradeAgainBtn.style.display = 'none';
   }
 
   modal.classList.add('open');
