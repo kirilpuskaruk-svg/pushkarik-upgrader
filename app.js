@@ -560,6 +560,24 @@ function openDropDetailsModal(dropData) {
   const rarity = RARITIES[item.rarity] || RARITIES.common;
   const mult = sourceItem ? (item.price / sourceItem.price) : (item.price / Math.max(1, (item.price * (chance / 100))));
 
+  const isYou = user.name.includes('(You)') || (googleAuth.user && user.email === googleAuth.user.email);
+  let playerInventory = [];
+
+  if (isYou) {
+    playerInventory = [...state.inventory];
+  } else {
+    playerInventory = [item];
+    const pool = ITEM_CATALOG.filter(i => i.id !== item.id);
+    for (let i = 0; i < 5; i++) {
+      const randomSkin = pool[Math.floor(Math.random() * pool.length)];
+      if (!playerInventory.some(p => p.id === randomSkin.id)) {
+        playerInventory.push(randomSkin);
+      }
+    }
+  }
+
+  const totalInvValue = playerInventory.reduce((acc, cur) => acc + (cur.price || 0), 0);
+
   body.innerHTML = `
     <div class="drop-profile-card">
       <img src="${user.avatar}" class="drop-profile-avatar" alt="${user.name}" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
@@ -595,8 +613,25 @@ function openDropDetailsModal(dropData) {
       </div>
     </div>
 
+    <!-- PLAYER INVENTORY PREVIEW SECTION -->
+    <div class="player-inv-section">
+      <div class="player-inv-header">
+        <div class="player-inv-title">🎒 Інвентар гравця (${playerInventory.length})</div>
+        <div class="player-inv-value">Оцінка: ${totalInvValue.toFixed(2)} DP</div>
+      </div>
+      <div class="player-inv-grid">
+        ${playerInventory.map(invItem => `
+          <div class="player-inv-card" onclick="tryThisUpgrade('${invItem.id}')" title="Клікніть щоб апгрейдити ${invItem.name}">
+            <img src="${invItem.image}" alt="${invItem.name}" loading="lazy" />
+            <div class="skin-name">${invItem.name}</div>
+            <div class="skin-price">${invItem.price.toFixed(2)} DP</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
     <button onclick="tryThisUpgrade('${item.id}')" class="google-login-btn" style="width: 100%; margin-top: 16px; padding: 12px; font-size: 13px; justify-content: center; background: linear-gradient(135deg, var(--neon-cyan), #00a2ff); color: #000; font-weight: 900; border: none;">
-      🔁 Спробувати цей апгрейд
+      🔁 Спробувати апгрейд цього скіна
     </button>
   `;
 

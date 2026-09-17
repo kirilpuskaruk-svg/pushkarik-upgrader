@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    UPGRADER DEMO - Modern Dark Gaming & Cyber Theme
    Visual style inspired by sleek case/skin upgrade platforms.
    100% DEMO - NO REAL MONEY - NO GAMBLING
@@ -1621,6 +1621,87 @@ body {
   font-size: 13px;
   font-weight: 800;
   color: #fff;
+  margin-top: 2px;
+}
+
+/* Player Inventory Preview in Modal */
+.player-inv-section {
+  margin-top: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  text-align: left;
+}
+.player-inv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.player-inv-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.player-inv-value {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--neon-green);
+}
+.player-inv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-height: 190px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.player-inv-grid::-webkit-scrollbar {
+  width: 4px;
+}
+.player-inv-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+.player-inv-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.player-inv-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 4px 12px rgba(0, 240, 255, 0.25);
+}
+.player-inv-card img {
+  width: 100%;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+}
+.player-inv-card .skin-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
+}
+.player-inv-card .skin-price {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--neon-green);
   margin-top: 2px;
 }
 
