@@ -131,10 +131,10 @@ class AppState {
   loadState() {
     // Inventory with auto-upgrade to real photos
     const savedInv = localStorage.getItem(STORAGE_KEYS.INVENTORY);
-    if (savedInv) {
+    if (savedInv !== null) {
       try {
         const parsed = JSON.parse(savedInv);
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].image) {
+        if (Array.isArray(parsed)) {
           this.inventory = parsed;
         } else {
           this.inventory = [...DEFAULT_USER_INVENTORY];
