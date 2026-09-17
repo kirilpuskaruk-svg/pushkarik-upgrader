@@ -967,18 +967,16 @@ function setupEventListeners() {
     });
   }
 
-  const profileBtn = document.getElementById('profileBtn');
   const profileModal = document.getElementById('profileModal');
   const closeProfileBtn = document.getElementById('closeProfileBtn');
-  if (profileBtn && profileModal) {
-    profileBtn.addEventListener('click', () => {
-      renderProfileStats();
-      profileModal.classList.add('open');
-      audio.playClick();
-    });
-  }
+  const closeProfileModalBtn = document.getElementById('closeProfileModalBtn');
   if (closeProfileBtn && profileModal) {
     closeProfileBtn.addEventListener('click', () => {
+      profileModal.classList.remove('open');
+    });
+  }
+  if (closeProfileModalBtn && profileModal) {
+    closeProfileModalBtn.addEventListener('click', () => {
       profileModal.classList.remove('open');
     });
   }
@@ -1755,6 +1753,23 @@ class GoogleAuthManager {
     if (particleInstance) particleInstance.burst();
   }
 
+  updateProfile(name, picture) {
+    if (!this.user) {
+      this.user = {
+        name: name || 'Демо Гравець',
+        email: 'user@upgrader.demo',
+        picture: picture || REAL_HUMAN_AVATARS[0],
+        sub: 'custom_' + Date.now()
+      };
+    } else {
+      if (name) this.user.name = name;
+      if (picture) this.user.picture = picture;
+    }
+    localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(this.user));
+    updateUi();
+    audio.playClick();
+  }
+
   logout() {
     this.user = null;
     localStorage.removeItem('upgrader_demo_google_user_v10_real_only');
@@ -1800,6 +1815,97 @@ function triggerGooglePrompt() {
   if (modal) modal.classList.add('open');
 }
 
+function openProfileModal() {
+  renderProfileModalBody();
+  const modal = document.getElementById('profileModal');
+  if (modal) modal.classList.add('open');
+  audio.playClick();
+}
+
+function renderProfileModalBody() {
+  const container = document.getElementById('profileModalBody');
+  if (!container) return;
+
+  const currentUser = googleAuth.user || {
+    name: 'Гравець',
+    email: 'user@upgrader.demo',
+    picture: REAL_HUMAN_AVATARS[0]
+  };
+
+  const presetAvatarsHtml = REAL_HUMAN_AVATARS.map((url, idx) => `
+    <div onclick="selectPresetAvatar('${url}')" style="cursor: pointer; position: relative; border-radius: 50%; overflow: hidden; border: 2px solid ${currentUser.picture === url ? 'var(--neon-cyan)' : 'transparent'}; transition: transform 0.2s ease;">
+      <img src="${url}" style="width: 52px; height: 52px; object-fit: cover; display: block;" />
+      ${currentUser.picture === url ? '<div style="position: absolute; inset: 0; background: rgba(0, 240, 255, 0.3); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; font-size: 14px;">✓</div>' : ''}
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 18px;">
+      
+      <!-- Current Avatar Preview & Custom URL Input -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-md); display: flex; align-items: center; gap: 16px;">
+        <img id="currentAvatarPreviewImg" src="${currentUser.picture}" style="width: 72px; height: 72px; border-radius: 50%; border: 3px solid var(--neon-cyan); object-fit: cover; box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
+        <div style="flex: 1;">
+          <div style="font-weight: 700; color: #fff; font-size: 14px; margin-bottom: 4px;">Ваша аватарка</div>
+          <div style="font-size: 11px; color: var(--text-dim); margin-bottom: 8px;">Оберіть готовий аватар нижче або вставте посилання:</div>
+          <input type="url" id="customAvatarUrlInput" value="${currentUser.picture}" placeholder="https://example.com/avatar.jpg" style="width: 100%; background: #090d14; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 12px; outline: none;" />
+        </div>
+      </div>
+
+      <!-- Avatar Presets Gallery -->
+      <div>
+        <label style="font-size: 12px; font-weight: 700; color: #fff; display: block; margin-bottom: 8px;">🎨 Готові аватарки (Клікніть для вибору):</label>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; justify-items: center; background: #090d14; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          ${presetAvatarsHtml}
+        </div>
+      </div>
+
+      <!-- Custom Nickname Input -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-md);">
+        <label style="font-size: 12px; font-weight: 700; color: #fff; display: block; margin-bottom: 8px;">✏️ Ваш нікнейм у грі:</label>
+        <input type="text" id="customNicknameInput" value="${currentUser.name}" placeholder="Введіть свій нікнейм..." maxlength="24" style="width: 100%; background: #090d14; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 12px; color: #fff; font-size: 14px; font-weight: 700; outline: none;" />
+      </div>
+
+      <!-- Save & Logout Buttons -->
+      <div style="display: flex; gap: 10px; margin-top: 6px;">
+        <button onclick="saveUserProfileChanges()" class="google-login-btn" style="flex: 1; justify-content: center; padding: 12px; font-size: 14px; background: linear-gradient(135deg, #00f0ff, #0072ff); color: #000; font-weight: 800; border: none;">
+          💾 Зберегти зміни
+        </button>
+        <button onclick="window.logoutGoogleAccount()" class="quick-action-btn danger" style="padding: 12px 18px; font-weight: 700;">
+          Вийти
+        </button>
+      </div>
+
+    </div>
+  `;
+}
+
+window.selectPresetAvatar = function(url) {
+  const input = document.getElementById('customAvatarUrlInput');
+  const img = document.getElementById('currentAvatarPreviewImg');
+  if (input) input.value = url;
+  if (img) img.src = url;
+  audio.playClick();
+};
+
+window.saveUserProfileChanges = function() {
+  const nickInput = document.getElementById('customNicknameInput');
+  const avatarInput = document.getElementById('customAvatarUrlInput');
+  
+  const nick = nickInput ? nickInput.value.trim() : '';
+  const avatar = avatarInput ? avatarInput.value.trim() : '';
+
+  if (!nick) {
+    alert('Будь ласка, вкажіть ваш нікнейм!');
+    return;
+  }
+
+  googleAuth.updateProfile(nick, avatar);
+  const modal = document.getElementById('profileModal');
+  if (modal) modal.classList.remove('open');
+  audio.playWin();
+};
+
 // Render Google Auth UI components
 function renderHeaderGoogleAuth() {
   const container = document.getElementById('googleHeaderContainer');
@@ -1807,38 +1913,29 @@ function renderHeaderGoogleAuth() {
 
   if (googleAuth.user) {
     container.innerHTML = `
-      <div class="google-user-chip" id="profileBtn">
+      <div class="google-user-chip" id="profileBtn" title="Налаштувати профіль та аватарку">
         <img src="${googleAuth.user.picture}" class="google-avatar-img" alt="Avatar" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
-        <span style="font-size: 13px; font-weight: 700; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${googleAuth.user.name.split(' ')[0]}</span>
-        <span class="google-badge">✓ Google</span>
+        <span style="font-size: 13px; font-weight: 700; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${googleAuth.user.name}</span>
+        <span class="google-badge">⚙️ Профіль</span>
       </div>
     `;
     const btn = document.getElementById('profileBtn');
     if (btn) {
       btn.addEventListener('click', () => {
-        renderProfileStats();
-        const pModal = document.getElementById('profileModal');
-        if (pModal) pModal.classList.add('open');
-        audio.playClick();
+        openProfileModal();
       });
     }
   } else {
     container.innerHTML = `
-      <button id="googleSignInTriggerBtn" class="google-login-btn">
-        <svg width="18" height="18" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.62z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-        </svg>
-        <span>Увійти через Google</span>
+      <button id="profileEditGuestBtn" class="google-login-btn" style="background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(0,114,255,0.15)); border: 1px solid var(--neon-cyan);">
+        <span style="font-size: 16px;">👤</span>
+        <span>Створити Профіль</span>
       </button>
     `;
-    const triggerBtn = document.getElementById('googleSignInTriggerBtn');
-    if (triggerBtn) {
-      triggerBtn.addEventListener('click', () => {
-        triggerGooglePrompt();
-        audio.playClick();
+    const btn = document.getElementById('profileEditGuestBtn');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        openProfileModal();
       });
     }
   }
