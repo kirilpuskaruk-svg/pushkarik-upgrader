@@ -585,7 +585,7 @@ function openDropDetailsModal(dropData) {
         <div style="font-weight: 800; font-size: 15px; color: #fff; display: flex; align-items: center; gap: 6px;">
           ${user.name} ${user.verified ? '<span class="google-badge">✓ Google Verified</span>' : ''}
         </div>
-        <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Гравець UPGRADER DEMO</div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Гравець PUSHKARIK UPGRADER</div>
       </div>
     </div>
 
