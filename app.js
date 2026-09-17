@@ -974,6 +974,14 @@ function setupEventListeners() {
     });
   }
 
+  const closeDemoPackBtn = document.getElementById('closeDemoPackBtn');
+  const demoPackModal = document.getElementById('demoPackModal');
+  if (closeDemoPackBtn && demoPackModal) {
+    closeDemoPackBtn.addEventListener('click', () => {
+      demoPackModal.classList.remove('open');
+    });
+  }
+
   window.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal-backdrop')) {
       e.target.classList.remove('open');
@@ -1008,20 +1016,73 @@ function applyMultiplierPreset(multTarget) {
 }
 
 function claimDemoBonus() {
-  audio.playWin();
-  const randomItems = [];
-  for (let i = 0; i < 3; i++) {
-    const item = ITEM_CATALOG[Math.floor(Math.random() * ITEM_CATALOG.length)];
-    randomItems.push({ ...item, instanceId: 'inst_' + Date.now() + '_' + i });
-  }
-  state.inventory.push(...randomItems);
+  const budgetSkins = ITEM_CATALOG.filter(i => i.rarity === 'common');
+  const otherSkins = ITEM_CATALOG.filter(i => i.rarity !== 'common');
+
+  const selectedTemplate = Math.random() < 0.85 
+    ? budgetSkins[Math.floor(Math.random() * budgetSkins.length)]
+    : otherSkins[Math.floor(Math.random() * otherSkins.length)];
+
+  const newItem = { ...selectedTemplate, instanceId: 'inst_' + Date.now() + '_pack' };
+
+  state.inventory.unshift(newItem);
   state.balance += 50.00;
   state.saveInventory();
   state.saveBalance();
   updateUi();
-  particleInstance.burst();
-  alert('🎁 Демо-бонус отримано! Додано 3 нових скіни з реальними фото та +50.00 DP.');
+
+  audio.playWin();
+  if (particleInstance) particleInstance.burst();
+
+  openDemoPackModal(newItem);
 }
+
+function openDemoPackModal(droppedItem) {
+  const modal = document.getElementById('demoPackModal');
+  const body = document.getElementById('demoPackModalBody');
+  if (!modal || !body) return;
+
+  const rarity = RARITIES[droppedItem.rarity] || RARITIES.common;
+
+  body.innerHTML = `
+    <div style="margin-bottom: 12px; font-size: 12px; font-weight: 800; color: var(--neon-amber);">
+      🎉 Твій Демо-Пак успішно відкрито!
+    </div>
+
+    <div class="drop-showcase-box" style="border-color: ${rarity.color}; box-shadow: 0 0 30px ${rarity.glow}; padding: 24px;">
+      <div style="font-size: 11px; font-weight: 800; color: ${rarity.color}; text-transform: uppercase; margin-bottom: 8px;">
+        ${droppedItem.rarity === 'common' ? '💩 ФІГНЯ З ДЕМО-ПАКУ' : '🎁 ДЕМО-ДРОП'} (${rarity.name})
+      </div>
+      <div style="margin: 14px 0;">
+        <img src="${droppedItem.image}" alt="${droppedItem.name}" style="max-width: 170px; max-height: 115px; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7));" />
+      </div>
+      <h3 style="font-size: 16px; font-weight: 900; color: #fff; margin-top: 10px;">${droppedItem.name}</h3>
+      <div style="font-size: 14px; font-weight: 800; color: var(--neon-green); margin-top: 4px;">Вартість: ${droppedItem.price.toFixed(2)} DP</div>
+    </div>
+
+    <div style="background: rgba(0, 255, 136, 0.08); border: 1px solid rgba(0, 255, 136, 0.3); padding: 10px 14px; border-radius: var(--radius-md); margin-bottom: 16px; font-size: 13px; font-weight: 700; color: var(--neon-green);">
+      ⚡ Бонус +50.00 DP додано на ваш баланс!
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <button onclick="document.getElementById('demoPackModal').classList.remove('open')" class="modal-btn secondary" style="flex: 1;">
+        🎒 В інвентар
+      </button>
+      <button onclick="upgradeDroppedPackItem('${droppedItem.instanceId}')" class="modal-btn primary" style="flex: 1.2;">
+        ⚡ Апгрейдити скін ➔
+      </button>
+    </div>
+  `;
+
+  modal.classList.add('open');
+}
+
+window.upgradeDroppedPackItem = function(instanceId) {
+  const modal = document.getElementById('demoPackModal');
+  if (modal) modal.classList.remove('open');
+  selectSourceItem(instanceId);
+  switchToCatalogTab();
+};
 
 function handleUpgradeClick() {
   if (state.isSpinning) return;
