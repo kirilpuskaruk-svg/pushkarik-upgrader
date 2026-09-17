@@ -529,7 +529,7 @@ function createDropStreamCard(dropData) {
     </div>
     
     <div class="drop-card-img-box">
-      <img src="${item.image}" alt="${item.name}" loading="lazy" />
+      <img src="${item.image}" alt="${item.name}" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
     </div>
 
     <div class="drop-card-main">
@@ -593,7 +593,7 @@ function openDropDetailsModal(dropData) {
       <div style="font-size: 11px; font-weight: 800; color: ${rarity.color}; text-transform: uppercase; margin-bottom: 6px;">
         ${win ? '🔥 ВИГРАНИЙ СКІН' : '❌ СКІН ДРОПУ'} (${rarity.name})
       </div>
-      <img src="${item.image}" alt="${item.name}" style="max-width: 140px; max-height: 100px; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));" />
+      <img src="${item.image}" alt="${item.name}" style="max-width: 140px; max-height: 100px; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
       <h3 style="font-size: 15px; font-weight: 900; color: #fff; margin-top: 10px;">${item.name}</h3>
       <div style="font-size: 14px; font-weight: 800; color: var(--neon-green); margin-top: 4px;">${item.price.toFixed(2)} DP</div>
     </div>
@@ -1091,7 +1091,7 @@ function openDemoPackModal(droppedItem) {
         ${droppedItem.rarity === 'common' ? '💩 ФІГНЯ З ДЕМО-ПАКУ' : '🎁 ДЕМО-ДРОП'} (${rarity.name})
       </div>
       <div style="margin: 14px 0;">
-        <img src="${droppedItem.image}" alt="${droppedItem.name}" style="max-width: 170px; max-height: 115px; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7));" />
+        <img src="${droppedItem.image}" alt="${droppedItem.name}" style="max-width: 170px; max-height: 115px; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7));" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
       </div>
       <h3 style="font-size: 16px; font-weight: 900; color: #fff; margin-top: 10px;">${droppedItem.name}</h3>
       <div style="font-size: 14px; font-weight: 800; color: var(--neon-green); margin-top: 4px;">Вартість: ${droppedItem.price.toFixed(2)} DP</div>
@@ -1236,7 +1236,7 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
     title.className = 'result-status-title win';
     rollInfo.textContent = `Випало число ${roll.toFixed(2)}% (Шанс був ${chance.toFixed(2)}%)`;
     showcase.className = 'result-item-showcase win';
-    svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" />`;
+    svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = item.name;
     itemPrice.innerHTML = `${item.price.toFixed(2)} <span>DP</span>`;
     upgradeAgainBtn.style.display = 'block';
@@ -1247,7 +1247,7 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
     
     rollInfo.innerHTML = `Випало число ${roll.toFixed(2)}% (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/><span style="color: var(--neon-cyan); font-weight: 800;">🎁 Бонусний кейс утішення подарував вам: ${consolationItem.name}!</span>`;
     showcase.className = 'result-item-showcase win';
-    svgBox.innerHTML = `<img src="${consolationItem.image}" alt="${consolationItem.name}" class="real-skin-img" />`;
+    svgBox.innerHTML = `<img src="${consolationItem.image}" alt="${consolationItem.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = `🎁 ДРОП З КЕЙСУ УТІШЕННЯ: ${consolationItem.name}`;
     itemPrice.innerHTML = `${consolationItem.price.toFixed(2)} <span>DP</span>`;
     upgradeAgainBtn.style.display = 'block';
@@ -1257,7 +1257,7 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
     title.className = 'result-status-title fail';
     rollInfo.textContent = `Випало число ${roll.toFixed(2)}% (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)`;
     showcase.className = 'result-item-showcase fail';
-    svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" />`;
+    svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = item.name;
     itemPrice.innerHTML = `${item.price.toFixed(2)} <span>DP</span>`;
     upgradeAgainBtn.style.display = 'none';
@@ -1330,7 +1330,7 @@ function renderSlots() {
             ${rarity.name}
           </span>
           <div class="item-art-preview">
-            <img src="${src.image}" alt="${src.name}" class="real-skin-img" />
+            <img src="${src.image}" alt="${src.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
           </div>
           <div class="item-details-box">
             <h4 class="item-title" title="${src.name}">${src.name}</h4>
@@ -1365,7 +1365,7 @@ function renderSlots() {
             ${rarity.name}
           </span>
           <div class="item-art-preview">
-            <img src="${tgt.image}" alt="${tgt.name}" class="real-skin-img" />
+            <img src="${tgt.image}" alt="${tgt.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
           </div>
           <div class="item-details-box">
             <h4 class="item-title" title="${tgt.name}">${tgt.name}</h4>
