@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <title>UPGRADER DEMO — Демонстраційний симулятор апгрейду</title>
-  <link rel="stylesheet" href="styles.css?v=7.0.0" />
+  <link rel="stylesheet" href="styles.css?v=11.0.0" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/></svg>" />
 </head>
 <body>
@@ -30,6 +30,16 @@
         </div>
         <div class="brand-title">
           UPGRADER <span class="tag">DEMO</span>
+        </div>
+      </div>
+
+      <!-- Online Counters Group -->
+      <div class="header-counters-group">
+        <div class="counter-chip">
+          <span style="color: #00ff88; font-size: 8px;">●</span> Онлайн: <span class="val" id="onlineCounter">4 821</span>
+        </div>
+        <div class="counter-chip">
+          ⚡ Апгрейдів: <span class="val" id="totalUpgradesCounter">438 920</span>
         </div>
       </div>
 
@@ -61,9 +71,9 @@
     </div>
   </header>
 
-  <!-- LIVE SIMULATED UPGRADES TICKER -->
-  <section class="live-ticker-wrap">
-    <div id="liveTickerInner" class="live-ticker-inner">
+  <!-- LIVE DROPS STREAM (UPGRADER PRO STYLE FEED) -->
+  <section class="live-drops-stream-container">
+    <div id="liveDropsStreamInner" class="live-drops-stream-inner">
       <!-- Injected via JavaScript -->
     </div>
   </section>
@@ -328,6 +338,23 @@
     </div>
   </div>
 
+  
+  <!-- DROP DETAIL / PLAYER PROFILE MODAL -->
+  <div id="dropDetailModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 440px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 18px;">📋</span>
+          <span class="modal-title">Деталі Дропу та Профіль</span>
+        </div>
+        <button id="closeDropDetailBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="dropDetailModalBody">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </div>
+  </div>
+
   <canvas id="particleCanvas"></canvas>
 
   <!-- FOOTER -->
@@ -342,7 +369,7 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="items.js?v=10.0.0"></script>
-  <script src="app.js?v=10.0.0"></script>
+  <script src="items.js?v=11.0.0"></script>
+  <script src="app.js?v=11.0.0"></script>
 </body>
 </html>

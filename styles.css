@@ -1545,3 +1545,283 @@ body {
   background: rgba(255, 68, 68, 0.25);
   color: #fff;
 }
+
+/* ==========================================================================
+   DROP PROFILE & DETAILS MODAL STYLES
+   ========================================================================== */
+.ticker-item {
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.ticker-item:hover {
+  transform: translateY(-2px) scale(1.04);
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 4px 15px rgba(0, 240, 255, 0.25);
+}
+.ticker-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(0, 240, 255, 0.5);
+  vertical-align: middle;
+}
+.ticker-item-name {
+  font-weight: 700;
+  color: #fff;
+  font-size: 11px;
+}
+
+.drop-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+.drop-profile-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+.drop-showcase-box {
+  background: linear-gradient(180deg, rgba(21, 28, 42, 0.95), rgba(13, 17, 26, 0.98));
+  border: 2px solid var(--neon-green);
+  box-shadow: 0 0 25px rgba(0, 255, 136, 0.25);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.drop-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+.drop-stat-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+.drop-stat-label {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.drop-stat-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   LIVE DROPS STREAM & PLAYER PROFILE DROP CARDS (UPGRADER PRO STYLE)
+   ========================================================================== */
+.header-counters-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 16px;
+}
+.counter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.counter-chip span.val {
+  color: #fff;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Live Drops Feed Horizontal Container */
+.live-drops-stream-container {
+  background: #0a0e16;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 12px 0;
+  overflow: hidden;
+  position: relative;
+}
+.live-drops-stream-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 20px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+.live-drops-stream-inner::-webkit-scrollbar {
+  height: 4px;
+}
+.live-drops-stream-inner::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+/* Upgrader Pro Style Card */
+.drop-stream-card {
+  flex: 0 0 240px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100px;
+  user-select: none;
+}
+.drop-stream-card:hover {
+  transform: translateY(-3px) scale(1.02);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+}
+
+/* Rarity Accents for Cards */
+.drop-stream-card.gold-tier {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.18) 0%, rgba(21, 28, 42, 0.95) 100%);
+  border-top: 3px solid #ffd700;
+  box-shadow: inset 0 0 15px rgba(255, 215, 0, 0.1);
+}
+.drop-stream-card.ancient-tier {
+  background: linear-gradient(135deg, rgba(255, 170, 0, 0.18) 0%, rgba(21, 28, 42, 0.95) 100%);
+  border-top: 3px solid #ffaa00;
+}
+.drop-stream-card.covert-tier {
+  background: linear-gradient(135deg, rgba(235, 75, 75, 0.15) 0%, rgba(21, 28, 42, 0.95) 100%);
+  border-top: 3px solid #eb4b4b;
+}
+.drop-stream-card.classified-tier {
+  background: linear-gradient(135deg, rgba(211, 44, 230, 0.15) 0%, rgba(21, 28, 42, 0.95) 100%);
+  border-top: 3px solid #d32ce6;
+}
+.drop-stream-card.restricted-tier {
+  background: linear-gradient(135deg, rgba(136, 71, 255, 0.15) 0%, rgba(21, 28, 42, 0.95) 100%);
+  border-top: 3px solid #8847ff;
+}
+.drop-stream-card.milspec-tier {
+  background: linear-gradient(135deg, rgba(75, 105, 255, 0.15) 0%, rgba(21, 28, 42, 0.95) 100%);
+  border-top: 3px solid #4b69ff;
+}
+
+/* Card Header: Chance Badge & Arrow */
+.drop-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 2;
+}
+.drop-chance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.drop-chance-badge.win {
+  color: var(--neon-green);
+  border-color: rgba(0, 255, 136, 0.3);
+}
+.drop-chance-badge.fail {
+  color: var(--neon-red);
+  border-color: rgba(255, 42, 95, 0.3);
+}
+
+/* Skin Image Position */
+.drop-card-img-box {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 90px;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+.drop-card-img-box img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+  transition: transform 0.25s ease;
+}
+.drop-stream-card:hover .drop-card-img-box img {
+  transform: scale(1.1) rotate(-3deg);
+}
+
+/* Card Bottom Info: Title, Subtitle, Player Profile */
+.drop-card-main {
+  z-index: 2;
+  margin-top: 14px;
+  max-width: 140px;
+}
+.drop-skin-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: #fff;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.3px;
+}
+.drop-skin-sub {
+  font-size: 10px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.drop-player-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 2;
+}
+.drop-player-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.drop-player-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.drop-player-name.is-you {
+  color: var(--neon-cyan);
+}

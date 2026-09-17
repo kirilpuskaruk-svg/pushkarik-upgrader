@@ -469,50 +469,213 @@ class ParticleSystem {
 }
 
 // ==========================================
-// 5. LIVE TICKER SIMULATION
+// 5. LIVE DROPS STREAM & PLAYER FEED SIMULATION
 // ==========================================
-const MOCK_USERS = [
-  'NeonSamurai', 'CyberGhost_UA', 'ApexHunter', 'Valkyrie99', 'ShadowKev',
-  'PixelStorm', 'QuackLord', 'SlayerPro', 'QuantumZero', 'HyperGlitch'
+const MOCK_USERS_DATA = [
+  { name: 'NeonSamurai', avatar: 'https://ui-avatars.com/api/?name=NeonSamurai&background=eb4b4b&color=fff', verified: true },
+  { name: 'CyberGhost_UA', avatar: 'https://ui-avatars.com/api/?name=CyberGhost&background=4285F4&color=fff', verified: true },
+  { name: 'ApexHunter', avatar: 'https://ui-avatars.com/api/?name=ApexHunter&background=d32ce6&color=fff', verified: false },
+  { name: 'Valkyrie99', avatar: 'https://ui-avatars.com/api/?name=Valkyrie99&background=8847ff&color=fff', verified: true },
+  { name: 'ShadowKev', avatar: 'https://ui-avatars.com/api/?name=ShadowKev&background=ffd700&color=fff', verified: false },
+  { name: 'PixelStorm', avatar: 'https://ui-avatars.com/api/?name=PixelStorm&background=00f0ff&color=fff', verified: true },
+  { name: 'QuackLord', avatar: 'https://ui-avatars.com/api/?name=QuackLord&background=00ff88&color=fff', verified: true },
+  { name: 'SlayerPro', avatar: 'https://ui-avatars.com/api/?name=SlayerPro&background=ffaa00&color=fff', verified: false },
+  { name: 'QuantumZero', avatar: 'https://ui-avatars.com/api/?name=QuantumZero&background=ff4444&color=fff', verified: true },
+  { name: 'HyperGlitch', avatar: 'https://ui-avatars.com/api/?name=HyperGlitch&background=1a73e8&color=fff', verified: false }
 ];
 
-function initLiveTicker() {
-  const container = document.getElementById('liveTickerInner');
-  if (!container) return;
+let totalUpgradesCounterValue = 438920;
 
-  const sampleItems = ITEM_CATALOG.filter(i => ['rare', 'epic', 'legendary', 'mythic', 'ancient'].includes(i.rarity));
-
-  function createTickerItem(user, item, win, chance) {
-    const div = document.createElement('div');
-    div.className = `ticker-item ${win ? 'win' : 'fail'}`;
-    div.innerHTML = `
-      <span class="ticker-user">${user}</span>
-      <div class="ticker-thumb"><img src="${item.image}" alt="" /></div>
-      <span class="ticker-chance">${win ? '🔥 WIN' : '❌ FAIL'} (${chance.toFixed(1)}%)</span>
-    `;
-    return div;
-  }
-
-  for (let i = 0; i < 14; i++) {
-    const user = MOCK_USERS[Math.floor(Math.random() * MOCK_USERS.length)];
-    const item = sampleItems[Math.floor(Math.random() * sampleItems.length)];
-    const win = Math.random() > 0.45;
-    const chance = Math.random() * 65 + 15;
-    container.appendChild(createTickerItem(user, item, win, chance));
+function getRarityTierClass(rarity, price) {
+  if (price >= 500) return 'gold-tier';
+  switch (rarity) {
+    case 'ancient': return 'ancient-tier';
+    case 'mythic': return 'gold-tier';
+    case 'legendary': return 'covert-tier';
+    case 'epic': return 'classified-tier';
+    case 'rare': return 'restricted-tier';
+    default: return 'milspec-tier';
   }
 }
 
-function pushToLiveTicker(item, win, chance) {
-  const container = document.getElementById('liveTickerInner');
-  if (!container) return;
+function createDropStreamCard(dropData) {
+  const { user, item, win, chance } = dropData;
+  const tierClass = getRarityTierClass(item.rarity, item.price);
+  
   const div = document.createElement('div');
-  div.className = `ticker-item ${win ? 'win' : 'fail'}`;
+  div.className = `drop-stream-card ${tierClass}`;
+  
+  const isYou = user.name.includes('(You)') || (googleAuth.user && user.email === googleAuth.user.email);
+  
   div.innerHTML = `
-    <span class="ticker-user" style="color: #00f0ff;">Ви (You)</span>
-    <div class="ticker-thumb"><img src="${item.image}" alt="" /></div>
-    <span class="ticker-chance">${win ? '🔥 WIN' : '❌ FAIL'} (${chance.toFixed(1)}%)</span>
+    <div class="drop-card-top">
+      <div class="drop-chance-badge ${win ? 'win' : 'fail'}">
+        <span>${win ? '🔥 WIN' : '❌ FAIL'}</span>
+        <span>${chance.toFixed(1)}%</span>
+      </div>
+    </div>
+    
+    <div class="drop-card-img-box">
+      <img src="${item.image}" alt="${item.name}" loading="lazy" />
+    </div>
+
+    <div class="drop-card-main">
+      <div class="drop-skin-title" title="${item.name}">${item.name}</div>
+      <div class="drop-skin-sub">${item.category}</div>
+    </div>
+
+    <div class="drop-player-row">
+      <img src="${user.avatar}" class="drop-player-avatar" alt="${user.name}" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
+      <span class="drop-player-name ${isYou ? 'is-you' : ''}">${user.name}</span>
+    </div>
   `;
-  container.insertBefore(div, container.firstChild);
+
+  div.addEventListener('click', () => {
+    openDropDetailsModal(dropData);
+    audio.playClick();
+  });
+
+  return div;
+}
+
+function openDropDetailsModal(dropData) {
+  const modal = document.getElementById('dropDetailModal');
+  const body = document.getElementById('dropDetailModalBody');
+  if (!modal || !body) return;
+
+  const { user, item, win, chance, roll, sourceItem } = dropData;
+  const rarity = RARITIES[item.rarity] || RARITIES.common;
+  const mult = sourceItem ? (item.price / sourceItem.price) : (item.price / Math.max(1, (item.price * (chance / 100))));
+
+  body.innerHTML = `
+    <div class="drop-profile-card">
+      <img src="${user.avatar}" class="drop-profile-avatar" alt="${user.name}" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
+      <div>
+        <div style="font-weight: 800; font-size: 15px; color: #fff; display: flex; align-items: center; gap: 6px;">
+          ${user.name} ${user.verified ? '<span class="google-badge">✓ Google Verified</span>' : ''}
+        </div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Гравець UPGRADER DEMO</div>
+      </div>
+    </div>
+
+    <div class="drop-showcase-box" style="border-color: ${rarity.color}; box-shadow: 0 0 25px ${rarity.glow};">
+      <div style="font-size: 11px; font-weight: 800; color: ${rarity.color}; text-transform: uppercase; margin-bottom: 6px;">
+        ${win ? '🔥 ВИГРАНИЙ СКІН' : '❌ СКІН ДРОПУ'} (${rarity.name})
+      </div>
+      <img src="${item.image}" alt="${item.name}" style="max-width: 140px; max-height: 100px; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));" />
+      <h3 style="font-size: 15px; font-weight: 900; color: #fff; margin-top: 10px;">${item.name}</h3>
+      <div style="font-size: 14px; font-weight: 800; color: var(--neon-green); margin-top: 4px;">${item.price.toFixed(2)} DP</div>
+    </div>
+
+    <div class="drop-stats-row">
+      <div class="drop-stat-item">
+        <div class="drop-stat-label">Шанс</div>
+        <div class="drop-stat-val" style="color: var(--neon-cyan);">${chance.toFixed(2)}%</div>
+      </div>
+      <div class="drop-stat-item">
+        <div class="drop-stat-label">Множник</div>
+        <div class="drop-stat-val" style="color: var(--neon-amber);">x${mult ? mult.toFixed(2) : '1.00'}</div>
+      </div>
+      <div class="drop-stat-item">
+        <div class="drop-stat-label">Результат</div>
+        <div class="drop-stat-val" style="color: ${win ? 'var(--neon-green)' : 'var(--neon-red)'};">${roll ? roll.toFixed(2) : '0.00'}%</div>
+      </div>
+    </div>
+
+    <button onclick="tryThisUpgrade('${item.id}')" class="google-login-btn" style="width: 100%; margin-top: 16px; padding: 12px; font-size: 13px; justify-content: center; background: linear-gradient(135deg, var(--neon-cyan), #00a2ff); color: #000; font-weight: 900; border: none;">
+      🔁 Спробувати цей апгрейд
+    </button>
+  `;
+
+  modal.classList.add('open');
+}
+
+window.tryThisUpgrade = function(itemId) {
+  const modal = document.getElementById('dropDetailModal');
+  if (modal) modal.classList.remove('open');
+  selectTargetItem(itemId);
+  switchToCatalogTab();
+};
+
+function initLiveDropStream() {
+  const container = document.getElementById('liveDropsStreamInner');
+  if (!container) return;
+
+  container.innerHTML = '';
+  const sampleItems = ITEM_CATALOG.filter(i => ['rare', 'epic', 'legendary', 'mythic', 'ancient'].includes(i.rarity));
+
+  for (let i = 0; i < 15; i++) {
+    const user = MOCK_USERS_DATA[Math.floor(Math.random() * MOCK_USERS_DATA.length)];
+    const item = sampleItems[Math.floor(Math.random() * sampleItems.length)];
+    const win = Math.random() > 0.45;
+    const chance = Math.random() * 65 + 15;
+    const roll = win ? (Math.random() * chance) : (chance + Math.random() * (100 - chance));
+    
+    const card = createDropStreamCard({ user, item, win, chance, roll });
+    container.appendChild(card);
+  }
+
+  // Periodic background simulation of live player drops
+  setInterval(() => {
+    const user = MOCK_USERS_DATA[Math.floor(Math.random() * MOCK_USERS_DATA.length)];
+    const item = sampleItems[Math.floor(Math.random() * sampleItems.length)];
+    const win = Math.random() > 0.45;
+    const chance = Math.random() * 65 + 15;
+    const roll = win ? (Math.random() * chance) : (chance + Math.random() * (100 - chance));
+
+    pushToLiveStream(item, win, chance, user, roll);
+
+    // Dynamic Header Counters update
+    totalUpgradesCounterValue++;
+    const totalEl = document.getElementById('totalUpgradesCounter');
+    if (totalEl) totalEl.textContent = totalUpgradesCounterValue.toLocaleString('uk-UA');
+
+    const onlineEl = document.getElementById('onlineCounter');
+    if (onlineEl && Math.random() > 0.7) {
+      const currentOnline = parseInt(onlineEl.textContent.replace(/\s/g, '')) || 4821;
+      const nextOnline = currentOnline + (Math.floor(Math.random() * 7) - 3);
+      onlineEl.textContent = nextOnline.toLocaleString('uk-UA');
+    }
+  }, 4500);
+}
+
+function pushToLiveStream(item, win, chance, userOverride = null, rollVal = null, sourceItem = null) {
+  const container = document.getElementById('liveDropsStreamInner');
+  if (!container) return;
+
+  let playerUser = userOverride;
+  if (!playerUser) {
+    if (googleAuth.user) {
+      playerUser = {
+        name: googleAuth.user.name,
+        email: googleAuth.user.email,
+        avatar: googleAuth.user.picture,
+        verified: true
+      };
+    } else {
+      playerUser = {
+        name: 'Ви (You)',
+        avatar: 'https://ui-avatars.com/api/?name=You&background=00f0ff&color=000',
+        verified: false
+      };
+    }
+  }
+
+  const roll = rollVal !== null ? rollVal : (win ? Math.random() * chance : chance + Math.random() * (100 - chance));
+
+  const card = createDropStreamCard({
+    user: playerUser,
+    item: item,
+    win: win,
+    chance: chance,
+    roll: roll,
+    sourceItem: sourceItem
+  });
+
+  container.insertBefore(card, container.firstChild);
+  if (container.children.length > 25) {
+    container.removeChild(container.lastChild);
+  }
 }
 
 // ==========================================
@@ -532,7 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
   wheelInstance = new RadialWheel('radialCanvas');
   particleInstance = new ParticleSystem('particleCanvas');
 
-  initLiveTicker();
+  initLiveDropStream();
   setupEventListeners();
   updateUi();
 });
@@ -679,6 +842,14 @@ function setupEventListeners() {
     });
   }
 
+  const closeDropDetailBtn = document.getElementById('closeDropDetailBtn');
+  const dropDetailModal = document.getElementById('dropDetailModal');
+  if (closeDropDetailBtn && dropDetailModal) {
+    closeDropDetailBtn.addEventListener('click', () => {
+      dropDetailModal.classList.remove('open');
+    });
+  }
+
   window.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal-backdrop')) {
       e.target.classList.remove('open');
@@ -806,7 +977,7 @@ function finishUpgrade(isWin, roll, chance) {
   state.saveStats();
   state.saveHistory();
 
-  pushToLiveTicker(targetItem, isWin, chance);
+  pushToLiveStream(targetItem, isWin, chance, null, roll, sourceItem);
 
   state.selectedSource = null;
   updateUi();
