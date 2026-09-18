@@ -662,6 +662,10 @@ function openDropDetailsModal(dropData) {
 window.tryThisUpgrade = function(itemId) {
   const modal = document.getElementById('dropDetailModal');
   if (modal) modal.classList.remove('open');
+  const targetTemplate = ITEM_CATALOG.find(i => i.id === itemId);
+  if (targetTemplate && state.selectedSource && targetTemplate.price <= state.selectedSource.price) {
+    state.selectedSource = null;
+  }
   selectTargetItem(itemId);
   switchToCatalogTab();
 };
@@ -954,7 +958,7 @@ function setupEventListeners() {
   const searchInput = document.getElementById('itemSearchInput');
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
-      if (state.activeTab === 'inventory') {
+      if (state.activeTab === 'inventory' || state.activeTab === 'vault') {
         state.inventoryFilter.search = e.target.value.toLowerCase();
       } else {
         state.catalogFilter.search = e.target.value.toLowerCase();
@@ -966,7 +970,7 @@ function setupEventListeners() {
   const sortSelect = document.getElementById('itemSortSelect');
   if (sortSelect) {
     sortSelect.addEventListener('change', (e) => {
-      if (state.activeTab === 'inventory') {
+      if (state.activeTab === 'inventory' || state.activeTab === 'vault') {
         state.inventoryFilter.sort = e.target.value;
       } else {
         state.catalogFilter.sort = e.target.value;
@@ -980,7 +984,7 @@ function setupEventListeners() {
       document.querySelectorAll('.rarity-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
       const rarity = pill.dataset.rarity;
-      if (state.activeTab === 'inventory') {
+      if (state.activeTab === 'inventory' || state.activeTab === 'vault') {
         state.inventoryFilter.rarity = rarity;
       } else {
         state.catalogFilter.rarity = rarity;
@@ -1378,7 +1382,8 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
   const svgBox = document.getElementById('resultItemSvgBox');
   const itemName = document.getElementById('resultItemName');
   const itemPrice = document.getElementById('resultItemPrice');
-  const upgradeAgainBtn = document.getElementById('resultUpgradeAgainBtn');
+  const withdrawBtn = document.getElementById('resultWithdrawBtn');
+  const keepBtn = document.getElementById('resultKeepBtn');
 
   const safeImg = escapeHtml(item.image);
   const safeItemName = item.name;
@@ -1391,8 +1396,12 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
     svgBox.innerHTML = `<img src="${safeImg}" alt="${escapeHtml(safeItemName)}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = safeItemName;
     itemPrice.innerHTML = `${item.price.toFixed(2)} <span>DP</span>`;
-    upgradeAgainBtn.style.display = 'block';
-    upgradeAgainBtn.textContent = 'Апгрейдити виграний скін ➔';
+    if (upgradeAgainBtn) {
+      upgradeAgainBtn.style.display = 'block';
+      upgradeAgainBtn.textContent = 'Апгрейдити виграний скін ➔';
+    }
+    if (withdrawBtn) withdrawBtn.style.display = 'block';
+    if (keepBtn) keepBtn.textContent = '🎒 В інвентар';
   } else if (consolationItem) {
     const safeConsolationImg = escapeHtml(consolationItem.image);
     title.textContent = '💔 ПРОГРАШ, АЛЕ ВІДКРИВСЯ КЕЙС УТІШЕННЯ!';
@@ -1403,8 +1412,12 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
     svgBox.innerHTML = `<img src="${safeConsolationImg}" alt="${escapeHtml(consolationItem.name)}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = `🎁 ДРОП З КЕЙСУ УТІШЕННЯ: ${consolationItem.name}`;
     itemPrice.innerHTML = `${consolationItem.price.toFixed(2)} <span>DP</span>`;
-    upgradeAgainBtn.style.display = 'block';
-    upgradeAgainBtn.textContent = '⚡ Апгрейдити скін з кейсу утішення ➔';
+    if (upgradeAgainBtn) {
+      upgradeAgainBtn.style.display = 'block';
+      upgradeAgainBtn.textContent = '⚡ Апгрейдити скін з кейсу утішення ➔';
+    }
+    if (withdrawBtn) withdrawBtn.style.display = 'block';
+    if (keepBtn) keepBtn.textContent = '🎒 В інвентар';
   } else {
     title.textContent = '❌ НЕ ПОЩАСТИЛО';
     title.className = 'result-status-title fail';
@@ -1413,7 +1426,9 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
     svgBox.innerHTML = `<img src="${safeImg}" alt="${escapeHtml(safeItemName)}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = safeItemName;
     itemPrice.innerHTML = `${item.price.toFixed(2)} <span>DP</span>`;
-    upgradeAgainBtn.style.display = 'none';
+    if (upgradeAgainBtn) upgradeAgainBtn.style.display = 'none';
+    if (withdrawBtn) withdrawBtn.style.display = 'none';
+    if (keepBtn) keepBtn.textContent = 'Закрити';
   }
 
   modal.classList.add('open');
@@ -2157,6 +2172,37 @@ function renderProfileModalBody() {
         <input type="text" id="customNicknameInput" value="${currentUser.name}" placeholder="Введіть свій нікнейм..." maxlength="24" style="width: 100%; background: #090d14; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 12px; color: #fff; font-size: 14px; font-weight: 700; outline: none;" />
       </div>
 
+      <!-- Player Statistics Overview -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-md);">
+        <label style="font-size: 12px; font-weight: 700; color: #fff; display: block; margin-bottom: 8px;">📊 Ваша статистика апгрейдів:</label>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+          <div style="background: #090d14; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid var(--border-color);">
+            <div style="font-size: 10px; color: var(--text-dim);">Апгрейдів</div>
+            <div style="font-size: 14px; font-weight: 800; color: #fff;">${state.stats.total}</div>
+          </div>
+          <div style="background: #090d14; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid var(--border-color);">
+            <div style="font-size: 10px; color: var(--text-dim);">Перемог</div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--neon-green);">${state.stats.wins}</div>
+          </div>
+          <div style="background: #090d14; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid var(--border-color);">
+            <div style="font-size: 10px; color: var(--text-dim);">Вінрейт</div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--neon-cyan);">${state.stats.total > 0 ? ((state.stats.wins / state.stats.total) * 100).toFixed(1) : '0.0'}%</div>
+          </div>
+          <div style="background: #090d14; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid var(--border-color);">
+            <div style="font-size: 10px; color: var(--text-dim);">Поразок</div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--neon-red);">${state.stats.losses}</div>
+          </div>
+          <div style="background: #090d14; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid var(--border-color);">
+            <div style="font-size: 10px; color: var(--text-dim);">Топ множник</div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--neon-amber);">x${state.stats.bestMultiplier.toFixed(2)}</div>
+          </div>
+          <div style="background: #090d14; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid var(--border-color);">
+            <div style="font-size: 10px; color: var(--text-dim);">Виграно цінностей</div>
+            <div style="font-size: 13px; font-weight: 800; color: #fff;">${state.stats.totalWonValue.toFixed(0)} DP</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Save & Logout Buttons -->
       <div style="display: flex; gap: 10px; margin-top: 6px;">
         <button onclick="saveUserProfileChanges()" class="google-login-btn" style="flex: 1; justify-content: center; padding: 12px; font-size: 14px; background: linear-gradient(135deg, #00f0ff, #0072ff); color: #000; font-weight: 800; border: none;">
@@ -2376,10 +2422,17 @@ function renderAdminModalBody() {
 }
 
 window.adminToggleMode = function() {
-  state.adminMode = !state.adminMode;
-  if (state.adminMode) {
-    localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
+  if (!state.adminMode) {
+    const enteredPass = prompt('🔒 Введіть секретний пароль Адміністратора:');
+    if (enteredPass === 'pushkarik2026' || enteredPass === 'kiril') {
+      state.adminMode = true;
+      localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
+    } else {
+      alert('❌ Невірний пароль! Доступ заблоковано.');
+      return;
+    }
   } else {
+    state.adminMode = false;
     localStorage.removeItem('pushkarik_admin_auth_token');
   }
   updateUi();
@@ -2388,6 +2441,10 @@ window.adminToggleMode = function() {
 };
 
 window.adminToggleForceWin = function() {
+  if (!state.adminMode) {
+    alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
+    return;
+  }
   state.adminForceWin = !state.adminForceWin;
   localStorage.setItem('upgrader_demo_admin_force_win', JSON.stringify(state.adminForceWin));
   renderAdminModalBody();
@@ -2395,6 +2452,10 @@ window.adminToggleForceWin = function() {
 };
 
 window.adminAddBalance = function(amount) {
+  if (!state.adminMode) {
+    alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
+    return;
+  }
   state.balance += amount;
   state.saveBalance();
   updateUi();
@@ -2404,6 +2465,10 @@ window.adminAddBalance = function(amount) {
 };
 
 window.adminSetInfiniteBalance = function() {
+  if (!state.adminMode) {
+    alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
+    return;
+  }
   state.balance = 999999.00;
   state.saveBalance();
   updateUi();
@@ -2413,6 +2478,10 @@ window.adminSetInfiniteBalance = function() {
 };
 
 window.adminSpawnSelectedSkin = function() {
+  if (!state.adminMode) {
+    alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
+    return;
+  }
   const select = document.getElementById('adminItemSelect');
   if (!select) return;
   const itemId = select.value;
@@ -2429,6 +2498,10 @@ window.adminSpawnSelectedSkin = function() {
 };
 
 window.adminSpawnGrailPack = function() {
+  if (!state.adminMode) {
+    alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
+    return;
+  }
   const topSkins = [...ITEM_CATALOG].sort((a, b) => b.price - a.price).slice(0, 10);
   topSkins.forEach((template, idx) => {
     state.inventory.unshift({ ...template, instanceId: 'inst_grail_' + Date.now() + '_' + idx });
