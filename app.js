@@ -183,9 +183,28 @@ class AppState {
     const savedBal = localStorage.getItem(STORAGE_KEYS.BALANCE);
     this.balance = savedBal ? parseFloat(savedBal) : 100.00;
 
-    // Admin Authorization: only YOU (Kiril / Creator) with secret admin token or password has access
+    // Admin Authorization: You (Kiril / Creator) are Super Admin by default!
+    // Also supports granted admin keys and authorized user list.
     const savedAdminToken = localStorage.getItem('pushkarik_admin_auth_token');
-    this.adminMode = (savedAdminToken === 'kiril_superadmin_2026');
+    if (!savedAdminToken) {
+      localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
+    }
+    this.adminMode = true; // Permanent Super Admin for owner
+
+    // List of additional authorized admins and generated admin access keys
+    try {
+      const savedAdmins = localStorage.getItem('pushkarik_authorized_admins_v1');
+      this.authorizedAdmins = savedAdmins ? JSON.parse(savedAdmins) : ['Кирило (Owner/Creator)'];
+    } catch(e) {
+      this.authorizedAdmins = ['Кирило (Owner/Creator)'];
+    }
+
+    try {
+      const savedKeys = localStorage.getItem('pushkarik_admin_invite_keys_v1');
+      this.adminKeys = savedKeys ? JSON.parse(savedKeys) : [];
+    } catch(e) {
+      this.adminKeys = [];
+    }
 
     const savedForceWin = localStorage.getItem('upgrader_demo_admin_force_win');
     this.adminForceWin = savedForceWin !== null ? JSON.parse(savedForceWin) : true;
@@ -2297,6 +2316,17 @@ function renderProfileModalBody() {
         </div>
       </div>
 
+      <!-- Admin Invite Key Redemption for Friends -->
+      <div style="background: rgba(255, 215, 0, 0.05); border: 1px dashed rgba(255, 215, 0, 0.4); padding: 12px 14px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <div>
+          <div style="font-size: 12px; font-weight: 800; color: #ffd700;">🔑 Отримали ключ адміна?</div>
+          <div style="font-size: 10px; color: var(--text-dim);">Введіть ключ, щоб отримати повний доступ</div>
+        </div>
+        <button onclick="redeemAdminKey()" class="admin-btn" style="white-space: nowrap; padding: 6px 12px; font-size: 11px;">
+          Активувати
+        </button>
+      </div>
+
       <!-- Save & Logout Buttons -->
       <div style="display: flex; gap: 10px; margin-top: 6px;">
         <button onclick="saveUserProfileChanges()" class="google-login-btn" style="flex: 1; justify-content: center; padding: 12px; font-size: 14px; background: linear-gradient(135deg, #00f0ff, #0072ff); color: #000; font-weight: 800; border: none;">
@@ -2441,19 +2471,103 @@ function renderAdminModalBody() {
     <option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} (${item.price.toFixed(2)} DP)</option>
   `).join('');
 
+  const adminsList = (state.authorizedAdmins || []).map((adminName, idx) => `
+    <div class="admin-list-item">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="color: #ffd700;">👑</span>
+        <span style="font-weight: 700; color: #fff;">${escapeHtml(adminName)}</span>
+      </div>
+      ${idx === 0 ? '<span style="color: #00ff88; font-size: 11px; font-weight: 800;">ВЛАСНИК</span>' : `<button onclick="adminRevokeUser(${idx})" class="admin-btn danger" style="padding: 3px 8px; font-size: 11px;">Вилучити</button>`}
+    </div>
+  `).join('');
+
+  const keysList = (state.adminKeys || []).map((k, idx) => `
+    <div class="admin-list-item" style="border-color: rgba(255, 215, 0, 0.3);">
+      <div>
+        <span class="admin-key-badge">${escapeHtml(k.code)}</span>
+        <span style="font-size: 10px; color: var(--text-dim); margin-left: 6px;">${escapeHtml(k.note || 'Без примітки')}</span>
+      </div>
+      <div style="display: flex; gap: 6px;">
+        <button onclick="adminCopyKey('${escapeHtml(k.code)}')" class="admin-btn" style="padding: 3px 8px; font-size: 11px;">📋 Копіювати</button>
+        <button onclick="adminDeleteKey(${idx})" class="admin-btn danger" style="padding: 3px 8px; font-size: 11px;">✕</button>
+      </div>
+    </div>
+  `).join('');
+
   container.innerHTML = `
     <div style="display: flex; flex-direction: column; gap: 14px;">
       
       <!-- Admin Mode Status Card -->
-      <div class="admin-control-card">
-        <h4>👑 Статус Адміністратора</h4>
+      <div class="admin-control-card" style="border-color: #ffd700; background: linear-gradient(135deg, rgba(255, 215, 0, 0.05), rgba(255, 170, 0, 0.02));">
+        <h4>👑 Головний Адміністратор (Власник)</h4>
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-          <span style="font-size: 13px; color: var(--text-muted);">
-            Статус: <strong style="color: #ffd700;">${state.adminMode ? '✅ АДМІН-РЕЖИМ АКТИВНИЙ' : '❌ ВИМКНЕНО'}</strong>
-          </span>
-          <button onclick="adminToggleMode()" class="admin-btn">
-            ${state.adminMode ? 'Вимкнути Статус' : 'Увімкнути Статус'}
+          <div>
+            <div style="font-size: 13px; font-weight: 800; color: #ffd700;">
+              ✅ ПОВНИЙ ДОСТУП АКТИВОВАНО
+            </div>
+            <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">
+              Ви маєте ексклюзивне право керувати проєктом та видавати адмінки іншим гравцям.
+            </div>
+          </div>
+          <button onclick="adminToggleMode()" class="admin-btn" style="white-space: nowrap;">
+            ${state.adminMode ? 'Вимкнути статус' : 'Увімкнути'}
           </button>
+        </div>
+      </div>
+
+      <!-- Admin Delegation Section: Grant by Nickname / Generate Keys -->
+      <div class="admin-control-card" style="border-color: var(--neon-cyan);">
+        <h4>🎟️ Видача Адмінок (Управління Правами)</h4>
+        <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 12px;">
+          Ви можете призначити друга адміном напряму за його нікнеймом або згенерувати секретний ключ-запрошення:
+        </p>
+
+        <!-- Grant by Nickname -->
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+            1. Призначити за нікнеймом гравця:
+          </label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="adminGrantNickInput" placeholder="Нікнейм або email друга..." style="flex: 1; background: #090d14; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 12px; outline: none;" />
+            <button onclick="adminGrantByNickname()" class="admin-btn success">
+              ➕ Надати Права
+            </button>
+          </div>
+        </div>
+
+        <!-- Generate Admin Key -->
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
+            2. Згенерувати секретний ключ для передачі другу:
+          </label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="adminKeyNoteInput" placeholder="Кому (наприклад: Друг Макс)..." style="flex: 1; background: #090d14; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 12px; outline: none;" />
+            <button onclick="adminGenerateInviteKey()" class="admin-btn">
+              ⚡ Створити Ключ
+            </button>
+          </div>
+        </div>
+
+        <!-- List of Active Keys -->
+        ${(state.adminKeys && state.adminKeys.length > 0) ? `
+          <div style="margin-top: 10px; margin-bottom: 14px;">
+            <label style="font-size: 11px; font-weight: 700; color: #ffd700; display: block; margin-bottom: 6px;">
+              🔑 Активні ключі адміна (${state.adminKeys.length}):
+            </label>
+            <div style="display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto;">
+              ${keysList}
+            </div>
+          </div>
+        ` : ''}
+
+        <!-- List of Authorized Admins -->
+        <div>
+          <label style="font-size: 11px; font-weight: 700; color: #fff; display: block; margin-bottom: 6px;">
+            👥 Список авторизованих адмінів:
+          </label>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            ${adminsList}
+          </div>
         </div>
       </div>
 
@@ -2488,7 +2602,7 @@ function renderAdminModalBody() {
       <div class="admin-control-card">
         <h4>🎁 Спавнер Предметів (Skin Spawner)</h4>
         <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 8px;">
-          Оберіть будь-який предмет із 282 скінів для миттєвого додавання в інвентар:
+          Оберіть будь-який предмет із 304 скінів для миттєвого додавання в інвентар:
         </p>
         <div style="display: flex; gap: 8px;">
           <select id="adminItemSelect" style="flex: 1; background: #090d14; border: 1px solid #ffd700; border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 12px; outline: none;">
@@ -2515,15 +2629,123 @@ function renderAdminModalBody() {
   `;
 }
 
+// Admin Delegation Handlers
+window.adminGrantByNickname = function() {
+  const input = document.getElementById('adminGrantNickInput');
+  if (!input) return;
+  const name = input.value.trim();
+  if (!name) {
+    alert('Будь ласка, введіть нікнейм або email гравця!');
+    return;
+  }
+  if (state.authorizedAdmins.includes(name)) {
+    alert(`Користувач "${name}" вже має права адміністратора!`);
+    return;
+  }
+  state.authorizedAdmins.push(name);
+  localStorage.setItem('pushkarik_authorized_admins_v1', JSON.stringify(state.authorizedAdmins));
+  input.value = '';
+  renderAdminModalBody();
+  audio.playWin();
+  alert(`👑 [ADMIN] Користувачу "${name}" успішно надано права Адміністратора!`);
+};
+
+window.adminRevokeUser = function(idx) {
+  if (idx <= 0) {
+    alert('Неможливо вилучити головного власника!');
+    return;
+  }
+  const removed = state.authorizedAdmins.splice(idx, 1);
+  localStorage.setItem('pushkarik_authorized_admins_v1', JSON.stringify(state.authorizedAdmins));
+  renderAdminModalBody();
+  audio.playClick();
+  alert(`❌ Права адміністратора для "${removed[0]}" відкликано.`);
+};
+
+window.adminGenerateInviteKey = function() {
+  const noteInput = document.getElementById('adminKeyNoteInput');
+  const note = noteInput ? noteInput.value.trim() : '';
+  const randomStr = Math.random().toString(36).substring(2, 7).toUpperCase();
+  const code = `ADM-${randomStr}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+  if (!state.adminKeys) state.adminKeys = [];
+  state.adminKeys.unshift({
+    code: code,
+    note: note || 'Ключ адміна',
+    createdAt: Date.now()
+  });
+  localStorage.setItem('pushkarik_admin_invite_keys_v1', JSON.stringify(state.adminKeys));
+
+  if (noteInput) noteInput.value = '';
+  renderAdminModalBody();
+  audio.playWin();
+  
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).catch(() => {});
+  }
+  alert(`🔑 Згенеровано новий ключ адміністратора:\n\n${code}\n\n(Ключ автоматично скопійовано в буфер обміну! Передайте його другу)`);
+};
+
+window.adminDeleteKey = function(idx) {
+  if (!state.adminKeys || !state.adminKeys[idx]) return;
+  state.adminKeys.splice(idx, 1);
+  localStorage.setItem('pushkarik_admin_invite_keys_v1', JSON.stringify(state.adminKeys));
+  renderAdminModalBody();
+  audio.playClick();
+};
+
+window.adminCopyKey = function(code) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(() => {
+      alert(`📋 Ключ скопійовано: ${code}`);
+    }).catch(() => {
+      prompt('Скопіюйте ключ вручну:', code);
+    });
+  } else {
+    prompt('Скопіюйте ключ вручну:', code);
+  }
+};
+
+window.redeemAdminKey = function(providedKey) {
+  let key = providedKey;
+  if (!key) {
+    key = prompt('🔑 Введіть ваш ключ Адміністратора:');
+  }
+  if (!key) return;
+  key = key.trim().toUpperCase();
+
+  const savedKeys = JSON.parse(localStorage.getItem('pushkarik_admin_invite_keys_v1') || '[]');
+  const foundKey = savedKeys.find(k => k.code.toUpperCase() === key);
+
+  if (foundKey || key === 'PUSHKARIK2026' || key === 'KIRIL_SUPERADMIN_2026') {
+    state.adminMode = true;
+    localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
+    updateUi();
+    audio.playWin();
+    alert(`👑 ВІТАЄМО! Ключ "${key}" успішно активовано! Вам надано права Адміністратора!`);
+    openAdminPanelModal();
+  } else {
+    audio.playFail();
+    alert('❌ Недійсний або застарілий ключ адміністратора!');
+  }
+};
+
 window.adminToggleMode = function() {
   if (!state.adminMode) {
-    const enteredPass = prompt('🔒 Введіть секретний пароль Адміністратора:');
+    const enteredPass = prompt('🔒 Введіть секретний пароль або ключ Адміністратора:');
     if (enteredPass === 'pushkarik2026' || enteredPass === 'kiril') {
       state.adminMode = true;
       localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
     } else {
-      alert('❌ Невірний пароль! Доступ заблоковано.');
-      return;
+      const savedKeys = JSON.parse(localStorage.getItem('pushkarik_admin_invite_keys_v1') || '[]');
+      const match = savedKeys.find(k => k.code.toUpperCase() === (enteredPass || '').trim().toUpperCase());
+      if (match) {
+        state.adminMode = true;
+        localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
+      } else {
+        alert('❌ Невірний пароль або ключ! Доступ заблоковано.');
+        return;
+      }
     }
   } else {
     state.adminMode = false;

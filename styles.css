@@ -2243,6 +2243,201 @@ body {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: 6px;
+  flex-wrap: wrap;
+}
+.type-pill {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.type-pill:hover {
+  color: #fff;
+  border-color: var(--border-hover);
+}
+.type-pill.active {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(176, 38, 255, 0.2));
+  color: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+}
+
+/* Card Cosmetic Badges */
+.card-stattrak-tag {
+  font-size: 9px;
+  font-weight: 900;
+  color: #ff7700;
+  background: rgba(255, 119, 0, 0.15);
+  border: 1px solid rgba(255, 119, 0, 0.4);
+  padding: 2px 5px;
+  border-radius: 4px;
+  text-shadow: 0 0 8px rgba(255, 119, 0, 0.6);
+}
+.card-wear-tag {
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Applied Cosmetics Mini Strip on Card */
+.card-cosmetics-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  min-height: 22px;
+}
+.mini-cosmetic-sticker {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  object-fit: contain;
+  transition: transform 0.2s;
+}
+.mini-cosmetic-sticker:hover {
+  transform: scale(1.35);
+  z-index: 2;
+}
+.mini-cosmetic-charm {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  object-fit: contain;
+  transition: transform 0.2s;
+}
+.mini-cosmetic-charm:hover {
+  transform: scale(1.35);
+  z-index: 2;
+}
+
+/* Inspect Modal Styles */
+.inspect-showcase-box {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05), transparent 70%), var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.inspect-main-img {
+  max-width: 260px;
+  max-height: 160px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.7));
+  transition: transform 0.3s ease;
+}
+.inspect-main-img:hover {
+  transform: scale(1.05);
+}
+
+.inspect-stickers-overlay {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 10px;
+  background: rgba(9, 13, 20, 0.6);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+.sticker-slot-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 68px;
+  height: 68px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+  position: relative;
+}
+.sticker-slot-box.has-sticker {
+  border: 1px solid var(--neon-cyan);
+  background: rgba(0, 240, 255, 0.05);
+}
+.sticker-slot-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+.sticker-slot-label {
+  font-size: 8px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+/* Float Wear Bar */
+.float-meter-wrap {
+  margin: 14px 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+}
+.float-meter-track {
+  height: 10px;
+  width: 100%;
+  border-radius: 5px;
+  background: linear-gradient(to right, #00ff88 0% 7%, #00f0ff 7% 15%, #ffb703 15% 38%, #ff7700 38% 45%, #ff2a5f 45% 100%);
+  position: relative;
+  margin-top: 8px;
+  overflow: visible;
+}
+.float-indicator-needle {
+  position: absolute;
+  top: -4px;
+  width: 4px;
+  height: 18px;
+  background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0 6px #000;
+  transform: translateX(-50%);
+}
+.float-labels-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* Customization Modal Grid */
+.customize-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 8px;
+  background: #090d14;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+.customize-item-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
   padding: 8px;
   text-align: center;
   cursor: pointer;
@@ -2251,4 +2446,86 @@ body {
 .customize-item-card:hover {
   border-color: var(--neon-cyan);
   transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   ADMIN PANEL & DELEGATION CONTROLS STYLES
+   ========================================================================== */
+.admin-control-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  position: relative;
+}
+.admin-control-card h4 {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 170, 0, 0.2));
+  border: 1px solid #ffd700;
+  border-radius: var(--radius-sm);
+  color: #ffd700;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.admin-btn:hover {
+  background: #ffd700;
+  color: #000;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+  transform: translateY(-1px);
+}
+.admin-btn.danger {
+  background: rgba(255, 42, 95, 0.15);
+  border-color: var(--neon-red);
+  color: var(--neon-red);
+}
+.admin-btn.danger:hover {
+  background: var(--neon-red);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(255, 42, 95, 0.4);
+}
+.admin-btn.success {
+  background: rgba(0, 255, 136, 0.15);
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+}
+.admin-btn.success:hover {
+  background: var(--neon-green);
+  color: #000;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+}
+.admin-key-badge {
+  font-family: monospace;
+  background: #090d14;
+  border: 1px dashed #ffd700;
+  color: #ffd700;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.admin-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: #090d14;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 12px;
 }
