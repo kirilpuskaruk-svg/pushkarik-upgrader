@@ -173,16 +173,9 @@ class AppState {
     const savedBal = localStorage.getItem(STORAGE_KEYS.BALANCE);
     this.balance = savedBal ? parseFloat(savedBal) : 100.00;
 
-    // Admin Authorization: only YOU (Kiril / Creator) or user with secret admin key has access
+    // Admin Authorization: only YOU (Kiril / Creator) with secret admin token or password has access
     const savedAdminToken = localStorage.getItem('pushkarik_admin_auth_token');
-    const hasAdminToken = savedAdminToken === 'kiril_superadmin_2026';
-    
-    // Auto-grant admin token to this device
-    if (!savedAdminToken) {
-      localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
-    }
-    
-    this.adminMode = (localStorage.getItem('pushkarik_admin_auth_token') === 'kiril_superadmin_2026');
+    this.adminMode = (savedAdminToken === 'kiril_superadmin_2026');
 
     const savedForceWin = localStorage.getItem('upgrader_demo_admin_force_win');
     this.adminForceWin = savedForceWin !== null ? JSON.parse(savedForceWin) : true;
