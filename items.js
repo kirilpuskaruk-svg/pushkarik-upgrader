@@ -42,7 +42,7 @@ const RARITIES = {
   }
 };
 
-const ITEM_CATALOG = [
+let ITEM_CATALOG = [
   {
     "id": "agent_1",
     "name": "Sir Bloody Miami Darryl | The Professionals",
@@ -2301,7 +2301,12 @@ const ITEM_CATALOG = [
   }
 ];
 
-// Default starter inventory for players
+// Merge with modular cosmetics data if loaded
+if (typeof mergeAllCosmeticsIntoCatalog === 'function') {
+  ITEM_CATALOG = mergeAllCosmeticsIntoCatalog(ITEM_CATALOG);
+}
+
+// Default starter inventory for players (Weapons with float, stickers and charms)
 const DEFAULT_USER_INVENTORY = [
   { ...ITEM_CATALOG.find(i => i.name === 'P250 | Sand Dune') || ITEM_CATALOG[12], instanceId: 'inst_1' },
   { ...ITEM_CATALOG.find(i => i.name === 'Glock-18 | High Beam') || ITEM_CATALOG[11], instanceId: 'inst_2' },
@@ -2309,5 +2314,21 @@ const DEFAULT_USER_INVENTORY = [
   { ...ITEM_CATALOG.find(i => i.name === 'AK-47 | Slate') || ITEM_CATALOG[9], instanceId: 'inst_4' },
   { ...ITEM_CATALOG.find(i => i.name === 'M4A4 | Evil Daimyo') || ITEM_CATALOG[8], instanceId: 'inst_5' },
   { ...ITEM_CATALOG.find(i => i.name === 'AK-47 | Redline') || ITEM_CATALOG[7], instanceId: 'inst_6' },
-  { ...ITEM_CATALOG.find(i => i.name === 'AWP | Neo-Noir') || ITEM_CATALOG[6], instanceId: 'inst_7' }
+  { ...ITEM_CATALOG.find(i => i.name === 'AWP | Neo-Noir') || ITEM_CATALOG[6], instanceId: 'inst_7' },
+  { ...ITEM_CATALOG.find(i => i.id === 'sticker_titan_holo') || { id: 'sticker_titan_holo', name: 'Sticker | Titan (Holo)', price: 45000, rarity: 'ancient', image: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0P27V6VsOf-fC2O52_J0uL9qSnK-rBhptWzZy936In-Tbw8kB9QjE947f_s2YIrg7g', type: 'sticker' }, instanceId: 'inst_sticker_1' },
+  { ...ITEM_CATALOG.find(i => i.id === 'charm_semi_precious') || { id: 'charm_semi_precious', name: 'Charm | Semi-Precious', price: 320, rarity: 'legendary', image: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW5V6FmPPCGDGWn0fB_teR_Ti6j8Fk44WiC84_8cnGUbwJ1CZV4ErY5f_tnYIrv0l1q', type: 'charm' }, instanceId: 'inst_charm_1' }
 ];
+
+if (typeof window !== 'undefined') {
+  window.RARITIES = RARITIES;
+  window.ITEM_CATALOG = ITEM_CATALOG;
+  window.DEFAULT_USER_INVENTORY = DEFAULT_USER_INVENTORY;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    RARITIES,
+    ITEM_CATALOG,
+    DEFAULT_USER_INVENTORY
+  };
+}

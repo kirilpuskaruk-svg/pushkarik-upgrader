@@ -175,6 +175,15 @@
             <input type="text" id="itemSearchInput" placeholder="Пошук скіна за назвою..." />
           </div>
 
+          <!-- Cosmetic Type Filter Pills -->
+          <div class="type-pills-wrap">
+            <button class="type-pill active" data-type="all">✨ Всі типи</button>
+            <button class="type-pill" data-type="weapon">🔫 Зброя</button>
+            <button class="type-pill" data-type="sticker">🏷️ Наклейки</button>
+            <button class="type-pill" data-type="charm">🧸 Брелоки</button>
+            <button class="type-pill" data-type="knife_gloves">🗡️ Ножі & Рукавиці</button>
+          </div>
+
           <div class="rarity-pills-wrap">
             <button class="rarity-pill active" data-rarity="all">Всі</button>
             <button class="rarity-pill" data-rarity="common">Армійське</button>
@@ -190,6 +199,7 @@
               <option value="price_desc">Ціна: від дорогих</option>
               <option value="price_asc">Ціна: від дешевих</option>
               <option value="name">За назвою (A-Z)</option>
+              <option value="float_asc">За Float (найчистіші FN)</option>
             </select>
           </div>
         </div>
@@ -437,8 +447,41 @@
     </div>
   </footer>
 
+  <!-- INSPECT ITEM MODAL (Detailed Float, Wear, Stickers & Charm View) -->
+  <div id="itemInspectModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 540px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">🔍</span>
+          <span class="modal-title" id="inspectModalTitle">Огляд предмета</span>
+        </div>
+        <button id="closeInspectModalBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="itemInspectModalBody">
+        <!-- Injected via JavaScript renderInspectModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- WEAPON CUSTOMIZATION MODAL (Apply Stickers & Attach Charm) -->
+  <div id="weaponCustomizeModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 520px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">🎨</span>
+          <span class="modal-title">Кастомізація зброї</span>
+        </div>
+        <button id="closeCustomizeModalBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="weaponCustomizeModalBody">
+        <!-- Injected via JavaScript renderCustomizeModal() -->
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
-  <script src="items.js?v=36.0.0"></script>
-  <script src="app.js?v=36.0.0"></script>
+  <script src="cosmetics_data.js?v=37.0.0"></script>
+  <script src="items.js?v=37.0.0"></script>
+  <script src="app.js?v=37.0.0"></script>
 </body>
 </html>

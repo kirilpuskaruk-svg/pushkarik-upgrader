@@ -132,27 +132,27 @@ class AppState {
     this.isSpinning = false;
     this.rollDirection = 'under';
     this.activeTab = 'inventory';
-    this.inventoryFilter = { search: '', rarity: 'all', sort: 'price_desc' };
-    this.catalogFilter = { search: '', rarity: 'all', sort: 'price_asc' };
+    this.inventoryFilter = { search: '', rarity: 'all', type: 'all', sort: 'price_desc' };
+    this.catalogFilter = { search: '', rarity: 'all', type: 'all', sort: 'price_asc' };
   }
 
   loadState() {
-    // Inventory with auto-upgrade to real photos
+    // Inventory with auto-upgrade to real photos and cosmetics
     const savedInv = localStorage.getItem(STORAGE_KEYS.INVENTORY);
     if (savedInv !== null) {
       try {
         const parsed = JSON.parse(savedInv);
         if (Array.isArray(parsed)) {
-          this.inventory = parsed;
+          this.inventory = parsed.map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
         } else {
-          this.inventory = [...DEFAULT_USER_INVENTORY];
+          this.inventory = [...DEFAULT_USER_INVENTORY].map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
           this.saveInventory();
         }
       } catch(e) {
-        this.inventory = [...DEFAULT_USER_INVENTORY];
+        this.inventory = [...DEFAULT_USER_INVENTORY].map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
       }
     } else {
-      this.inventory = [...DEFAULT_USER_INVENTORY];
+      this.inventory = [...DEFAULT_USER_INVENTORY].map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
       this.saveInventory();
     }
 
@@ -161,7 +161,7 @@ class AppState {
     if (savedVault !== null) {
       try {
         const parsedVault = JSON.parse(savedVault);
-        this.vault = Array.isArray(parsedVault) ? parsedVault : [];
+        this.vault = Array.isArray(parsedVault) ? parsedVault.map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item) : [];
       } catch(e) {
         this.vault = [];
       }
@@ -979,6 +979,21 @@ function setupEventListeners() {
     });
   }
 
+  document.querySelectorAll('.type-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const cosmeticType = pill.dataset.type;
+      if (state.activeTab === 'inventory' || state.activeTab === 'vault') {
+        state.inventoryFilter.type = cosmeticType;
+      } else {
+        state.catalogFilter.type = cosmeticType;
+      }
+      audio.playClick();
+      renderTabContent();
+    });
+  });
+
   document.querySelectorAll('.rarity-pill').forEach(pill => {
     pill.addEventListener('click', () => {
       document.querySelectorAll('.rarity-pill').forEach(p => p.classList.remove('active'));
@@ -993,6 +1008,18 @@ function setupEventListeners() {
       renderTabContent();
     });
   });
+
+  const closeInspectBtn = document.getElementById('closeInspectModalBtn');
+  const inspectModal = document.getElementById('itemInspectModal');
+  if (closeInspectBtn && inspectModal) {
+    closeInspectBtn.addEventListener('click', () => inspectModal.classList.remove('open'));
+  }
+
+  const closeCustomizeBtn = document.getElementById('closeCustomizeModalBtn');
+  const customizeModal = document.getElementById('weaponCustomizeModal');
+  if (closeCustomizeBtn && customizeModal) {
+    closeCustomizeBtn.addEventListener('click', () => customizeModal.classList.remove('open'));
+  }
 
   const claimFreeBtn = document.getElementById('claimFreeBtn');
   if (claimFreeBtn) {
@@ -1644,6 +1671,40 @@ function renderTabContent() {
   }
 }
 
+function filterItemsList(items, filterState) {
+  let list = [...items];
+  if (filterState.search) {
+    const q = filterState.search.toLowerCase();
+    list = list.filter(i => (i.name && i.name.toLowerCase().includes(q)) || (i.category && i.category.toLowerCase().includes(q)) || (i.weapon && i.weapon.toLowerCase().includes(q)));
+  }
+  if (filterState.rarity !== 'all') {
+    list = list.filter(i => i.rarity === filterState.rarity);
+  }
+  if (filterState.type && filterState.type !== 'all') {
+    if (filterState.type === 'knife_gloves') {
+      list = list.filter(i => {
+        const b = typeof getItemBroadType === 'function' ? getItemBroadType(i) : '';
+        return b === 'knife' || b === 'gloves';
+      });
+    } else {
+      list = list.filter(i => {
+        const b = typeof getItemBroadType === 'function' ? getItemBroadType(i) : '';
+        return b === filterState.type;
+      });
+    }
+  }
+  if (filterState.sort === 'price_desc') {
+    list.sort((a, b) => b.price - a.price);
+  } else if (filterState.sort === 'price_asc') {
+    list.sort((a, b) => a.price - b.price);
+  } else if (filterState.sort === 'name') {
+    list.sort((a, b) => a.name.localeCompare(b.name));
+  } else if (filterState.sort === 'float_asc') {
+    list.sort((a, b) => (typeof a.float === 'number' ? a.float : 1) - (typeof b.float === 'number' ? b.float : 1));
+  }
+  return list;
+}
+
 function renderInventoryCards(grid) {
   const countEl = document.getElementById('invTotalItemsCount');
   const vaultBadge = document.getElementById('vaultTotalItemsCount');
@@ -1654,26 +1715,13 @@ function renderInventoryCards(grid) {
   if (vaultBadge) vaultBadge.textContent = (state.vault || []).length;
   if (valueEl) valueEl.textContent = totalValue.toFixed(2);
 
-  let filtered = [...state.inventory];
-  if (state.inventoryFilter.search) {
-    filtered = filtered.filter(i => i.name.toLowerCase().includes(state.inventoryFilter.search));
-  }
-  if (state.inventoryFilter.rarity !== 'all') {
-    filtered = filtered.filter(i => i.rarity === state.inventoryFilter.rarity);
-  }
-  if (state.inventoryFilter.sort === 'price_desc') {
-    filtered.sort((a, b) => b.price - a.price);
-  } else if (state.inventoryFilter.sort === 'price_asc') {
-    filtered.sort((a, b) => a.price - b.price);
-  } else if (state.inventoryFilter.sort === 'name') {
-    filtered.sort((a, b) => a.name.localeCompare(b.name));
-  }
+  const filtered = filterItemsList(state.inventory, state.inventoryFilter);
 
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div class="empty-state-view">
-        <h3>Інвентар порожній</h3>
-        <p>Всі скіни можуть бути виведені в Віртуальний Сейф або натисніть "+ Отримати Демо-Дроп"!</p>
+        <h3>Предметів не знайдено</h3>
+        <p>Спробуйте змінити фільтр або пошуковий запит, або натисніть "+ Отримати Демо-Дроп"!</p>
       </div>
     `;
     return;
@@ -1686,27 +1734,55 @@ function renderInventoryCards(grid) {
     const safeCat = escapeHtml(item.category);
     const safeImg = escapeHtml(item.image);
     const safeInstId = escapeHtml(item.instanceId);
+    const broadType = typeof getItemBroadType === 'function' ? getItemBroadType(item) : 'weapon';
+
+    const stickersHtml = (item.appliedStickers || []).map(s => `
+      <img src="${escapeHtml(s.image)}" title="${escapeHtml(s.name)}" class="mini-cosmetic-sticker" alt="Sticker" onerror="this.style.display='none'" />
+    `).join('');
+
+    const charmHtml = item.attachedCharm ? `
+      <img src="${escapeHtml(item.attachedCharm.image)}" title="${escapeHtml(item.attachedCharm.name)}" class="mini-cosmetic-charm" alt="Charm" onerror="this.style.display='none'" />
+    ` : '';
+
     return `
       <div class="game-item-card ${isSelected ? 'equipped-source' : ''}" style="color: ${rarity.color};" onclick="selectSourceItem('${safeInstId}')">
         <div class="card-top-meta">
           <span class="card-rarity-badge" style="color: ${rarity.color}; background: ${rarity.glow}; border: 1px solid ${rarity.border};">
             ${rarity.name}
           </span>
-          ${isSelected ? '<span class="card-selected-tag">ОБРАНО</span>' : ''}
+          <div style="display: flex; gap: 4px; align-items: center;">
+            ${item.isStatTrak ? '<span class="card-stattrak-tag">ST™</span>' : ''}
+            ${item.wear ? `<span class="card-wear-tag">${item.wear}</span>` : ''}
+            ${isSelected ? '<span class="card-selected-tag">ОБРАНО</span>' : ''}
+          </div>
         </div>
         <div class="card-art-box">
           <img src="${safeImg}" alt="${safeName}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
         </div>
         <div class="card-info-box">
           <h4 class="card-title" title="${safeName}">${safeName}</h4>
-          <p class="card-sub">${safeCat}</p>
+          <p class="card-sub">${safeCat} ${typeof item.float === 'number' ? '&bull; Float: ' + item.float.toFixed(4) : ''}</p>
+          
+          <div class="card-cosmetics-strip">
+            ${stickersHtml}
+            ${charmHtml}
+          </div>
+
           <div class="card-bottom-row">
             <div class="card-price">${item.price.toFixed(2)} <span>DP</span></div>
-            <div style="display: flex; gap: 6px;">
-              <button class="card-withdraw-btn" onclick="event.stopPropagation(); withdrawItemToVault('${safeInstId}')" title="Вивести скін у Віртуальний Сейф">
-                🏦 В Сейф
+            <div style="display: flex; gap: 4px;">
+              <button class="quick-action-btn" onclick="event.stopPropagation(); openInspectModal('${safeInstId}')" title="Детальний огляд характеристик та наклейок">
+                🔍
               </button>
-              <button class="card-use-btn">${isSelected ? 'Вибрано' : 'Вибрати'}</button>
+              ${broadType === 'weapon' ? `
+                <button class="quick-action-btn" onclick="event.stopPropagation(); openCustomizeModal('${safeInstId}')" title="Нанести наклейку або прикріпити брелок">
+                  🎨
+                </button>
+              ` : ''}
+              <button class="card-withdraw-btn" onclick="event.stopPropagation(); withdrawItemToVault('${safeInstId}')" title="Вивести в Сейф">
+                🏦
+              </button>
+              <button class="card-use-btn">${isSelected ? 'Обрано' : 'Обрати'}</button>
             </div>
           </div>
         </div>
@@ -1726,26 +1802,13 @@ function renderVaultCards(grid) {
   if (vaultBadge) vaultBadge.textContent = vaultItems.length;
   if (vaultValueEl) vaultValueEl.textContent = totalVaultValue.toFixed(2);
 
-  let filtered = [...vaultItems];
-  if (state.inventoryFilter.search) {
-    filtered = filtered.filter(i => i.name.toLowerCase().includes(state.inventoryFilter.search));
-  }
-  if (state.inventoryFilter.rarity !== 'all') {
-    filtered = filtered.filter(i => i.rarity === state.inventoryFilter.rarity);
-  }
-  if (state.inventoryFilter.sort === 'price_desc') {
-    filtered.sort((a, b) => b.price - a.price);
-  } else if (state.inventoryFilter.sort === 'price_asc') {
-    filtered.sort((a, b) => a.price - b.price);
-  } else if (state.inventoryFilter.sort === 'name') {
-    filtered.sort((a, b) => a.name.localeCompare(b.name));
-  }
+  const filtered = filterItemsList(vaultItems, state.inventoryFilter);
 
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div class="empty-state-view">
         <h3 style="color: var(--neon-green);">🏦 Ваш Віртуальний Сейф порожній</h3>
-        <p>Ви можете виводити сюди будь-які виграні скіни з інвентарю для безпечного збереження!</p>
+        <p>Ви можете виводити сюди будь-які скіни, наклейки та брелоки з інвентарю для безпечного збереження!</p>
       </div>
     `;
     return;
@@ -1757,25 +1820,49 @@ function renderVaultCards(grid) {
     const safeCat = escapeHtml(item.category);
     const safeImg = escapeHtml(item.image);
     const safeInstId = escapeHtml(item.instanceId);
+
+    const stickersHtml = (item.appliedStickers || []).map(s => `
+      <img src="${escapeHtml(s.image)}" title="${escapeHtml(s.name)}" class="mini-cosmetic-sticker" alt="Sticker" onerror="this.style.display='none'" />
+    `).join('');
+
+    const charmHtml = item.attachedCharm ? `
+      <img src="${escapeHtml(item.attachedCharm.image)}" title="${escapeHtml(item.attachedCharm.name)}" class="mini-cosmetic-charm" alt="Charm" onerror="this.style.display='none'" />
+    ` : '';
+
     return `
       <div class="game-item-card" style="color: ${rarity.color}; border-color: rgba(0, 255, 136, 0.35); box-shadow: 0 4px 18px rgba(0, 255, 136, 0.08);">
         <div class="card-top-meta">
           <span class="card-rarity-badge" style="color: ${rarity.color}; background: ${rarity.glow}; border: 1px solid ${rarity.border};">
             ${rarity.name}
           </span>
-          <span class="vault-item-badge">🔒 В СЕЙФІ</span>
+          <div style="display: flex; gap: 4px; align-items: center;">
+            ${item.isStatTrak ? '<span class="card-stattrak-tag">ST™</span>' : ''}
+            ${item.wear ? `<span class="card-wear-tag">${item.wear}</span>` : ''}
+            <span class="vault-item-badge">🔒 В СЕЙФІ</span>
+          </div>
         </div>
         <div class="card-art-box">
           <img src="${safeImg}" alt="${safeName}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
         </div>
         <div class="card-info-box">
           <h4 class="card-title" title="${safeName}">${safeName}</h4>
-          <p class="card-sub">${safeCat}</p>
+          <p class="card-sub">${safeCat} ${typeof item.float === 'number' ? '&bull; Float: ' + item.float.toFixed(4) : ''}</p>
+          
+          <div class="card-cosmetics-strip">
+            ${stickersHtml}
+            ${charmHtml}
+          </div>
+
           <div class="card-bottom-row">
             <div class="card-price">${item.price.toFixed(2)} <span>DP</span></div>
-            <button class="card-return-btn" onclick="returnItemFromVault('${safeInstId}')" title="Повернути скін в робочий інвентар">
-              🎒 В інвентар
-            </button>
+            <div style="display: flex; gap: 4px;">
+              <button class="quick-action-btn" onclick="event.stopPropagation(); openInspectModal('${safeInstId}', true)" title="Детальний огляд">
+                🔍
+              </button>
+              <button class="card-return-btn" onclick="returnItemFromVault('${safeInstId}')" title="Повернути предмет в робочий інвентар">
+                🎒 В інвентар
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1856,25 +1943,13 @@ function renderCatalogCards(grid) {
     filtered = filtered.filter(i => i.price > state.selectedSource.price);
   }
 
-  if (state.catalogFilter.search) {
-    filtered = filtered.filter(i => i.name.toLowerCase().includes(state.catalogFilter.search));
-  }
-  if (state.catalogFilter.rarity !== 'all') {
-    filtered = filtered.filter(i => i.rarity === state.catalogFilter.rarity);
-  }
-  if (state.catalogFilter.sort === 'price_desc') {
-    filtered.sort((a, b) => b.price - a.price);
-  } else if (state.catalogFilter.sort === 'price_asc') {
-    filtered.sort((a, b) => a.price - b.price);
-  } else if (state.catalogFilter.sort === 'name') {
-    filtered.sort((a, b) => a.name.localeCompare(b.name));
-  }
+  filtered = filterItemsList(filtered, state.catalogFilter);
 
   if (filtered.length === 0) {
     grid.innerHTML = `
       <div class="empty-state-view">
         <h3>Немає доступних цілей для апгрейду</h3>
-        <p>${state.selectedSource ? 'Всі доступні скіни в цьому розділі дешевші за ваш предмет (' + state.selectedSource.price.toFixed(2) + ' DP).' : 'Спробуйте змінити параметри пошуку або фільтри.'}</p>
+        <p>${state.selectedSource ? 'Всі доступні предмети в цьому розділі дешевші за ваш предмет (' + state.selectedSource.price.toFixed(2) + ' DP).' : 'Спробуйте змінити параметри пошуку або фільтри.'}</p>
       </div>
     `;
     return;
@@ -1897,8 +1972,12 @@ function renderCatalogCards(grid) {
           <span class="card-rarity-badge" style="color: ${rarity.color}; background: ${rarity.glow}; border: 1px solid ${rarity.border};">
             ${rarity.name}
           </span>
-          ${isSelected ? '<span class="card-selected-tag">ЦІЛЬ</span>' : ''}
-          ${mult ? `<span class="card-multiplier-preview">x${mult}</span>` : ''}
+          <div style="display: flex; gap: 4px; align-items: center;">
+            ${item.isStatTrak ? '<span class="card-stattrak-tag">ST™</span>' : ''}
+            ${item.wear ? `<span class="card-wear-tag">${item.wear}</span>` : ''}
+            ${isSelected ? '<span class="card-selected-tag">ЦІЛЬ</span>' : ''}
+            ${mult ? `<span class="card-multiplier-preview">x${mult}</span>` : ''}
+          </div>
         </div>
         <div class="card-art-box">
           <img src="${safeImg}" alt="${safeName}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
@@ -1908,7 +1987,12 @@ function renderCatalogCards(grid) {
           <p class="card-sub">${safeCat}</p>
           <div class="card-bottom-row">
             <div class="card-price">${item.price.toFixed(2)} <span>DP</span></div>
-            <button class="card-use-btn">${isSelected ? 'Ціль обрана' : 'Обрати'}</button>
+            <div style="display: flex; gap: 4px;">
+              <button class="quick-action-btn" onclick="event.stopPropagation(); openInspectModalCatalog('${safeId}')" title="Оглянути деталі">
+                🔍
+              </button>
+              <button class="card-use-btn">${isSelected ? 'Ціль обрана' : 'Обрати'}</button>
+            </div>
           </div>
         </div>
       </div>
@@ -2511,4 +2595,387 @@ window.adminSpawnGrailPack = function() {
   audio.playWin();
   if (particleInstance) particleInstance.burst();
   alert('👑 [ADMIN] Успішно спавнено ТОП-10 найдорожчих ножів та рукавиць в інвентар!');
+};
+
+// ==========================================
+// 9. CS2 COSMETICS INSPECTION & CUSTOMIZATION
+// ==========================================
+window.openInspectModal = function(instanceId, isVault = false) {
+  const sourceList = isVault ? (state.vault || []) : state.inventory;
+  const item = sourceList.find(i => i.instanceId === instanceId);
+  if (!item) return;
+  renderInspectModalBody(item, false);
+};
+
+window.openInspectModalCatalog = function(itemId) {
+  const template = ITEM_CATALOG.find(i => i.id === itemId);
+  if (!template) return;
+  const enriched = typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(template) : template;
+  renderInspectModalBody(enriched, true);
+};
+
+function renderInspectModalBody(item, isCatalog = false) {
+  const modal = document.getElementById('itemInspectModal');
+  const body = document.getElementById('itemInspectModalBody');
+  const title = document.getElementById('inspectModalTitle');
+  if (!modal || !body) return;
+
+  const rarity = RARITIES[item.rarity] || RARITIES.common;
+  const safeName = escapeHtml(item.name);
+  const safeCat = escapeHtml(item.category || 'Предмет');
+  const safeImg = escapeHtml(item.image);
+  const broadType = typeof getItemBroadType === 'function' ? getItemBroadType(item) : 'weapon';
+
+  if (title) title.textContent = safeName;
+
+  // 4 Sticker Position Slots
+  const appliedStickers = item.appliedStickers || [];
+  const stickerSlotsHtml = [1, 2, 3, 4].map(pos => {
+    const sticker = appliedStickers.find(s => s.position === pos);
+    if (sticker) {
+      return `
+        <div class="sticker-slot-box has-sticker" title="${escapeHtml(sticker.name)} (Позиція ${pos})">
+          <img src="${escapeHtml(sticker.image)}" class="sticker-slot-img" alt="Sticker" />
+          <span class="sticker-slot-label">Позиція ${pos}</span>
+        </div>
+      `;
+    }
+    return `
+      <div class="sticker-slot-box" title="Вільне місце для наклейки (Позиція ${pos})">
+        <span style="font-size: 16px; opacity: 0.3;">➕</span>
+        <span class="sticker-slot-label">Позиція ${pos}</span>
+      </div>
+    `;
+  }).join('');
+
+  // Charm Slot
+  const charm = item.attachedCharm;
+  const charmSlotHtml = charm ? `
+    <div style="display: flex; align-items: center; gap: 10px; background: rgba(255, 215, 0, 0.08); border: 1px solid rgba(255, 215, 0, 0.4); border-radius: 8px; padding: 10px; margin-top: 10px;">
+      <img src="${escapeHtml(charm.image)}" style="width: 40px; height: 40px; object-fit: contain;" alt="Charm" />
+      <div>
+        <div style="font-size: 11px; color: #ffd700; font-weight: 800;">🧸 ПРИКРІПЛЕНИЙ БРЕЛОК</div>
+        <div style="font-size: 13px; font-weight: 700; color: #fff;">${escapeHtml(charm.name)}</div>
+      </div>
+    </div>
+  ` : '';
+
+  // Float Needle % position
+  const floatVal = typeof item.float === 'number' ? item.float : null;
+  const floatPercent = floatVal !== null ? Math.min(Math.max(floatVal * 100, 0), 100) : 0;
+  const wearObj = floatVal !== null && typeof getWearByFloat === 'function' ? getWearByFloat(floatVal) : null;
+
+  body.innerHTML = `
+    <div>
+      <!-- Main Showcase -->
+      <div class="inspect-showcase-box" style="border-color: ${rarity.border}; box-shadow: 0 0 25px ${rarity.glow};">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <span class="card-rarity-badge" style="color: ${rarity.color}; background: ${rarity.glow}; border: 1px solid ${rarity.border};">
+            ${rarity.name}
+          </span>
+          <div style="display: flex; gap: 6px;">
+            ${item.isStatTrak ? '<span class="card-stattrak-tag">StatTrak™ (' + (item.statTrakKills || 0) + ' kills)</span>' : ''}
+            ${wearObj ? `<span class="card-wear-tag" style="color: ${wearObj.color};">${wearObj.nameUa} (${wearObj.code})</span>` : ''}
+          </div>
+        </div>
+
+        <img src="${safeImg}" alt="${safeName}" class="inspect-main-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+        
+        <h3 style="font-size: 17px; font-weight: 900; color: #fff; margin-top: 14px;">${safeName}</h3>
+        <p style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">${safeCat} ${item.collection ? '&bull; ' + escapeHtml(item.collection) : ''}</p>
+        <div style="font-size: 16px; font-weight: 900; color: var(--neon-green); margin-top: 8px;">
+          ${item.price.toFixed(2)} DP
+        </div>
+      </div>
+
+      <!-- Float Meter if Weapon -->
+      ${floatVal !== null ? `
+        <div class="float-meter-wrap">
+          <div style="display: flex; justify-content: space-between; font-size: 12px;">
+            <span style="font-weight: 700; color: #fff;">Wear Rating (Float):</span>
+            <span style="font-weight: 800; color: var(--neon-cyan);">${floatVal.toFixed(6)}</span>
+          </div>
+          <div class="float-meter-track">
+            <div class="float-indicator-needle" style="left: ${floatPercent}%;"></div>
+          </div>
+          <div class="float-labels-row">
+            <span>FN 0.00</span>
+            <span>MW 0.07</span>
+            <span>FT 0.15</span>
+            <span>WW 0.38</span>
+            <span>BS 0.45 - 1.00</span>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Applied Stickers Positions (For Weapons) -->
+      ${broadType === 'weapon' ? `
+        <div style="margin-top: 12px;">
+          <div style="font-size: 12px; font-weight: 800; color: #fff; margin-bottom: 6px;">🏷️ Позиції наклейок на зброї (Слоти 1 - 4):</div>
+          <div class="inspect-stickers-overlay">
+            ${stickerSlotsHtml}
+          </div>
+          ${charmSlotHtml}
+        </div>
+      ` : ''}
+
+      <!-- Item Description if Sticker or Charm -->
+      ${item.description ? `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-top: 12px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+          ℹ️ ${escapeHtml(item.description)}
+        </div>
+      ` : ''}
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 8px; margin-top: 18px;">
+        ${!isCatalog && broadType === 'weapon' ? `
+          <button onclick="document.getElementById('itemInspectModal').classList.remove('open'); openCustomizeModal('${escapeHtml(item.instanceId)}');" class="google-login-btn" style="flex: 1; justify-content: center; background: linear-gradient(135deg, var(--neon-cyan), #0072ff); color: #000; font-weight: 800;">
+            🎨 Нанести наклейки / Брелок
+          </button>
+        ` : ''}
+        <button onclick="document.getElementById('itemInspectModal').classList.remove('open');" class="quick-action-btn" style="flex: 1; justify-content: center; padding: 10px;">
+          Закрити
+        </button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('open');
+  audio.playClick();
+}
+
+window.openCustomizeModal = function(instanceId) {
+  const item = state.inventory.find(i => i.instanceId === instanceId);
+  if (!item) return;
+
+  const modal = document.getElementById('weaponCustomizeModal');
+  const body = document.getElementById('weaponCustomizeModalBody');
+  if (!modal || !body) return;
+
+  const ownedStickers = state.inventory.filter(i => (typeof getItemBroadType === 'function' ? getItemBroadType(i) : '') === 'sticker');
+  const ownedCharms = state.inventory.filter(i => (typeof getItemBroadType === 'function' ? getItemBroadType(i) : '') === 'charm');
+
+  const applied = item.appliedStickers || [];
+  const safeInstId = escapeHtml(item.instanceId);
+
+  body.innerHTML = `
+    <div>
+      <div style="display: flex; align-items: center; gap: 12px; background: var(--bg-surface); border: 1px solid var(--border-color); padding: 12px; border-radius: var(--radius-md); margin-bottom: 14px;">
+        <img src="${escapeHtml(item.image)}" style="width: 80px; height: 50px; object-fit: contain;" alt="Weapon" />
+        <div>
+          <h4 style="font-size: 14px; color: #fff; font-weight: 800;">${escapeHtml(item.name)}</h4>
+          <span style="font-size: 11px; color: var(--text-dim);">${escapeHtml(item.category)} &bull; ${item.price.toFixed(2)} DP</span>
+        </div>
+      </div>
+
+      <!-- Sticker Slots Config -->
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 800; color: #fff; margin-bottom: 8px;">🏷️ Слоти наклейок (4 позиції):</div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+          ${[1, 2, 3, 4].map(pos => {
+            const sticker = applied.find(s => s.position === pos);
+            if (sticker) {
+              return `
+                <div style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--neon-cyan); border-radius: 8px; padding: 8px; text-align: center;">
+                  <img src="${escapeHtml(sticker.image)}" style="width: 42px; height: 42px; object-fit: contain;" alt="Sticker" />
+                  <div style="font-size: 10px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;">${escapeHtml(sticker.name)}</div>
+                  <button onclick="removeStickerFromWeapon('${safeInstId}', ${pos})" class="quick-action-btn danger" style="font-size: 9px; padding: 2px 6px; margin-top: 6px;">Здерти</button>
+                </div>
+              `;
+            }
+            return `
+              <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 8px; text-align: center;">
+                <div style="font-size: 18px; opacity: 0.3; margin-top: 6px;">➕</div>
+                <div style="font-size: 10px; color: var(--text-dim); margin-top: 4px;">Поз. ${pos}</div>
+                <div style="font-size: 9px; color: var(--neon-cyan); margin-top: 6px;">Вільне</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Choose Sticker to Apply -->
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 800; color: #fff; margin-bottom: 6px;">
+          🎒 Наклейки у вашому інвентарі (${ownedStickers.length}):
+        </div>
+        ${ownedStickers.length > 0 ? `
+          <div class="customize-grid">
+            ${ownedStickers.map(stk => `
+              <div class="customize-item-card" onclick="promptApplySticker('${safeInstId}', '${escapeHtml(stk.instanceId)}')">
+                <img src="${escapeHtml(stk.image)}" style="width: 48px; height: 48px; object-fit: contain;" alt="Sticker" />
+                <div style="font-size: 11px; font-weight: 700; color: #fff; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(stk.name)}</div>
+                <div style="font-size: 10px; color: var(--neon-green); font-weight: 700;">${stk.price.toFixed(2)} DP</div>
+                <button class="quick-action-btn" style="width: 100%; margin-top: 4px; font-size: 10px;">Наклеїти ➔</button>
+              </div>
+            `).join('')}
+          </div>
+        ` : `
+          <div style="font-size: 12px; color: var(--text-dim); padding: 8px; background: rgba(255,255,255,0.02); border-radius: 6px;">
+            У вас немає вільних наклейок в інвентарі. Отримайте їх через Арену Апгрейду або "+ Отримати Демо-Дроп"!
+          </div>
+        `}
+      </div>
+
+      <!-- Charm Config & Attachment -->
+      <div>
+        <div style="font-size: 12px; font-weight: 800; color: #fff; margin-bottom: 6px;">
+          🧸 Брелок на зброї:
+        </div>
+        ${item.attachedCharm ? `
+          <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255, 215, 0, 0.08); border: 1px solid rgba(255, 215, 0, 0.4); border-radius: 8px; padding: 10px; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <img src="${escapeHtml(item.attachedCharm.image)}" style="width: 36px; height: 36px; object-fit: contain;" alt="Charm" />
+              <div>
+                <div style="font-size: 12px; font-weight: 700; color: #fff;">${escapeHtml(item.attachedCharm.name)}</div>
+                <div style="font-size: 10px; color: var(--neon-green);">${item.attachedCharm.price.toFixed(2)} DP</div>
+              </div>
+            </div>
+            <button onclick="detachCharmFromWeapon('${safeInstId}')" class="quick-action-btn danger">Зняти брелок</button>
+          </div>
+        ` : `
+          <div style="font-size: 12px; color: var(--text-dim); margin-bottom: 8px;">Брелок не прикріплений.</div>
+        `}
+
+        ${!item.attachedCharm && ownedCharms.length > 0 ? `
+          <div class="customize-grid" style="max-height: 140px;">
+            ${ownedCharms.map(chm => `
+              <div class="customize-item-card" onclick="attachCharmToWeapon('${safeInstId}', '${escapeHtml(chm.instanceId)}')">
+                <img src="${escapeHtml(chm.image)}" style="width: 44px; height: 44px; object-fit: contain;" alt="Charm" />
+                <div style="font-size: 11px; font-weight: 700; color: #fff; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(chm.name)}</div>
+                <button class="quick-action-btn" style="width: 100%; margin-top: 4px; font-size: 10px;">Прикріпити ➔</button>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+
+      <div style="margin-top: 16px;">
+        <button onclick="document.getElementById('weaponCustomizeModal').classList.remove('open');" class="quick-action-btn" style="width: 100%; padding: 10px; justify-content: center;">
+          Готово
+        </button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('open');
+  audio.playClick();
+};
+
+window.promptApplySticker = function(weaponInstId, stickerInstId) {
+  const weapon = state.inventory.find(i => i.instanceId === weaponInstId);
+  const stickerIndex = state.inventory.findIndex(i => i.instanceId === stickerInstId);
+  if (!weapon || stickerIndex === -1) return;
+
+  const applied = weapon.appliedStickers || [];
+  const availableSlots = [1, 2, 3, 4].filter(pos => !applied.some(s => s.position === pos));
+  if (availableSlots.length === 0) {
+    alert('❌ На цій зброї вже наклеєно максимум (4 наклейки)! Здеріть одну, щоб наклеїти нову.');
+    return;
+  }
+
+  const slotStr = prompt(`Оберіть вільну позицію для наклейки (${availableSlots.join(', ')}):`, availableSlots[0]);
+  const chosenPos = parseInt(slotStr, 10);
+  if (!availableSlots.includes(chosenPos)) {
+    alert('❌ Невірна позиція!');
+    return;
+  }
+
+  const sticker = state.inventory.splice(stickerIndex, 1)[0];
+  if (!weapon.appliedStickers) weapon.appliedStickers = [];
+  weapon.appliedStickers.push({
+    position: chosenPos,
+    id: sticker.id,
+    name: sticker.name,
+    image: sticker.image,
+    price: sticker.price
+  });
+
+  state.saveInventory();
+  updateUi();
+  openCustomizeModal(weaponInstId);
+  audio.playWin();
+  if (particleInstance) particleInstance.burst();
+};
+
+window.removeStickerFromWeapon = function(weaponInstId, position) {
+  const weapon = state.inventory.find(i => i.instanceId === weaponInstId);
+  if (!weapon || !weapon.appliedStickers) return;
+  const idx = weapon.appliedStickers.findIndex(s => s.position === position);
+  if (idx !== -1) {
+    const removed = weapon.appliedStickers.splice(idx, 1)[0];
+    // Return sticker to inventory
+    state.inventory.unshift({
+      id: removed.id,
+      name: removed.name,
+      category: 'Sticker',
+      type: 'sticker',
+      rarity: 'rare',
+      price: removed.price || 50,
+      image: removed.image,
+      instanceId: 'inst_stk_ret_' + Date.now()
+    });
+    state.saveInventory();
+    updateUi();
+    openCustomizeModal(weaponInstId);
+    audio.playClick();
+  }
+};
+
+window.attachCharmToWeapon = function(weaponInstId, charmInstId) {
+  const weapon = state.inventory.find(i => i.instanceId === weaponInstId);
+  const charmIndex = state.inventory.findIndex(i => i.instanceId === charmInstId);
+  if (!weapon || charmIndex === -1) return;
+
+  if (weapon.attachedCharm) {
+    // Return existing charm
+    state.inventory.unshift({
+      id: weapon.attachedCharm.id,
+      name: weapon.attachedCharm.name,
+      category: 'Charm',
+      type: 'charm',
+      rarity: 'legendary',
+      price: weapon.attachedCharm.price || 150,
+      image: weapon.attachedCharm.image,
+      instanceId: 'inst_chm_ret_' + Date.now()
+    });
+  }
+
+  const charm = state.inventory.splice(charmIndex, 1)[0];
+  weapon.attachedCharm = {
+    id: charm.id,
+    name: charm.name,
+    image: charm.image,
+    price: charm.price
+  };
+
+  state.saveInventory();
+  updateUi();
+  openCustomizeModal(weaponInstId);
+  audio.playWin();
+  if (particleInstance) particleInstance.burst();
+};
+
+window.detachCharmFromWeapon = function(weaponInstId) {
+  const weapon = state.inventory.find(i => i.instanceId === weaponInstId);
+  if (!weapon || !weapon.attachedCharm) return;
+
+  const detached = weapon.attachedCharm;
+  weapon.attachedCharm = null;
+
+  state.inventory.unshift({
+    id: detached.id,
+    name: detached.name,
+    category: 'Charm',
+    type: 'charm',
+    rarity: 'legendary',
+    price: detached.price || 150,
+    image: detached.image,
+    instanceId: 'inst_chm_det_' + Date.now()
+  });
+
+  state.saveInventory();
+  updateUi();
+  openCustomizeModal(weaponInstId);
+  audio.playClick();
 };
