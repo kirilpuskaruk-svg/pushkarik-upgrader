@@ -1981,14 +1981,64 @@ body {
   color: #000;
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
 }
-.admin-btn.danger {
-  border-color: #ff2a5f;
-  color: #ff2a5f;
-  background: rgba(255, 42, 95, 0.15);
-}
 .admin-btn.danger:hover {
   background: #ff2a5f;
   color: #fff;
   box-shadow: 0 0 15px rgba(255, 42, 95, 0.6);
 }
+
+/* ==========================================================================
+   VIRTUAL VAULT STYLING
+   ========================================================================== */
+.card-withdraw-btn {
+  background: rgba(0, 255, 136, 0.12);
+  border: 1px solid rgba(0, 255, 136, 0.4);
+  color: var(--neon-green);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.card-withdraw-btn:hover {
+  background: var(--neon-green);
+  color: #000;
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
+}
+
+.card-return-btn {
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  color: var(--neon-cyan);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.card-return-btn:hover {
+  background: var(--neon-cyan);
+  color: #000;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
+}
+
+.vault-item-badge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  background: rgba(0, 255, 136, 0.15);
+  color: var(--neon-green);
+  border: 1px solid rgba(0, 255, 136, 0.4);
+}
+
 

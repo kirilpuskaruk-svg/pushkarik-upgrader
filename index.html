@@ -63,8 +63,8 @@
           <div class="balance-unit">DP</div>
         </div>
 
-        <!-- Admin Panel Toggle Button -->
-        <button id="adminPanelBtn" class="admin-panel-btn" title="Панель Адміністратора (Ctrl + Shift + A)">
+        <!-- Admin Panel Toggle Button (Visible only to Admin) -->
+        <button id="adminPanelBtn" class="admin-panel-btn" title="Панель Адміністратора (Ctrl + Shift + A)" style="display: none;">
           👑 ADMIN
         </button>
 
@@ -157,6 +157,9 @@
           <button class="tab-btn active" data-tab="inventory">
             🎒 Мій Інвентар <span class="badge" id="invTotalItemsCount">0</span>
           </button>
+          <button class="tab-btn" data-tab="vault">
+            🏦 Віртуальний Сейф <span class="badge" id="vaultTotalItemsCount" style="background: rgba(0, 255, 136, 0.2); color: var(--neon-green); border: 1px solid rgba(0, 255, 136, 0.4);">0</span>
+          </button>
           <button class="tab-btn" data-tab="catalog">
             🎯 Каталог цілей
           </button>
@@ -198,8 +201,19 @@
           Загальна оцінка інвентарю: <strong id="invTotalValue" style="color: var(--neon-green);">0.00</strong> <strong>DP</strong>
         </div>
         <div class="inv-quick-btns">
+          <button id="invWithdrawAllBtn" class="quick-action-btn" style="border-color: var(--neon-green); color: var(--neon-green);">🏦 Вивести все в Сейф</button>
           <button id="invClaimBonusBtn" class="quick-action-btn">+ Отримати Демо-Дроп</button>
           <button id="invResetBtn" class="quick-action-btn danger">Скинути інвентар</button>
+        </div>
+      </div>
+
+      <!-- Vault Bar Meta (Shown in Vault tab) -->
+      <div id="vaultStatsBar" class="inventory-stats-bar" style="display: none; background: linear-gradient(90deg, rgba(0, 255, 136, 0.08), rgba(0, 240, 255, 0.04)); border-color: rgba(0, 255, 136, 0.3);">
+        <div>
+          🏦 Загальна вартість збережених скінів: <strong id="vaultTotalValue" style="color: var(--neon-green);">0.00</strong> <strong>DP</strong>
+        </div>
+        <div class="inv-quick-btns">
+          <button id="vaultReturnAllBtn" class="quick-action-btn" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">🎒 Повернути все в робочий інвентар</button>
         </div>
       </div>
 
@@ -240,7 +254,10 @@
 
           <div class="modal-actions-row">
             <button id="resultKeepBtn" class="modal-btn secondary">
-              Забрати в інвентар
+              🎒 В інвентар
+            </button>
+            <button id="resultWithdrawBtn" class="modal-btn" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 240, 255, 0.2)); border: 1px solid var(--neon-green); color: var(--neon-green);">
+              🏦 Вивести в Сейф
             </button>
             <button id="resultUpgradeAgainBtn" class="modal-btn primary">
               Апгрейдити цей предмет ➔

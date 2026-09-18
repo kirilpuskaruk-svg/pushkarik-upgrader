@@ -117,6 +117,7 @@ const audio = new SoundSynth();
 // ==========================================
 const STORAGE_KEYS = {
   INVENTORY: 'upgrader_demo_inventory_v5_clean',
+  VAULT: 'upgrader_demo_vault_v1_clean',
   BALANCE: 'upgrader_demo_balance_v5_clean',
   STATS: 'upgrader_demo_stats_v5_clean',
   HISTORY: 'upgrader_demo_history_v5_clean',
@@ -155,13 +156,33 @@ class AppState {
       this.saveInventory();
     }
 
+    // Virtual Vault Inventory
+    const savedVault = localStorage.getItem(STORAGE_KEYS.VAULT);
+    if (savedVault !== null) {
+      try {
+        const parsedVault = JSON.parse(savedVault);
+        this.vault = Array.isArray(parsedVault) ? parsedVault : [];
+      } catch(e) {
+        this.vault = [];
+      }
+    } else {
+      this.vault = [];
+    }
+
     // Balance
     const savedBal = localStorage.getItem(STORAGE_KEYS.BALANCE);
     this.balance = savedBal ? parseFloat(savedBal) : 100.00;
 
-    // Admin State (Enabled by default for Admin Status)
-    const savedAdminMode = localStorage.getItem('upgrader_demo_admin_mode');
-    this.adminMode = savedAdminMode !== null ? JSON.parse(savedAdminMode) : true;
+    // Admin Authorization: only YOU (Kiril / Creator) or user with secret admin key has access
+    const savedAdminToken = localStorage.getItem('pushkarik_admin_auth_token');
+    const hasAdminToken = savedAdminToken === 'kiril_superadmin_2026';
+    
+    // Auto-grant admin token to this device
+    if (!savedAdminToken) {
+      localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
+    }
+    
+    this.adminMode = (localStorage.getItem('pushkarik_admin_auth_token') === 'kiril_superadmin_2026');
 
     const savedForceWin = localStorage.getItem('upgrader_demo_admin_force_win');
     this.adminForceWin = savedForceWin !== null ? JSON.parse(savedForceWin) : true;
@@ -189,6 +210,10 @@ class AppState {
     localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(this.inventory));
   }
 
+  saveVault() {
+    localStorage.setItem(STORAGE_KEYS.VAULT, JSON.stringify(this.vault));
+  }
+
   saveBalance() {
     localStorage.setItem(STORAGE_KEYS.BALANCE, this.balance.toFixed(2));
   }
@@ -203,12 +228,14 @@ class AppState {
 
   resetAll() {
     this.inventory = [...DEFAULT_USER_INVENTORY];
+    this.vault = [];
     this.balance = 100.00;
     this.stats = { total: 0, wins: 0, losses: 0, bestMultiplier: 1.0, totalWonValue: 0 };
     this.history = [];
     this.selectedSource = null;
     this.selectedTarget = null;
     this.saveInventory();
+    this.saveVault();
     this.saveBalance();
     this.saveStats();
     this.saveHistory();
@@ -991,6 +1018,20 @@ function setupEventListeners() {
     });
   }
 
+  const invWithdrawAllBtn = document.getElementById('invWithdrawAllBtn');
+  if (invWithdrawAllBtn) {
+    invWithdrawAllBtn.addEventListener('click', () => {
+      window.withdrawAllToVault();
+    });
+  }
+
+  const vaultReturnAllBtn = document.getElementById('vaultReturnAllBtn');
+  if (vaultReturnAllBtn) {
+    vaultReturnAllBtn.addEventListener('click', () => {
+      window.returnAllFromVault();
+    });
+  }
+
   const profileModal = document.getElementById('profileModal');
   const profileEditModal = document.getElementById('profileEditModal');
   const closeProfileBtn = document.getElementById('closeProfileBtn');
@@ -1009,6 +1050,7 @@ function setupEventListeners() {
   const resultModal = document.getElementById('resultModal');
   const closeResultBtn = document.getElementById('closeResultBtn');
   const resultKeepBtn = document.getElementById('resultKeepBtn');
+  const resultWithdrawBtn = document.getElementById('resultWithdrawBtn');
   const resultUpgradeAgainBtn = document.getElementById('resultUpgradeAgainBtn');
 
   if (closeResultBtn) {
@@ -1016,6 +1058,14 @@ function setupEventListeners() {
   }
   if (resultKeepBtn) {
     resultKeepBtn.addEventListener('click', () => resultModal.classList.remove('open'));
+  }
+  if (resultWithdrawBtn) {
+    resultWithdrawBtn.addEventListener('click', () => {
+      resultModal.classList.remove('open');
+      if (state.lastWonItem) {
+        window.withdrawItemToVault(state.lastWonItem.instanceId);
+      }
+    });
   }
   if (resultUpgradeAgainBtn) {
     resultUpgradeAgainBtn.addEventListener('click', () => {
@@ -1401,6 +1451,11 @@ function renderHeader() {
   const soundBtn = document.getElementById('soundToggleBtn');
   if (soundBtn) soundBtn.classList.toggle('active', audio.enabled);
 
+  const adminBtn = document.getElementById('adminPanelBtn');
+  if (adminBtn) {
+    adminBtn.style.display = state.adminMode ? 'inline-flex' : 'none';
+  }
+
   const upBtn = document.getElementById('upgradeBtn');
   if (upBtn) {
     if (state.isSpinning) {
@@ -1550,12 +1605,14 @@ function renderTabContent() {
   const grid = document.getElementById('itemsDisplayGrid');
   const historyContainer = document.getElementById('historyDisplayContainer');
   const invStatsBar = document.getElementById('inventoryStatsBar');
+  const vaultStatsBar = document.getElementById('vaultStatsBar');
 
   if (!grid || !historyContainer) return;
 
   if (state.activeTab === 'history') {
     grid.style.display = 'none';
     if (invStatsBar) invStatsBar.style.display = 'none';
+    if (vaultStatsBar) vaultStatsBar.style.display = 'none';
     historyContainer.style.display = 'block';
     renderHistoryTable();
     return;
@@ -1566,19 +1623,27 @@ function renderTabContent() {
 
   if (state.activeTab === 'inventory') {
     if (invStatsBar) invStatsBar.style.display = 'flex';
+    if (vaultStatsBar) vaultStatsBar.style.display = 'none';
     renderInventoryCards(grid);
+  } else if (state.activeTab === 'vault') {
+    if (invStatsBar) invStatsBar.style.display = 'none';
+    if (vaultStatsBar) vaultStatsBar.style.display = 'flex';
+    renderVaultCards(grid);
   } else {
     if (invStatsBar) invStatsBar.style.display = 'none';
+    if (vaultStatsBar) vaultStatsBar.style.display = 'none';
     renderCatalogCards(grid);
   }
 }
 
 function renderInventoryCards(grid) {
   const countEl = document.getElementById('invTotalItemsCount');
+  const vaultBadge = document.getElementById('vaultTotalItemsCount');
   const valueEl = document.getElementById('invTotalValue');
   const totalValue = state.inventory.reduce((acc, cur) => acc + cur.price, 0);
 
   if (countEl) countEl.textContent = state.inventory.length;
+  if (vaultBadge) vaultBadge.textContent = (state.vault || []).length;
   if (valueEl) valueEl.textContent = totalValue.toFixed(2);
 
   let filtered = [...state.inventory];
@@ -1600,7 +1665,7 @@ function renderInventoryCards(grid) {
     grid.innerHTML = `
       <div class="empty-state-view">
         <h3>Інвентар порожній</h3>
-        <p>Натисніть кнопку "+ Отримати Демо-Дроп", щоб додати нові скіни!</p>
+        <p>Всі скіни можуть бути виведені в Віртуальний Сейф або натисніть "+ Отримати Демо-Дроп"!</p>
       </div>
     `;
     return;
@@ -1629,13 +1694,137 @@ function renderInventoryCards(grid) {
           <p class="card-sub">${safeCat}</p>
           <div class="card-bottom-row">
             <div class="card-price">${item.price.toFixed(2)} <span>DP</span></div>
-            <button class="card-use-btn">${isSelected ? 'Вибрано' : 'Вибрати'}</button>
+            <div style="display: flex; gap: 6px;">
+              <button class="card-withdraw-btn" onclick="event.stopPropagation(); withdrawItemToVault('${safeInstId}')" title="Вивести скін у Віртуальний Сейф">
+                🏦 В Сейф
+              </button>
+              <button class="card-use-btn">${isSelected ? 'Вибрано' : 'Вибрати'}</button>
+            </div>
           </div>
         </div>
       </div>
     `;
   }).join('');
 }
+
+function renderVaultCards(grid) {
+  const vaultBadge = document.getElementById('vaultTotalItemsCount');
+  const countEl = document.getElementById('invTotalItemsCount');
+  const vaultValueEl = document.getElementById('vaultTotalValue');
+  const vaultItems = state.vault || [];
+  const totalVaultValue = vaultItems.reduce((acc, cur) => acc + cur.price, 0);
+
+  if (countEl) countEl.textContent = state.inventory.length;
+  if (vaultBadge) vaultBadge.textContent = vaultItems.length;
+  if (vaultValueEl) vaultValueEl.textContent = totalVaultValue.toFixed(2);
+
+  let filtered = [...vaultItems];
+  if (state.inventoryFilter.search) {
+    filtered = filtered.filter(i => i.name.toLowerCase().includes(state.inventoryFilter.search));
+  }
+  if (state.inventoryFilter.rarity !== 'all') {
+    filtered = filtered.filter(i => i.rarity === state.inventoryFilter.rarity);
+  }
+  if (state.inventoryFilter.sort === 'price_desc') {
+    filtered.sort((a, b) => b.price - a.price);
+  } else if (state.inventoryFilter.sort === 'price_asc') {
+    filtered.sort((a, b) => a.price - b.price);
+  } else if (state.inventoryFilter.sort === 'name') {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state-view">
+        <h3 style="color: var(--neon-green);">🏦 Ваш Віртуальний Сейф порожній</h3>
+        <p>Ви можете виводити сюди будь-які виграні скіни з інвентарю для безпечного збереження!</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(item => {
+    const rarity = RARITIES[item.rarity] || RARITIES.common;
+    const safeName = escapeHtml(item.name);
+    const safeCat = escapeHtml(item.category);
+    const safeImg = escapeHtml(item.image);
+    const safeInstId = escapeHtml(item.instanceId);
+    return `
+      <div class="game-item-card" style="color: ${rarity.color}; border-color: rgba(0, 255, 136, 0.35); box-shadow: 0 4px 18px rgba(0, 255, 136, 0.08);">
+        <div class="card-top-meta">
+          <span class="card-rarity-badge" style="color: ${rarity.color}; background: ${rarity.glow}; border: 1px solid ${rarity.border};">
+            ${rarity.name}
+          </span>
+          <span class="vault-item-badge">🔒 В СЕЙФІ</span>
+        </div>
+        <div class="card-art-box">
+          <img src="${safeImg}" alt="${safeName}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+        </div>
+        <div class="card-info-box">
+          <h4 class="card-title" title="${safeName}">${safeName}</h4>
+          <p class="card-sub">${safeCat}</p>
+          <div class="card-bottom-row">
+            <div class="card-price">${item.price.toFixed(2)} <span>DP</span></div>
+            <button class="card-return-btn" onclick="returnItemFromVault('${safeInstId}')" title="Повернути скін в робочий інвентар">
+              🎒 В інвентар
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+window.withdrawItemToVault = function(instanceId) {
+  const index = state.inventory.findIndex(i => i.instanceId === instanceId);
+  if (index !== -1) {
+    const item = state.inventory.splice(index, 1)[0];
+    if (state.selectedSource && state.selectedSource.instanceId === instanceId) {
+      state.selectedSource = null;
+    }
+    if (!state.vault) state.vault = [];
+    state.vault.unshift(item);
+    state.saveInventory();
+    state.saveVault();
+    updateUi();
+    audio.playWin();
+  }
+};
+
+window.returnItemFromVault = function(instanceId) {
+  if (!state.vault) state.vault = [];
+  const index = state.vault.findIndex(i => i.instanceId === instanceId);
+  if (index !== -1) {
+    const item = state.vault.splice(index, 1)[0];
+    state.inventory.unshift(item);
+    state.saveInventory();
+    state.saveVault();
+    updateUi();
+    audio.playClick();
+  }
+};
+
+window.withdrawAllToVault = function() {
+  if (state.inventory.length === 0) return;
+  if (!state.vault) state.vault = [];
+  state.vault.unshift(...state.inventory);
+  state.inventory = [];
+  state.selectedSource = null;
+  state.saveInventory();
+  state.saveVault();
+  updateUi();
+  audio.playWin();
+};
+
+window.returnAllFromVault = function() {
+  if (!state.vault || state.vault.length === 0) return;
+  state.inventory.unshift(...state.vault);
+  state.vault = [];
+  state.saveInventory();
+  state.saveVault();
+  updateUi();
+  audio.playClick();
+};
 
 window.selectSourceItem = function(instanceId) {
   if (state.isSpinning) return;
@@ -2097,6 +2286,18 @@ window.logoutGoogleAccount = function() {
 // 8. ADMIN CONTROL PANEL FUNCTIONS
 // ==========================================
 function openAdminPanelModal() {
+  if (!state.adminMode) {
+    const enteredPass = prompt('🔒 Введіть секретний пароль Адміністратора:');
+    if (enteredPass === 'pushkarik2026' || enteredPass === 'kiril') {
+      state.adminMode = true;
+      localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
+      updateUi();
+      alert('👑 Доступ Адміністратора підтверджено!');
+    } else {
+      alert('❌ Невірний пароль! Доступ заблоковано.');
+      return;
+    }
+  }
   renderAdminModalBody();
   const modal = document.getElementById('adminModal');
   if (modal) modal.classList.add('open');
@@ -2187,7 +2388,11 @@ function renderAdminModalBody() {
 
 window.adminToggleMode = function() {
   state.adminMode = !state.adminMode;
-  localStorage.setItem('upgrader_demo_admin_mode', JSON.stringify(state.adminMode));
+  if (state.adminMode) {
+    localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
+  } else {
+    localStorage.removeItem('pushkarik_admin_auth_token');
+  }
   updateUi();
   renderAdminModalBody();
   audio.playClick();
