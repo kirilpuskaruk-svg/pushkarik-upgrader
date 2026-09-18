@@ -143,7 +143,17 @@ class AppState {
       try {
         const parsed = JSON.parse(savedInv);
         if (Array.isArray(parsed)) {
-          this.inventory = parsed.map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
+          let loaded = parsed.map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
+          // Seamless migration: If existing user has zero stickers/charms in inventory or vault, give them sample starter cosmetics
+          const hasSticker = loaded.some(i => (typeof getItemBroadType === 'function' ? getItemBroadType(i) : '') === 'sticker');
+          const hasCharm = loaded.some(i => (typeof getItemBroadType === 'function' ? getItemBroadType(i) : '') === 'charm');
+          if (!hasSticker && DEFAULT_USER_INVENTORY[7]) {
+            loaded.push({ ...DEFAULT_USER_INVENTORY[7], instanceId: 'inst_stk_seed_' + Date.now() });
+          }
+          if (!hasCharm && DEFAULT_USER_INVENTORY[8]) {
+            loaded.push({ ...DEFAULT_USER_INVENTORY[8], instanceId: 'inst_chm_seed_' + Date.now() });
+          }
+          this.inventory = loaded;
         } else {
           this.inventory = [...DEFAULT_USER_INVENTORY].map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
           this.saveInventory();
