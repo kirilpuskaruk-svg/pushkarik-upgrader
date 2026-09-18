@@ -487,33 +487,8 @@ class ParticleSystem {
 // ==========================================
 // 5. LIVE DROPS STREAM & PLAYER FEED SIMULATION
 // ==========================================
-const REAL_HUMAN_AVATARS = [
-  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-  'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80',
-  'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=150&q=80',
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-  'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?auto=format&fit=crop&w=150&q=80',
-  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80',
-  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&q=80',
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80'
-];
-
-const MOCK_USERS_DATA = [
-  { name: 'NeonSamurai', avatar: REAL_HUMAN_AVATARS[0], verified: true },
-  { name: 'CyberGhost_UA', avatar: REAL_HUMAN_AVATARS[1], verified: true },
-  { name: 'ApexHunter', avatar: REAL_HUMAN_AVATARS[2], verified: false },
-  { name: 'Valkyrie99', avatar: REAL_HUMAN_AVATARS[3], verified: true },
-  { name: 'ShadowKev', avatar: REAL_HUMAN_AVATARS[4], verified: false },
-  { name: 'PixelStorm', avatar: REAL_HUMAN_AVATARS[5], verified: true },
-  { name: 'QuackLord', avatar: REAL_HUMAN_AVATARS[6], verified: true },
-  { name: 'SlayerPro', avatar: REAL_HUMAN_AVATARS[7], verified: false },
-  { name: 'QuantumZero', avatar: REAL_HUMAN_AVATARS[8], verified: true },
-  { name: 'HyperGlitch', avatar: REAL_HUMAN_AVATARS[9], verified: false }
-];
-
-let totalUpgradesCounterValue = 438920;
+// Real user drops feed only (no bots/mock users)
+let totalUpgradesCounterValue = 0;
 
 function getRarityTierClass(rarity, price) {
   if (price >= 500) return 'gold-tier';
@@ -597,13 +572,6 @@ function openDropDetailsModal(dropData) {
     playerInventory = [...state.inventory];
   } else {
     playerInventory = [item];
-    const pool = ITEM_CATALOG.filter(i => i.id !== item.id);
-    for (let i = 0; i < 5; i++) {
-      const randomSkin = pool[Math.floor(Math.random() * pool.length)];
-      if (!playerInventory.some(p => p.id === randomSkin.id)) {
-        playerInventory.push(randomSkin);
-      }
-    }
   }
 
   const totalInvValue = playerInventory.reduce((acc, cur) => acc + (cur.price || 0), 0);
@@ -696,8 +664,8 @@ function syncItemWithCatalog(item) {
 }
 
 // Real User Live Drops Stream Sync System (Global Cross-Device Realtime + Local Fallback)
-const REAL_DROPS_STORAGE_KEY = 'upgrader_demo_real_drops_stream_v17';
-const GLOBAL_NTFY_TOPIC_URL = 'https://ntfy.sh/upgrader_demo_global_stream_v17';
+const REAL_DROPS_STORAGE_KEY = 'upgrader_demo_real_drops_stream_v18_real_only';
+const GLOBAL_NTFY_TOPIC_URL = 'https://ntfy.sh/upgrader_demo_global_stream_v18_real_only';
 
 let realLiveChannel = null;
 
@@ -818,50 +786,28 @@ function renderSingleRealDropCard(dropData, isNew = false) {
   }
 }
 
-let liveStreamInterval = null;
-
 function initLiveDropStream() {
   const container = document.getElementById('liveDropsStreamInner');
   if (!container) return;
 
   container.innerHTML = '';
-  let savedDrops = getSavedRealDrops();
+  const savedDrops = getSavedRealDrops();
 
-  if (savedDrops.length < 10) {
-    for (let i = 0; i < 12; i++) {
-      const mockUser = MOCK_USERS_DATA[Math.floor(Math.random() * MOCK_USERS_DATA.length)];
-      const mockItem = ITEM_CATALOG[Math.floor(Math.random() * ITEM_CATALOG.length)];
-      const win = Math.random() > 0.45;
-      const chance = Math.random() * 70 + 5;
-      const drop = {
-        user: mockUser,
-        item: syncItemWithCatalog(mockItem),
-        win: win,
-        chance: chance,
-        roll: win ? Math.random() * chance : chance + Math.random() * (100 - chance),
-        timestamp: Date.now() - (i * 4500)
-      };
-      saveRealDropToHistory(drop);
-    }
-    savedDrops = getSavedRealDrops();
+  if (savedDrops.length === 0) {
+    container.innerHTML = `
+      <div class="empty-stream-placeholder" style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 10px; color: var(--text-dim); font-size: 13px; gap: 8px;">
+        <span>🎯</span> Тут відображаються тільки реальні апгрейди гравців наживо. Зробіть свій перший апгрейд!
+      </div>
+    `;
+  } else {
+    savedDrops.forEach(dropData => renderSingleRealDropCard(dropData, false));
   }
 
-  savedDrops.forEach(dropData => renderSingleRealDropCard(dropData, false));
+  totalUpgradesCounterValue = savedDrops.length;
+  const totalEl = document.getElementById('totalUpgradesCounter');
+  if (totalEl) totalEl.textContent = totalUpgradesCounterValue.toLocaleString('uk-UA');
 
   initGlobalRealtimeStream();
-
-  // Dynamic interval simulating incoming live drops from online players
-  if (!liveStreamInterval) {
-    liveStreamInterval = setInterval(() => {
-      if (Math.random() < 0.75) {
-        const mockUser = MOCK_USERS_DATA[Math.floor(Math.random() * MOCK_USERS_DATA.length)];
-        const mockItem = ITEM_CATALOG[Math.floor(Math.random() * ITEM_CATALOG.length)];
-        const win = Math.random() > 0.48;
-        const chance = Math.random() * 65 + 10;
-        pushToLiveStream(mockItem, win, chance, mockUser);
-      }
-    }, 5000);
-  }
 }
 
 function pushToLiveStream(item, win, chance, userOverride = null, rollVal = null, sourceItem = null) {
