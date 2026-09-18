@@ -2202,14 +2202,11 @@ function renderHeaderGoogleAuth() {
   const container = document.getElementById('googleHeaderContainer');
   if (!container) return;
 
-  const adminBadgeHtml = state.adminMode ? `<span class="admin-badge">👑 ADMIN</span>` : '';
-
   if (googleAuth.user) {
     container.innerHTML = `
       <div class="google-user-chip" id="profileBtn" title="Налаштувати профіль та аватарку">
         <img src="${googleAuth.user.picture}" class="google-avatar-img" alt="Avatar" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
         <span style="font-size: 13px; font-weight: 700; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(googleAuth.user.name)}</span>
-        ${adminBadgeHtml}
         <span class="google-badge">⚙️ Профіль</span>
       </div>
     `;
@@ -2224,7 +2221,6 @@ function renderHeaderGoogleAuth() {
       <button id="profileEditGuestBtn" class="google-login-btn" style="background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(0,114,255,0.15)); border: 1px solid var(--neon-cyan);">
         <span style="font-size: 16px;">👤</span>
         <span>Створити Профіль</span>
-        ${adminBadgeHtml}
       </button>
     `;
     const btn = document.getElementById('profileEditGuestBtn');
