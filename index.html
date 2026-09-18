@@ -63,6 +63,11 @@
           <div class="balance-unit">DP</div>
         </div>
 
+        <!-- Admin Panel Toggle Button -->
+        <button id="adminPanelBtn" class="admin-panel-btn" title="Панель Адміністратора (Ctrl + Shift + A)">
+          👑 ADMIN
+        </button>
+
         <!-- Google Auth Container / User Profile Button -->
         <div id="googleHeaderContainer">
           <!-- Rendered via JS: Google Login Button or User Profile Chip -->
@@ -336,8 +341,10 @@
         </div>
       </div>
     </div>
+  </div>
+
   <!-- USER PROFILE & CUSTOM NICK/AVATAR EDIT MODAL -->
-  <div id="profileModal" class="modal-backdrop">
+  <div id="profileEditModal" class="modal-backdrop">
     <div class="modal-dialog" style="max-width: 480px;">
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -352,7 +359,7 @@
     </div>
   </div>
 
-
+  <!-- DROP DETAIL MODAL -->
   <div id="dropDetailModal" class="modal-backdrop">
     <div class="modal-dialog" style="max-width: 500px;">
       <div class="modal-header">
@@ -366,6 +373,8 @@
         <!-- Rendered dynamically via JS -->
       </div>
     </div>
+  </div>
+
   <!-- DEMO PACK DROP REVEAL MODAL -->
   <div id="demoPackModal" class="modal-backdrop">
     <div class="modal-dialog" style="max-width: 440px; text-align: center;">
@@ -378,6 +387,22 @@
       </div>
       <div class="modal-body" id="demoPackModalBody">
         <!-- Rendered dynamically via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN CONTROL PANEL MODAL -->
+  <div id="adminModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 520px; border: 1px solid rgba(255, 215, 0, 0.5); box-shadow: 0 0 35px rgba(255, 215, 0, 0.3);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 215, 0, 0.3);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 22px;">👑</span>
+          <span class="modal-title" style="color: #ffd700; font-weight: 900; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">PUSHKARIK ADMIN CONTROL PANEL</span>
+        </div>
+        <button id="closeAdminModalBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="adminModalBody">
+        <!-- Rendered dynamically via JS renderAdminModalBody() -->
       </div>
     </div>
   </div>

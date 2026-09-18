@@ -4,12 +4,42 @@
  */
 
 const RARITIES = {
-  common: { name: 'Армійське', color: '#4b69ff', glow: 'rgba(75, 105, 255, 0.25)', border: '#4b69ff' },
-  rare: { name: 'Заборонене', color: '#8847ff', glow: 'rgba(136, 71, 255, 0.35)', border: '#8847ff' },
-  epic: { name: 'Засекречене', color: '#d32ce6', glow: 'rgba(211, 44, 230, 0.5)', border: '#d32ce6' },
-  legendary: { name: 'Таємне', color: '#eb4b4b', glow: 'rgba(235, 75, 75, 0.6)', border: '#eb4b4b' },
-  mythic: { name: 'Надзвичайне (★)', color: '#ffd700', glow: 'rgba(255, 215, 0, 0.7)', border: '#ffd700' },
-  ancient: { name: 'Контрабанда / Grail', color: '#ffaa00', glow: 'rgba(255, 170, 0, 0.8)', border: '#ffaa00' }
+  "common": {
+    "name": "Армійське",
+    "color": "#4b69ff",
+    "glow": "rgba(75, 105, 255, 0.25)",
+    "border": "#4b69ff"
+  },
+  "rare": {
+    "name": "Заборонене",
+    "color": "#8847ff",
+    "glow": "rgba(136, 71, 255, 0.35)",
+    "border": "#8847ff"
+  },
+  "epic": {
+    "name": "Засекречене",
+    "color": "#d32ce6",
+    "glow": "rgba(211, 44, 230, 0.5)",
+    "border": "#d32ce6"
+  },
+  "legendary": {
+    "name": "Таємне",
+    "color": "#eb4b4b",
+    "glow": "rgba(235, 75, 75, 0.6)",
+    "border": "#eb4b4b"
+  },
+  "mythic": {
+    "name": "Надзвичайне (★)",
+    "color": "#ffd700",
+    "glow": "rgba(255, 215, 0, 0.7)",
+    "border": "#ffd700"
+  },
+  "ancient": {
+    "name": "Контрабанда / Grail",
+    "color": "#ffaa00",
+    "glow": "rgba(255, 170, 0, 0.8)",
+    "border": "#ffaa00"
+  }
 };
 
 const ITEM_CATALOG = [
@@ -18,7 +48,7 @@ const ITEM_CATALOG = [
     "name": "Sir Bloody Miami Darryl | The Professionals",
     "category": "Agent",
     "rarity": "legendary",
-    "price": 88.0,
+    "price": 88,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WWj-gn47Q-GH7qxkhwsWjWyN6pJynGZld0CJR3QOdbtRa4lIGxY7_g7wfAy9USZdxTISw"
   },
   {
@@ -27,7 +57,7 @@ const ITEM_CATALOG = [
     "category": "Agent",
     "rarity": "legendary",
     "price": 14.5,
-    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn-mSlx3i9L9s6gZaBlJv2cB37V19RmuuM_T2Hqxkw1sG3UzJq6eXyRcgkgWMR_C-ddrR_rltD15rQ5qA"
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fh7lk6nm_ytk-fO8YaVjNPLdXz6TkLdw5LY4Hnmwl0wktj7dn4r9I3OWPFApC5F1QeAO5xi4lIDiM_SiuVKk3V4ZcQ"
   },
   {
     "id": "agent_3",
@@ -42,7 +72,7 @@ const ITEM_CATALOG = [
     "name": "Bloody Darryl The Strapped | The Professionals",
     "category": "Agent",
     "rarity": "epic",
-    "price": 22.0,
+    "price": 22,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIa-2lmxU-LR0dnuNm6E8Vl45Iv181z1fgn8oYby8iRe_OGnZ6psLM-FD3WWlKAhtLhqHXDilxgm4z7dztesJH2SbgApCMchFrQNsRSxw4XhYeK0swbYlcsbmucxTysR"
   },
   {
@@ -122,7 +152,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Spruce DDPAT",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 800.0,
+    "price": 800,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_u13ve5WSDu2jCIrujqNjsH_InuUaQQmDJd2Fu4NshO7kIGyYeu24Affg98UxCX_iXhJ5i465bwHT-N7rXbV3WG0"
   },
   {
@@ -130,7 +160,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Desert Shamagh",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 825.0,
+    "price": 825,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uh3svNgTBa7mggpty6RlYDtKRTILFd-XccfGb5d6lSmwdS1Zrzr4Q3Ygo5Ayiur23lL5idr5eZQBapzqPDRignHY-U058QHLOHnE0oCUw1MCg"
   },
   {
@@ -138,7 +168,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Badlands",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 850.0,
+    "price": 850,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uh3svNgTBa8hxwptDi6mY70LhTLN1F4ToxyQuIK5EPqkobkZrjm5lGI2NoTni-vhnwd5iZp4-YHAqJxq6DRhlzIL_Rjthe3KNwq"
   },
   {
@@ -146,7 +176,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | CAUTION!",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 875.0,
+    "price": 875,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uJzsfVhSjuqqh4mpimMlYHGLSLANkI-CcBxQeIMtEHsl4CyNOjm4QDa3dgTniWvjnhJ7Hk54bsEV_Ak-KWE3BaBb-Pt8HWajg"
   },
   {
@@ -154,7 +184,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Duct Tape",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 900.0,
+    "price": 900,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uJzsfVhSjuqqhkysCmRm5_8HifOOV5kFJF5R7IIskW_kIXnNriz7w3eg4hMzCX-2nxP6SZo4u0LBKAi-aXV2V7fcepqgxTHW6A"
   },
   {
@@ -162,7 +192,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Cobalt Skulls",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 925.0,
+    "price": 925,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uJzsfVhSjuqqhsmsS-MmbD7LT7CAUV7T84sBohW60fg1srnZb6zsw2Ng41MmST43C1L7is9574CBKIh_q2Big_IMOdutcNRd_iuU13QD7PQAmaY"
   },
   {
@@ -170,7 +200,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Overprint",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 950.0,
+    "price": 950,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uJzsfVhSjuqqhsmsS-MmbD-JCTKO0JiU8EfF7tP53_ky4O_c_Ti4wTe3t4Uy3j6jSxM5ic-4usBA6Mj-qTejAzJMbc14MRWd_v0SE-PRlxR734mHNkv"
   },
   {
@@ -178,7 +208,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Giraffe",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 975.0,
+    "price": 975,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uJzsfVhSjuqqhsmsS-MmbD-KDnGOFB1Zc4pEr9OrBm6w9bgM-Pi4wLe34tNnCT3jCxJ53s_6rsBUqQkq63V2wnBZOJo55YdZKHw2FL19Wg"
   },
   {
@@ -186,7 +216,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Arboreal",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1000.0,
+    "price": 1000,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uJzsfVhSjuqqhsmsS-MmbD-My7CMGlzW88vKrtT5Uj8jIblMbnksQfb2IlAzXqojCpP6ylp67kLAKBz_6aFjFnCN-I66ZQHdv-5DUPZjQpqjqQ"
   },
   {
@@ -194,7 +224,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Leather",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1025.0,
+    "price": 1025,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uJzsfVhSjuqqhEutDWR1NiodnmUPFNxX5B3TOFcuhfqktPvYe_h4AHWjolNnHn3iC1Puiw-sL0cEf1y0Sy-Ca0"
   },
   {
@@ -202,7 +232,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Constrictor",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1050.0,
+    "price": 1050,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_uJzsfVhSjuqqg4psjaAiYTwLxTILFd-XccfGb5d6lSmlYDiY-_r7gzc2IJGmX6t3CMb6iY5te0BBKt0-qDVhwyXYrU_6MQDIuHnE0r2o5Rb7g"
   },
   {
@@ -210,7 +240,7 @@ const ITEM_CATALOG = [
     "name": "★ Hand Wraps | Slaughter",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1075.0,
+    "price": 1075,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_vxztN56QyimkhUzti-6lob-KT-Jb1UjX5t0ROIN5xW9l9e2ZOmw5QWLi41Fmy6r3Sgb7C1o5etUBfcgqbqX0V-0bsdMFQ"
   },
   {
@@ -218,7 +248,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | Eclipse",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1100.0,
+    "price": 1100,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJsuB6RiqMlxEmsDa6lob-KT-JaQMpDpFzFOdY4EO8lIDnMLjr5ALZjN1Dnyj7iyhAvXo55ucKWadx87qX0V_LSR8vSA"
   },
   {
@@ -226,7 +256,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | Turtle",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1125.0,
+    "price": 1125,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJsuB6RiqMkg8itjO6lZ34LyzCAVp5Xco0W7VftBjqxILkZbvi4FfYitpEynj6jSgc5i4_tegLV_F0q6SFhwDJMuUjoc5UdYAe6j0"
   },
   {
@@ -234,7 +264,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | Blood Pressure",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1150.0,
+    "price": 1150,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJs-B7TSa9kxQlti-6iIr9HifOOV5kFJp2TeYOsxWxm9OyM7zl5AKIio0XyyiojiJA6C866-YFV6oi_6GBhwHfcepqnQk3Qfo"
   },
   {
@@ -242,7 +272,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | Finish Line",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1175.0,
+    "price": 1175,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJs-lsTCK2hyIhvzyCpY31NC74OUR1X8wfGb5d6lSmkNW1Y-m0sgTciIxCz376i3lN63lu67wHV6Fx-qaCi1nAZbJr4MQBIeHnE0rhxc4-zg"
   },
   {
@@ -250,7 +280,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | POW!",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1200.0,
+    "price": 1200,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJs-lmTCaMlxIovgKJk4jxNWXBPAZ2CpYmTOAO4UWwltOxP-3qswPdgopMzXiviSwavytpsO4FUvEh5OSJ2LE4Jnt4"
   },
   {
@@ -258,7 +288,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | 3rd Commando Company",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1225.0,
+    "price": 1225,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJs-5kQii9kRIYuC6OpYPwJiPTcAZyDMd2F-YIu0a4ktTjP--35Vfb3oMTyy_-iCtM7Hpq5elTBaYirKTJz1aWk_tQEIo"
   },
   {
@@ -266,7 +296,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | Spearmint",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1250.0,
+    "price": 1250,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJvehnWxanhxQmvTqJn7D1KCzPKhgnW5UmRO4DsxXrlYbhPurmtAXai98UzS73in5I6S5p4OsAU_Zx-KHWkUifZsxBQgc2"
   },
   {
@@ -274,7 +304,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | Boom!",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1275.0,
+    "price": 1275,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJve5nQBaxmhIqjDGMnYftb3ufaQNxA5MiEeVb5kW5ldPiZuPj5lOKjt9BxCutiSlO5ys5sL1UUPU7uvqAf72SBgc"
   },
   {
@@ -282,7 +312,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | Smoke Out",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1300.0,
+    "price": 1300,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJo-xmRCyMmRQguynLztircXjCaAAkDZp0TO4OsRW8xtznP-7mswXYj4wTnyysiHkc5n5p5PFCD_SXL_AlqA"
   },
   {
@@ -290,7 +320,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | Cool Mint",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 450.0,
+    "price": 450,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJpPNgTie0mRgYsTGQn7D1KCzPKhgiXMZwRuNe5xS5wYLvY-K3s1GN344Wz3ioiypK6X1p4e1WUKZ0q6WCkUifZln3nIr8"
   },
   {
@@ -298,7 +328,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | Polygon",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 475.0,
+    "price": 475,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJpPNgSDu6kSIlvyiApYPwJiPTcA92A5QlFu4N4ES4ktblMrvg5lSN34hEmHitinhLvHo64uhUUvVwqPDJz1aWhdr_Brk"
   },
   {
@@ -306,7 +336,7 @@ const ITEM_CATALOG = [
     "name": "★ Moto Gloves | Transport",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 500.0,
+    "price": 500,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4r7_lb1QgTykpPf-i5U-fe9V6liNP-BDX6TzetJqeRlQyakqh4mvjK6lob-KT-JbwZzCsR0RrYK4ETrwIbkYe_l4gSM2YNEniv73XxKvyhj4u0DVKMi_rqX0V9cNOIfoA"
   },
   {
@@ -314,7 +344,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Brocade Crane",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 525.0,
+    "price": 525,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1c4_24bZtpMvmFC3Wvw_x5s-BtShawhxwptgKXn4vGLSLANkI-XMN2Qu4OsEG6lYK2M-OwtgPf2IMRzXio3yMY7yhptbxRAKIkq_bVhhaBb-OYO4AFQA"
   },
   {
@@ -322,7 +352,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Brocade Flowers",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 550.0,
+    "price": 550,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1c4_24bZtpMvmFC3Wvw_x5s-BtSha1mRIwti-6iIr9HifOOV5kFJJ5TeMK5xTsltSyM-m07wLW2Y4Uy32ohiJKuy9r4L1UWKAj-qGF3gzfcepq2gO2jDs"
   },
   {
@@ -330,7 +360,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Dragon Fists",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 575.0,
+    "price": 575,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1c4_24bZtpMvmFC3Wvxfx3t-5ncDqwlBEijC-AnrD1KCzPKhgkCZdwTeIL4ES5wdXjPrm251Pdi98QzST3jy0d6nxp4e5QAKsk_q3RkUifZohUdPsK"
   },
   {
@@ -338,7 +368,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Garden",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 600.0,
+    "price": 600,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1c4_24bZtpMvmFC3WvxON0ou5gSyyhkBkYtTGKjYrrMhTTO1d8Zc4pEr9OrES-w9exZuzrsgyLi4lEzij2in9KvHpj6u9XU6J2_aGDjwzCY709t8YdZKHwRXCqB8U"
   },
   {
@@ -346,7 +376,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Hand Sweaters",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 625.0,
+    "price": 625,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1c4_24bZtpMvmFC3WvyuB_pN5oXS6qmRgYtC-An4HGLSLANkI-CZJzROEM4xa7lYbgM7i07lOP3okXmCn4iypM7idt4udXU6p0rqHS3haBb-PCGCVNWw"
   },
   {
@@ -354,7 +384,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Plum Quill",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 650.0,
+    "price": 650,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1c4_24bZtpMvmFC3Wvzv1iouhqRxajgA83vzi6lob-KT-JawEjXMZyQuQMs0Xpl4fvMrvn4FOI2N5Dnn78jnxI5yZj5-tXWfEs8rqX0V_DSgKUxA"
   },
   {
@@ -362,7 +392,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Seigaiha",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 675.0,
+    "price": 675,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1c4_24bZtpMvmFC3Wv0u13vO1mXxa-kAkmvzGMmbD7LT7CAVp5Xco0W-dZuhe6wNDuP-q05g2NiYlFmSn5iS1N7yxj4LxUWPJx-6yCiFqUNOIjoc5UtEcI9GU"
   },
   {
@@ -370,7 +400,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Wave Chaser",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 700.0,
+    "price": 700,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1c4_24bZtpMvmFC3Wv0ud6u95tXSi0mhMYpDWMjorGLSLANkI-ApsmQrFbtkPux4bgMuvg7gzWjI0Xnyz-23lI6i5s4bpWUqMl-6PQ2xaBb-Mdlpgj5g"
   },
   {
@@ -378,7 +408,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Lunar Weave",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 725.0,
+    "price": 725,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5tvLPGQBVicyOl-pK8xTizrzER1t2rczNj9JSqRZg92CZZ2RrRetBi7kYDhZeLl7wDajo9C02yg2YX5gL0s"
   },
   {
@@ -386,7 +416,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Snow Leopard",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 750.0,
+    "price": 750,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5tnIfeGD3Wv1uZ_pORWQyC0nQlp4TnUw9f6J3PCOw4oW8ZxRuEOshK8l9fgZbnqswHX3owXmSisjCIfuzErvbiEoDwfJQ"
   },
   {
@@ -394,7 +424,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Queen Jaguar",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 775.0,
+    "price": 775,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5tnIfeGD3Wv2Ot6vO5-cCW6khUz_WSHm4qteC2XOg4jDcN0EOZbthDsxoDnN7m24laI3d8QnCv6hn5PvHx1o7FVsUpsiR4"
   },
   {
@@ -402,7 +432,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Convoy",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 800.0,
+    "price": 800,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5tgKfyaGmaC2NF6ueZhW2e1wER0smuGyd__dn6VOwd1A5JwQOFY5hi8ktKzNryx5wyPiYwTxX74kGoXue1G57tl"
   },
   {
@@ -410,7 +440,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Imperial Plaid",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 825.0,
+    "price": 825,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5t9LPGaCliA1PxmvORWQyC0nQlp4W-Hw9-ocy2fbwB2X8YkFucCtRe4xNzhYrjl4Fff39lMyn78iiJLuzErvbgqDAMwGQ"
   },
   {
@@ -418,7 +448,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Crimson Weave",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 850.0,
+    "price": 850,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5t_JfSsAm6Xyfo4trVoSnGxlh9x5DmEzt6rJS2RagYiA5siQ-MLthW9xtDlM7uxtFCNgpUFk3thcTnRAg"
   },
   {
@@ -426,7 +456,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Rezan the Red",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 875.0,
+    "price": 875,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5t_JeqSAFicyOl-pK9sHnrhxx5wsm2Ezo39cXufbVdzD8ZzReILtRfqm9OyMbzjtlfdio5A02yg2fWAU4q4"
   },
   {
@@ -434,7 +464,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | King Snake",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 850.0,
+    "price": 850,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5t-LvGYC3SbyOBJp-lgWyyMmRQguynLz4r6Iy7EbFchApNyR-dbtEbuw4XkN7jq7gHdjtoQzi37hiwYvytvt_FCD_Ql24JgJg"
   },
   {
@@ -442,7 +472,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Diamondback",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 925.0,
+    "price": 925,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5t-LvGYC3SbyOBJqeRlQyakqhEutDWR1N77ICqXZw4iApJ1ReRb5Bi-k4fjYb7mtgPdgooXyyusiS9A7Shv674cEf1yI93CpRI"
   },
   {
@@ -450,7 +480,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Overtake",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 950.0,
+    "price": 950,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5t-NPmHDW-VxdF0vOBqRBa8hxwptDi6lob-KT-JOwYkXppzQO4OsRbqltfiMOvm41TYi44XySqqj35OvS4_57oKA6cl_LqX0V9d-bhOMA"
   },
   {
@@ -458,7 +488,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Black Tie",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 975.0,
+    "price": 975,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5t-NPmHDW-VxdF0vOBqRBaknRQztgKJk4jxNWXBbwdxDcZwFrFY40XrktLgNr7q4AKM2owQmX6ojSpMuCo_tulQB6ss5OSJ2E_SKQx-"
   },
   {
@@ -466,7 +496,7 @@ const ITEM_CATALOG = [
     "name": "★ Driver Gloves | Racing Green",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1000.0,
+    "price": 1000,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5T441rsfhr9kYDl7h1I4_utY5t-NPmHDW-VxdFxouRsQRa0hxg-jDGMnYftb3mXblQnWJclRuNYtETux9DlYr-wtVaK2IsTmCT-jC4Y6ihjtr0FUaA7uvqAQikoKDk"
   },
   {
@@ -474,7 +504,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Lime Polycam",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1025.0,
+    "price": 1025,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V6NhL-aWMXSAxO1_se1gXD2MlB80py-EmZvGJjnCO1hPVssnHaMUtRTqwNK2Nrzr71aLi4sUzS_8iCJMuic54eoFVvVw-fGGiwySY7Q1t45DeqjW0uKN1w"
   },
   {
@@ -482,7 +512,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Cloud Chaser",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1050.0,
+    "price": 1050,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V6NhL-aWMXSAxO1_se1gXD2MkQ8mtDKLpY31NC74Ml93UtZuQe4L40bsl9HgM-Lr5lffgtgWnCT63H5O6XxqtehUVaIl-vCDjwiXMKp9v8dT8uAEag"
   },
   {
@@ -490,7 +520,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Blackbook",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1075.0,
+    "price": 1075,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V6NhL-aWMXSAxO1_se1gXD2Mkg8mtTuMjobGIyfGPV1PVssnHaMUthC9l9e2Mei25wTajN5EziT_2CodvSxs5ugBWKp2rvDX2Q6QMOc8tI5DeqjzpbB7FA"
   },
   {
@@ -498,7 +528,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Chocolate Chesterfield",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1100.0,
+    "price": 1100,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V6NhL-aWMXSAxO1_se1gXD2MhAguvymAnrD7LSrENWl8U8UoAfkNu0Ttx4CxP-zr4wDbjN4XmX79j3xM7SdisbkLBPB0q6LWiwnHM7Zs_9Bdc2KEwswI"
   },
   {
@@ -506,7 +536,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Pillow Punchers",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1125.0,
+    "price": 1125,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V6NhL-aWMXSAxO1_se1gXD2MhAguvymAnrDuKSLTO2l8U8UoAfkK5BKxkNyyZu7r4VGP3Y8UzSX_iC4av3trtbtWV_Vxq6SEh1mVN7c9_9Bdc6ulT-fJ"
   },
   {
@@ -514,7 +544,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Sunburst",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1150.0,
+    "price": 1150,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V6NhL-aWMXSAxO1_se1gXD2MhggpsSiXiZvGMy7DAVp5Xco0W-VesRKwxtLvMbm07gLbiI1GmX33hywd7Hk45ewEAPIiqfXW2Q7FMLIjoc5U0NHpGGE"
   },
   {
@@ -522,7 +552,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Big Swell",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1175.0,
+    "price": 1175,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V6NhL-aWMXSAxO1_se1gXD2MghwxtgKHlpr8HifOOV5kFJJyFOVZuhC8l9XjNL-3tgHcg41HzHr4hntBuntpse0LUvZwr_bX3QjfcepqIIhMOUI"
   },
   {
@@ -530,7 +560,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Forest DDPAT",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1200.0,
+    "price": 1200,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJtOV5Tj2Mkg8itjO6mY70LhTLN1F4TowkQrFYshHsxNKyPu_ntQfYid9By3j-ii9I6StqsOlUV6Aj-aCF2guTL_RjtifunYRS"
   },
   {
@@ -538,7 +568,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Emerald Web",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 750.0,
+    "price": 750,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJtexsXSi_kSIwtj-6lob-KT-Jbw4kA8d4QOBb5hnqmoHuMLmx4AWK341Bnyr93CxN6itjsb1XUfAgqLqX0V92--w69A"
   },
   {
@@ -546,7 +576,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Fade",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 620.0,
+    "price": 620,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJtuBtSha_nBovp3PQy42sdX6eagIjW5AlQOVetBXuk92xNLvg4gOMjd5AmC2ointB53w__a9cBqntWBk3"
   },
   {
@@ -554,7 +584,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Field Agent",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1275.0,
+    "price": 1275,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJtuNgcCW6khUz_TiHydigcXyXawRxX5QmQLQIsxC9kYfgN--w5QCLi4IRzyz42yofvCZ1o7FVbJfAqIA"
   },
   {
@@ -562,7 +592,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Buckshot",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1300.0,
+    "price": 1300,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJtu57Sjqnqh81vCqLpYPwJiPTcFQhAsd5TOcDsxLqwN22ZrjqslDZg4gXnCj2jnlA7Sg54udWB_dz-qbJz1aWpqUo0Nk"
   },
   {
@@ -570,7 +600,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Crimson Kimono",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1850.0,
+    "price": 1850,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJu-hkQCe8qhkusjCKlIvqHjnCOml8U8UoAfkItBLswdbuNbjr5FHdjNkUzSv73C1K5y46tu4EUvAg-6bU3FrBMOE4_9BdcyhkRns5"
   },
   {
@@ -578,7 +608,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Marble Fade",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 475.0,
+    "price": 475,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJveB7TSW2qhsmtzi6lob-KT-JOlUhC8Z2QOUDsxa6xIe0N7nk5ALWjolMm3793SxAvX0_5-sBUaNz-rqX0V-xn3he8w"
   },
   {
@@ -586,7 +616,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Foundation",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 500.0,
+    "price": 500,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJv_NoQS62qgovuimApYPwJiPTcFMgWJVwFLIPthDpkt3vN7ux5QTWitkTm3r5iiMc7nw6sukBBfV38vDJz1aWnrr9eTA"
   },
   {
@@ -594,7 +624,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Lt. Commander",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 525.0,
+    "price": 525,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJouhqRDqygiIksjCKpYPwJiPTcFJzApV0F-cL5kHuk9CxP7u3sgDYgo1BzX76jixM7Cw-selXBacn-PHJz1aWiwi0X-Y"
   },
   {
@@ -602,7 +632,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Tiger Strike",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 550.0,
+    "price": 550,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJpOhuSjuMmg8mvTqApYPwJiPTcAYkDMZ3EOUJ4Ra9w4W2NOyx4wGNjYtDy3763H4bvCY6t-sFUap3_KDJz1aW0GG4fIQ"
   },
   {
@@ -610,7 +640,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Crimson Web",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 575.0,
+    "price": 575,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJp-RrXBahkBkYvzSCkpu3JyiSbAQkC8d1E7YJtEXtkIazMruz4lOP3dpGmCyt23hA731v4LkKAL1lpPOyoS0Ibw"
   },
   {
@@ -618,7 +648,7 @@ const ITEM_CATALOG = [
     "name": "★ Specialist Gloves | Mogul",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 600.0,
+    "price": 600,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk71ruQBH4jYLf-i5U-fe9V7d9JfOaD2uZ0vpJp-hnWyyhnRg_jDGMnYftb3qWagQlX8EjF7YIuhK9m9XiNO2x7gOPjY5HzHj7iiwcv3xi4-pQAPc7uvqAbB4ER4o"
   },
   {
@@ -626,7 +656,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Violet Beadwork",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 625.0,
+    "price": 625,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk6P6hfqFSM-CcHHOvw-t3tPZmXSKMkRQmvjKLnpzGMT7VLlp1Zc4pEr9OrBWxxofvNOLitQKPid5Hznr-3C9JvHtu4uxTVKMlqaPQilrAM7Fr6cQdZKHwBJ-GjQo"
   },
   {
@@ -634,7 +664,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Frosty",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 650.0,
+    "price": 650,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk6P6hfqFSM-CcHHOvwu97v95-RienkA8YvzSCkpu3dXqfbA5zW5N0F-dcu0K8ldDnMuPk4wHdjN9EniWthn4av31v4eoHWL1lpPOyBkNpPQ"
   },
   {
@@ -642,7 +672,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Blaze",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 675.0,
+    "price": 675,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk6P6hfqFSM-CcHHOvx-J3veR6cCahlBMgtgKJk4jxNWWXblAgDJUiTeJZtBHpktDuY7m2sQPf2YNAxXn5iysf6Cc_67oGA6Ah5OSJ2AmILwG6"
   },
   {
@@ -650,7 +680,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Creme Pinstripe",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 700.0,
+    "price": 700,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk6P6hfqFSM-CcHHOv0ed4o_V7Rjm2qh8rsj6OpYPwJiPTcAdzW5V2E-4IsBnswNHuZbznsQfXg4NCny_4hnhOvS04suoDVvZx86zJz1aWnYsnB-o"
   },
   {
@@ -658,7 +688,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Red Racer",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 725.0,
+    "price": 725,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk6P6hfqFSM-CcHHOv0-91tfNWXSy3qhEutDWR1I77dC7GbQ4kWZNwEOJY5xLtwYHuN7yz7lPe2YgTniz2jn5Nv3lj5O0cEf1yHxfMKhM"
   },
   {
@@ -666,7 +696,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Ultra Violent",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 750.0,
+    "price": 750,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk6P6hfqFSM-CcHHOv1et1uN5uXSi3nBgppwKHiIb-KT_4Ml93UtZuTOcLtUW8lNDvZL634FfYi4pCyiX5iXka6Htr4uhQVqt3_vfRiAzDZap9v8fuC2Vr0A"
   },
   {
@@ -674,7 +704,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Occult",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 775.0,
+    "price": 775,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk6P6hfqFSM-CcHHOv1-t6puR9cDu2kSIrujqNjsGody2XPQVzWZslEe5euxS_lYC0Yu7l4wLfj99MmCv4jXka6Slp6-4ET-N7rUuG7GIq"
   },
   {
@@ -682,7 +712,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Omega",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 800.0,
+    "price": 800,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H_KfD2Sb_vlzsuNgQS6MjBgrvzKSpYPwJiPTcFAkC5UiRrRZ5BO9ktDnM-q37wCMjN5GxCqvhngb6Chj6u0CVvAj-6fJz1aW3nluLgw"
   },
   {
@@ -690,7 +720,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Vice",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 2200.0,
+    "price": 2200,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H_KfG2Kv0ed4u95lRi67gVNx4T-Bw434IHyVb1QlAsd1FOUDthG4xNznMu3m4QXXg90Wzn_33C1I8G81tLaDi_rK"
   },
   {
@@ -698,7 +728,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Hedge Maze",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 2800.0,
+    "price": 2800,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H_eBC2Ke_uJ_t-l9AX21whwi4Gndnov9JH_FblMlCJYjRbFZtkWww4HnNbjr7wWN39gUmH7gznQeohQBtY8"
   },
   {
@@ -706,7 +736,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Scarlet Shamagh",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 875.0,
+    "price": 875,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H_icG2mU0vp5v_VhcDu2kSIrujqNjsGqIC-SalIhW8B2Q7MNs0G9x4W0NeKwtALa3ohEyi2oiCpI5yZo4OcFT-N7rZxgqiT0"
   },
   {
@@ -714,7 +744,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Big Game",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 900.0,
+    "price": 900,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H_iGAHOV09F6ueZhW2fil0tx4T7RnouodXjCaAMjWJshQOAOsEG8l9bgMrvr5QfXjotHyyWtkGoXucEGPk8i"
   },
   {
@@ -722,7 +752,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Nocts",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 925.0,
+    "price": 925,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H_qSCXKR09F6ueZhW2fqlBly4GWGm9ivcXjFPFImWJQhEeRc5EXqkNGyMOzm51fY3dlAxCr9kGoXuaq1SOh9"
   },
   {
@@ -730,7 +760,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Superconductor",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 950.0,
+    "price": 950,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H_yaCW-E_ux6peRWQyC0nQlp4jjRyt-vJX6QblMgApt0R-5c5hLsktO2Nu_h4QaLg4MXyCmr2ClP7jErvbiwB_ADaw"
   },
   {
@@ -738,7 +768,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Arid",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 975.0,
+    "price": 975,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H_2aAm6EwPxvj-1gSCGn20h3sTvVyoqheX2TbA9zDcFwQOQLtBnpw4bvM-rm4ACMiY5Cnn_63CNXrnE8hMDc76M"
   },
   {
@@ -746,7 +776,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Amphibious",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 950.0,
+    "price": 950,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H-CcB3Sfz9Fwou5ucCu_gBgYpDWMjorGLSLANkI-W5R4E7JZtxbskNWxZeLi4QPejdgTmSn62iwbvyw957kDAqog_fXWjBaBb-Pahe96zA"
   },
   {
@@ -754,7 +784,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Bronze Morph",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1025.0,
+    "price": 1025,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H-CcB3Sfz9Fwou5ucDu2kSIgoTiAlLD1KCzPKhghDJBzTLMCukW6kNblNe-2tlGKj45GyCWrii8f73k95e4HA_AjrvbSkUifZkDjXxpJ"
   },
   {
@@ -762,7 +792,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Pandora's Box",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 3500.0,
+    "price": 3500,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H-CGHHecxNF6ueZhW2exk01w4j7cmYn4eHPCbAMhApdwTOIN5BPsx9yyYu605FTeid0Uy3j3kGoXueKyz5wo"
   },
   {
@@ -770,7 +800,7 @@ const ITEM_CATALOG = [
     "name": "★ Sport Gloves | Slingshot",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1075.0,
+    "price": 1075,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tk5UvzWCL2kpn2-DFk_OKherB0H-OfB2mX0uZ5pN5lRi67gVN24DzSw479dnuTbAckWcElRbJctkW9ktPlNu2w51Dc2oNAmCWo2ioa8G81tMaI-Tzs"
   },
   {
@@ -778,7 +808,7 @@ const ITEM_CATALOG = [
     "name": "★ Bloodhound Gloves | Charred",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1100.0,
+    "price": 1100,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOnJrv8iZT4OegbJtqLP-FC3Svw-J5v-VhQDy9kSIlvzyGkbDqKCfRO0RPVssnHaMUsES-k9HjNrixsgbd3YIRni7-inlO5i5t6-pRAqIs_aOFjg_JZbU5sI5Deqh-Veq-pA"
   },
   {
@@ -786,7 +816,7 @@ const ITEM_CATALOG = [
     "name": "★ Bloodhound Gloves | Guerrilla",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1125.0,
+    "price": 1125,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOnJrv8iZT4OegbJtqLP-FC3Svw-J5v-VhQDy9kSIgpjiXiIb1LSr4Ml93UtZuR7QKthCwl4fkNuqw4lPXgosRzi78inwdvyk45e5UUqQkq_aDi1rEZap9v8fy7GQdug"
   },
   {
@@ -794,7 +824,7 @@ const ITEM_CATALOG = [
     "name": "★ Bloodhound Gloves | Bronzed",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1150.0,
+    "price": 1150,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOnJrv8iZT4OegbJtqLP-FC3Svw-J5v-VhQDy9kSIqtimEloPwIhTLN1F4Tox2Q7UJ4RLrltDkMuyz4ASIg4kUxCr5jy8fvC46sLtWWaojqKze2giTL_Rjtvi23tdj"
   },
   {
@@ -802,7 +832,7 @@ const ITEM_CATALOG = [
     "name": "★ Bloodhound Gloves | Snakebite",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1175.0,
+    "price": 1175,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOnJrv8iZT4OegbJtqLP-FC3Svw-J5v-VhQDy9kSI0vTyOn5zyKCX4PERxSdEfGb5d6lSmxIfuMezmtFfb39lAxCivh3hI6Chi4eYGWfAt8vXTiw_EM7Q_t5NWIeHnE0qrynbE1A"
   },
   {
@@ -810,7 +840,7 @@ const ITEM_CATALOG = [
     "name": "★ Broken Fang Gloves | Needle Point",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1200.0,
+    "price": 1200,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOnITv9idV6fOgb5tqLP-FC3Svzv5zouB9Ria9xE0YtTGKiI71HifOOV5kFJQlQbUL4RHukofjY-227wDaidpHnCqs3H5K6So95ekLVKck__bW3Q_fcepqSI673wM"
   },
   {
@@ -818,7 +848,7 @@ const ITEM_CATALOG = [
     "name": "★ Broken Fang Gloves | Jade",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1225.0,
+    "price": 1225,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOnITv9idV6fOgb5tqLP-FC3Svzv5zouB9Ria9xE0YvjiRm4PwIhTALFN1VP0sHLBS9g65w9exM-Pl5gaKidkRziX22yNIv306571QA6pwrKGDiluTZLxs5ZdXOr_5GlzOqAIa"
   },
   {
@@ -826,7 +856,7 @@ const ITEM_CATALOG = [
     "name": "★ Broken Fang Gloves | Yellow-banded",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1250.0,
+    "price": 1250,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOnITv9idV6fOgb5tqLP-FC3Svzv5zouB9Ria9xE0YozKMiYD3Hi3VMVFPWM4hFrxl-0XkzougWLa7sF2alYpAyX__iClA5ntstuoEUqUirKeG2w3IYrZo4JRSLa2vRRvdWhwJsa98BNe077TKBCc"
   },
   {
@@ -834,7 +864,7 @@ const ITEM_CATALOG = [
     "name": "★ Broken Fang Gloves | Unhinged",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1275.0,
+    "price": 1275,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOnITv9idV6fOgb5tqLP-FC3Svzv5zouB9Ria9xE0YoDOEkYrqKiLJAVR8W8ErKrtT5Uj8jNfuN-2wtgeNioNDxS7_jS4av31j5L4CVqV0rvLTigzCNeE5tZkCJqm5DUPZGadTirc"
   },
   {
@@ -842,7 +872,7 @@ const ITEM_CATALOG = [
     "name": "★ Hydra Gloves | Emerald",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 1300.0,
+    "price": 1300,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOlo_k7yNk6P6hfqF-H_KfAWiUyeFjvuVWRzC3hxwYsTGEmYTGJjnCO1hPVssnHaMU4EG6ktGyPryz5A3fiIwUyin3h3lJ5nlq5-xQVPIk-6HWjVmQOeFptI5DeqjsQUewWg"
   },
   {
@@ -850,7 +880,7 @@ const ITEM_CATALOG = [
     "name": "★ Hydra Gloves | Case Hardened",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 450.0,
+    "price": 450,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOlo_k7yNk6P6hfqF-H_KfAWiUyeFjvuVWRzC3hxwYsDyWn7DxIDnDO1h1Xv0sHLBS9g7ul9zmMbi35FHYgolMmSj9jS8fvC5jte9RAqctqKCC2QHBYrU64MMCOr_5GlPhveuZ"
   },
   {
@@ -858,7 +888,7 @@ const ITEM_CATALOG = [
     "name": "★ Hydra Gloves | Mangrove",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 475.0,
+    "price": 475,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOlo_k7yNk6P6hfqF-H_KfAWiUyeFjvuVWRzC3hxwYtC-An4HGLS7GKl51SP0tEKRS3UL6w5ekWLa7sF2alY9MzyX92ixAvCs-sutWWKd08qDRh17CZOI86JcBcffyH0iGUR9asfh8BNe0yN2QCJM"
   },
   {
@@ -866,7 +896,7 @@ const ITEM_CATALOG = [
     "name": "★ Hydra Gloves | Rattler",
     "category": "Gloves",
     "rarity": "mythic",
-    "price": 500.0,
+    "price": 500,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Tg_13jRBnOlo_k7yNk6P6hfqF-H_KfAWiUyeFjvuVWRzC3hxwYoDOEkYrqKiLJAVRiW9EzKrtT5Uj8jNOyZb_i5QHcg40Unyz-ji5LvX1v6-kEV_Ek8vCFjguUYOU_tJVWd6y5DUPZHBGjgbE"
   },
   {
@@ -874,7 +904,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | AUTOEXEC",
     "category": "Rifle",
     "rarity": "legendary",
-    "price": 167.0,
+    "price": 167,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiNQu6WRabF5L_WLC2Svwu97v95lRi67gVN16mzSwtigdn2QPAElXpskQOQIthC8xIXiM-7k4gHfgoMWySyo2y4b8G81tI8PUinm"
   },
   {
@@ -906,7 +936,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | The Oligarch",
     "category": "Rifle",
     "rarity": "legendary",
-    "price": 228.0,
+    "price": 228,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiNQu6WReLFrJvWBMWSF0vp5vd5lRi67gVNz4Tvdn4qoJC3Ba1V1WcdxTbFcsEbpxoHhNunnsVPYitlFm3392C4f8G81tEVBuxrI"
   },
   {
@@ -946,7 +976,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Case Hardened",
     "category": "Rifle",
     "rarity": "legendary",
-    "price": 450.0,
+    "price": 450,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiNK0P2nZKFpH_yaCW-Ej7sk5bE8Sn-2lEpz4zndzoyvdHuUPwFzWZYiE7EK4Bi4k9TlY-y24FbAy9USGSiZd5Q"
   },
   {
@@ -970,7 +1000,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Legion of Anubis",
     "category": "Rifle",
     "rarity": "rare",
-    "price": 24.0,
+    "price": 24,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiFO0POlPPNSIf6GDG6D_uJ_t-l9AX_nzBhw4TvWwo6udC2QbgZyWcN2RuMP4xHrlYDnYezm7geP3d5FyH3gznQeY_Oe4QY"
   },
   {
@@ -978,7 +1008,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Asiimov",
     "category": "Rifle",
     "rarity": "epic",
-    "price": 95.0,
+    "price": 95,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiFO0POlPPNSIeOaB2qf19F6ueZhW2e2wEt-t2jcytf6dymSO1JxA5oiRecLsRa5kIfkYr-241aLgotHz3-rkGoXuUp8oX57"
   },
   {
@@ -1042,7 +1072,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Vulcan",
     "category": "Rifle",
     "rarity": "legendary",
-    "price": 650.0,
+    "price": 650,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiFO0POlPPNSMuWRDGKC_uJ_t-l9AXCxxEh14zjTztivci2ePQZ2W8NzTecD4BKwloLiYeqxtAOIj9gUyyngznQeF7I6QE8"
   },
   {
@@ -1058,7 +1088,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Head Shot",
     "category": "Rifle",
     "rarity": "epic",
-    "price": 65.0,
+    "price": 65,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiFO0POlV6xoIfSsHW-f1dF-v-1mcCW6khUz_TzRnNigd3-SOg4lAsF1QOQN4xS4wdHnMu-0swaMjIxExSSoiyof6ih1o7FVGHIdVhw"
   },
   {
@@ -1066,7 +1096,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Wild Lotus",
     "category": "Rifle",
     "rarity": "ancient",
-    "price": 3200.0,
+    "price": 3200,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiFO0POlV61-LPGdCliWzeFkse1WQyC0nQlpsDuGyt-pdnyRPA4hDcYkR-QPuhi-wdPuYbyx5AaMidkQnC_-2ilIuzErvbi4ijV5Mw"
   },
   {
@@ -1098,7 +1128,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Fire Serpent",
     "category": "Rifle",
     "rarity": "legendary",
-    "price": 1150.0,
+    "price": 1150,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiFO0PSneqF-JeKDC2mE_u995LZWTTuygxIYvzSCkpu3cnvFPQB2DpUkROFY4Rntw93lP7i241DbiI1BxSuviHlKunk_6-sHU71lpPMTRLyP4Q"
   },
   {
@@ -1130,7 +1160,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Jaguar",
     "category": "Rifle",
     "rarity": "legendary",
-    "price": 45.0,
+    "price": 45,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiFO0OKvZrBlJeKsD2zEltF6ueZhW2fhzUwi4WuBzNv6dCiWPVUgApV0TLIM40SwxNLuN-Pl71fdjogXmy79kGoXuYeqaPqj"
   },
   {
@@ -1162,7 +1192,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Leet Museo",
     "category": "Rifle",
     "rarity": "epic",
-    "price": 42.0,
+    "price": 42,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiVI0POlPPNSIfKAGnWRwvpJvOhuRz39xEly6jmHmdiqeS6UawMmCsBzFrRb4BLtx9DgPr635A3Xj45GySj5jzQJsHjwtGRbjQ"
   },
   {
@@ -1170,7 +1200,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Bloodsport",
     "category": "Rifle",
     "rarity": "legendary",
-    "price": 115.0,
+    "price": 115,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiVI0POlPPNSIvycAWOD0eFkpN5lRi67gVN15mmDw9egci_EPFAkDMQlTeZe4EXplNa0Yrvr5wbd345GyHioiC4b8G81tFuqg_k_"
   },
   {
@@ -1178,7 +1208,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | The Empress",
     "category": "Rifle",
     "rarity": "epic",
-    "price": 85.0,
+    "price": 85,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiVI0POlPPNSJf2DHGKD0tF6ueZhW2exxEt152rWzI7_Ii-Ubw90DMB0Ee4C5xOwx9GxZbjk71PXgogWn36tkGoXudZeYvlo"
   },
   {
@@ -1186,7 +1216,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Gold Arabesque",
     "category": "Rifle",
     "rarity": "legendary",
-    "price": 2100.0,
+    "price": 2100,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiVI0POlPPNSJ_-fCliR0-90tfJ4WiyMmRQguynLntmvICieOARzCpMhF-BYsRe-xoHvYu_g5lSNj4NDyy2viCwY6Hlu5_FCD_Q1jEqYuQ"
   },
   {
@@ -1218,7 +1248,7 @@ const ITEM_CATALOG = [
     "name": "AK-47 | Fuel Injector",
     "category": "Rifle",
     "rarity": "legendary",
-    "price": 340.0,
+    "price": 340,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiVI0POlPPNSM-WDC3WTye9kt-RtcCW6khUz_WuGy9_8dHuRbg5xW5IjQ-BYshK9mta0NLmw4lDa2o0Wni_3iy4f6np1o7FVB0pWHHg"
   },
   {
@@ -1482,7 +1512,7 @@ const ITEM_CATALOG = [
     "name": "AUG | Akihabara Accept",
     "category": "Rifle",
     "rarity": "legendary",
-    "price": 106.0,
+    "price": 106,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwi5Hf_jdk7vynZaFSIeWUMWuZxuZi_rZvSXDgzUV_tWWAydyqI3mQbVMiWJolTLQOtBS4w4a1MuznsVHa3YlbjXKpUc8HttI"
   },
   {
@@ -1738,7 +1768,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Man-o'-war",
     "category": "Sniper",
     "rarity": "legendary",
-    "price": 289.0,
+    "price": 289,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_C9k7uW-V6NhL-KKMWuZxuZi_uM5HXG3xhh_t2iBnI2ucn3EZwEjDpJ0Q-dY5EPrxNTiYevj7gXa2IhbjXKpQIFOiXU"
   },
   {
@@ -1770,7 +1800,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Silk Tiger",
     "category": "Sniper",
     "rarity": "epic",
-    "price": 12.0,
+    "price": 12,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_C9k-_upbbZ-H_KfG2KvzedxuPUnTXywkU1x4DvXztz_dH2WZlQkXMEhFrFY5BDrm9HhMurq4AfdiYxAnDK-0H0fPMTeBA"
   },
   {
@@ -1802,7 +1832,7 @@ const ITEM_CATALOG = [
     "name": "AWP | LongDog",
     "category": "Sniper",
     "rarity": "legendary",
-    "price": 106.0,
+    "price": 106,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_DVL0P6hZqNpL_esAm6Xyfo44rNtFi_kxhx-4WvWnImoJ3mTblJzDJFzR-QP4EK4m9XjZbvk7lCLiZUFk3u2JoT1UA"
   },
   {
@@ -1834,7 +1864,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Chrome Cannon",
     "category": "Sniper",
     "rarity": "legendary",
-    "price": 160.0,
+    "price": 160,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_DVL0OarZbRoMvWXMWuZxuZi_uM6SXngxR5-smTXw4ugIi6RbVcpXsN1ELUDtxPrktOyNL7h4g2P2tpbjXKpKIbjbD4"
   },
   {
@@ -1842,7 +1872,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Asiimov",
     "category": "Sniper",
     "rarity": "legendary",
-    "price": 125.0,
+    "price": 125,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_jdk7uW-V6V-Kf2cGFidxOp_pewnF3nhxEt0sGnSzN76dH3GOg9xC8FyEORftRe-x9PuYurq71bW3d8UnjK-0H0YSTpMGQ"
   },
   {
@@ -1866,7 +1896,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Oni Taiji",
     "category": "Sniper",
     "rarity": "legendary",
-    "price": 228.0,
+    "price": 228,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_jdk7uW-V6xsLv6KD1icyOl-pK9vGCqwkx524G_WnNmsInyXOAVyXJJ0TbNb5EOxxIflYbzj4gDdiNlC02yg2XaKgrAq"
   },
   {
@@ -1874,7 +1904,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Hyper Beast",
     "category": "Sniper",
     "rarity": "epic",
-    "price": 72.0,
+    "price": 72,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_jdk7uW-V6x0MPWBMWWVwP1ij-1gSCGn20pxtm_WzNuoeHKeaFAnCZUiTe5bt0HqxofmZOrm5Q2IjoMQzS_5iShXrnE8NzWs__c"
   },
   {
@@ -1890,7 +1920,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Neo-Noir",
     "category": "Sniper",
     "rarity": "epic",
-    "price": 45.0,
+    "price": 45,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_jdk7uW-V6poL_6cB3WvzedxuPUnHirrxR4l423SyI39I3KXPwdxWZclQeNZ5EXskYfnNeyw71OMi9lNzDK-0H3r66pOTw"
   },
   {
@@ -1922,7 +1952,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Containment Breach",
     "category": "Sniper",
     "rarity": "legendary",
-    "price": 140.0,
+    "price": 140,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_jdk7uW-V7JkMuWAMWuZxuZi_rQ6SXq1xURysj_Vw4uhJHOVPQ8oCZt4QrRbtRi6ldPlPu_g4FHaiYNbjXKpcPI_17A"
   },
   {
@@ -1930,7 +1960,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Wildfire",
     "category": "Sniper",
     "rarity": "epic",
-    "price": 88.0,
+    "price": 88,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_jdk7uW-V7NkLPSVB3WV_uJ_t-l9AX7rxhl-tmzSwomtdC6TPwQnW5UkR-YD5kK-ltCzP-Ox4FfXiNoQyyrgznQeu9L0PzQ"
   },
   {
@@ -1946,7 +1976,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Dragon Lore",
     "category": "Sniper",
     "rarity": "ancient",
-    "price": 4200.0,
+    "price": 4200,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_jdk4veqYaF7IfysCnWRxuF4j-B-Xxa_nBovp3Pdwtj9cC_GaAd0DZdwQu9fuhS4kNy0NePntVTbjYpCyyT_3CgY5i9j_a9cBkcCWUKV"
   },
   {
@@ -1954,7 +1984,7 @@ const ITEM_CATALOG = [
     "name": "AWP | Medusa",
     "category": "Sniper",
     "rarity": "legendary",
-    "price": 2100.0,
+    "price": 2100,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf_jdk4veqfbdsH_GEHlicyOl-pK85TC23wk12tWSGnNr6JXqRPVUnA5J5RLIKshS-l4HuYbji7lfajdgU02yg2bOcOBD3"
   },
   {
@@ -1986,7 +2016,7 @@ const ITEM_CATALOG = [
     "name": "AWP | The Prince",
     "category": "Sniper",
     "rarity": "legendary",
-    "price": 2800.0,
+    "price": 2800,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf-jFk7uW-V6FjIf2WAlicyOl-pK9qHXHkw093sGvTw4uqJSnDPQAkCsNyEbZcshiwxtK0Yumz4gbX2o9C02yg2f5NtC8l"
   },
   {
@@ -2002,15 +2032,15 @@ const ITEM_CATALOG = [
     "name": "AWP | Gungnir",
     "category": "Sniper",
     "rarity": "ancient",
-    "price": 5200.0,
-    "image": "https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf-jFk7uW-V6N4LvedB3WvzedxuPUnHnjnzUl0sWrdztitI3rDZgJzAsZ1QOFY4UPqldDgMO_l41HXit9AmTK-0H227dAsvQ"
+    "price": 5200,
+    "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf-jFk7uW-V6N4LvedB3WvzedxuPUnHnjnzUl0sWrdztitI3rDZgJzAsZ1QOFY4UPqldDgMO_l41HXit9AmTK-0H227dAsvQ"
   },
   {
     "id": "skin_250",
     "name": "AWP | Desert Hydra",
     "category": "Sniper",
     "rarity": "legendary",
-    "price": 1650.0,
+    "price": 1650,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwiYbf-jFk7uW-V6x0JOKSMWuZxuZi_uA7Syu2w0Ry4mqGzYypeH3DaAEnCpt0FuAK4RjrkoDgMb7mtFfcit5bjXKpX4RFZcA"
   },
   {
@@ -2146,7 +2176,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Fade",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1000.0,
+    "price": 1000,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0POvV6JsJPWsAm6Xyfo45-BrHniwzUh24jjVm4qgInnCOA4mDscmEeVcsBXtkN22P-yx5waNg5UFk3tAoG85FQ"
   },
   {
@@ -2154,7 +2184,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Doppler",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1025.0,
+    "price": 1025,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0POjV6ZhIfOYHmKR0-JJveB7TSW2nAcitwKJk4jxNWWVZ1AmDJIlQuZcu0btx9e0Y-205gOL3dhGzS333CpBvHxi6ucEBfcg5OSJ2MqXuBCE"
   },
   {
@@ -2162,7 +2192,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Gamma Doppler",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1050.0,
+    "price": 1050,
     "image": "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpotLu8JAllx8zJfAJH4dmklYyPqPr1Ibndk2JL7cFOhuDG_Zi73VG2qUQ_am36LNKWcwM2Ml3X_FS8wL3vhMC0vJXOn3ZkuSAl7HiOmwv3308XDHXucw"
   },
   {
@@ -2170,7 +2200,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Marble Fade",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1075.0,
+    "price": 1075,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0POjV6lsMvKfC1iWwOpzj-1gSCGn2xhysWrTn42rdH2SawQnDccjE-ELsxa-mtTjMejr7wXZgoxFn3n2hnhXrnE8oMvxYMA"
   },
   {
@@ -2178,7 +2208,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Freehand",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1100.0,
+    "price": 1100,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0POjV6lsMvuWCliF0dF6ueZhW2e1zUh36zuEnteqeSqTOlUnXMYhFOcDuxfpkIblM-zj4gSLi45EniSqkGoXuTHKXCgo"
   },
   {
@@ -2186,7 +2216,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Slaughter",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1125.0,
+    "price": 1125,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0POjV75oIuKSMWuZxuZi_uU7HyjhwUh-tm_Xydmuc3nGbwN2ApAmQeNfsUXtktOzYuLm5FPajN9bjXKpLQ8HVlE"
   },
   {
@@ -2194,7 +2224,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Tiger Tooth",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1150.0,
+    "price": 1150,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0POgV7BkJ_WBMWiCwOBxtd5lRi67gVMhsGrTntn4ci-ROAYlXMBwE7YL5BaxxIHjY-vq7w3X398RxS78iylK8G81tBow9RWL"
   },
   {
@@ -2202,7 +2232,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Blue Steel",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1175.0,
+    "price": 1175,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PO_V6ZhNfWXMWuZxuZi_rgwTH21kxt24TvXwo6vdXmfbgdyDpV5RORYuxS5m4KzY7605FPejohbjXKpq_wJOWQ"
   },
   {
@@ -2210,7 +2240,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Damascus Steel",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1200.0,
+    "price": 1200,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PO_V6BsLfGADXKD_uJ_t-l9ASu2zE904DnQyY34JSrGPQAmDsdxQ7MKsRK7k9CxNLnnswDY2tpNmCzgznQe52NAd0k"
   },
   {
@@ -2218,7 +2248,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Stained",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1225.0,
+    "price": 1225,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PO_V6JiMvOWClicyOl-pK88SSq1xEV35muBm9qvcSrDbgZzDZVwROAM5EOwldflZbu27wWN2IhM02yg2UseboeH"
   },
   {
@@ -2226,7 +2256,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Case Hardened",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1250.0,
+    "price": 1250,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PO_V6tkLPWXMWuZxuZi_uRrSXDlzUtw4WTRwtj4eX6XPAd0XsEiROcNthm-w4HhP-Pq7waKiItbjXKppDMdu0I"
   },
   {
@@ -2234,7 +2264,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Rust Coat",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1275.0,
+    "price": 1275,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PO_V7d5JfWfMWyeyOhzj-xsSyCmmFN0tWzXntuhJHyROw8jWMAhQeFf4ELrlYC1Me_r4QCN3d1HyX38hn8b8G81tKs8v05y"
   },
   {
@@ -2242,7 +2272,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Lore",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 1300.0,
+    "price": 1300,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PG7V6ZsOf-dC3OvzeFktd5lRi67gVMj5GnXzt__JH-SawdyDJF1ROcCu0K5xNOxZeqx5AOI2oNGnnn23ylJ8G81tNZRAs3w"
   },
   {
@@ -2250,7 +2280,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Black Laminate",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 450.0,
+    "price": 450,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PG7V6ZsOf-dC3Ov0vp5vuR-Tjq7qhEutDWR1Nr6IHuXOgMkWcQiQ7YK5hG7wYfgYuOx5gSN2YNCyHn-2Cof5i5isL0cEf1yJefVwLI"
   },
   {
@@ -2258,7 +2288,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Autotronic",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 475.0,
+    "price": 475,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW9V6ZsOf-dC3OvwPtiv_V7QCe6liIrujqNjsGodirBZlckD5B1FLMDtka7m9DuZL7i4ADf39lNxSqqjXgc5ihstrkAT-N7rfe3-Xhk"
   },
   {
@@ -2266,7 +2296,7 @@ const ITEM_CATALOG = [
     "name": "★ Bayonet | Forest DDPAT",
     "category": "Knife",
     "rarity": "mythic",
-    "price": 500.0,
+    "price": 500,
     "image": "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0Pq3V6BpMPGHMWuZxuZi_rZrTSu3kxt_t2vSnN-rcn-SOA51WJN3Q7YMuxa9kdHlM77q4wKI2o5bjXKpkgWK6yM"
   }
 ];

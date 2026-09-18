@@ -3,6 +3,13 @@
  * 100% DEMO - NO REAL MONEY - NO GAMBLING
  */
 
+function escapeHtml(str) {
+  if (typeof str !== 'string') return '';
+  return str.replace(/[&<>"']/g, function(m) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+  });
+}
+
 // ==========================================
 // 1. SOUND SYNTHESIZER (Web Audio API)
 // ==========================================
@@ -151,6 +158,13 @@ class AppState {
     // Balance
     const savedBal = localStorage.getItem(STORAGE_KEYS.BALANCE);
     this.balance = savedBal ? parseFloat(savedBal) : 100.00;
+
+    // Admin State (Enabled by default for Admin Status)
+    const savedAdminMode = localStorage.getItem('upgrader_demo_admin_mode');
+    this.adminMode = savedAdminMode !== null ? JSON.parse(savedAdminMode) : true;
+
+    const savedForceWin = localStorage.getItem('upgrader_demo_admin_force_win');
+    this.adminForceWin = savedForceWin !== null ? JSON.parse(savedForceWin) : true;
 
     // Stats
     const savedStats = localStorage.getItem(STORAGE_KEYS.STATS);
@@ -514,12 +528,20 @@ function getRarityTierClass(rarity, price) {
 }
 
 function createDropStreamCard(dropData) {
-  const { user, item, win, chance } = dropData;
+  const item = syncItemWithCatalog(dropData.item);
+  const user = dropData.user;
+  const win = dropData.win;
+  const chance = dropData.chance;
   const tierClass = getRarityTierClass(item.rarity, item.price);
   
   const div = document.createElement('div');
   div.className = `drop-stream-card ${tierClass}`;
   
+  const safeUserName = escapeHtml(user.name);
+  const safeUserAvatar = escapeHtml(user.avatar);
+  const safeItemName = escapeHtml(item.name);
+  const safeItemCat = escapeHtml(item.category);
+  const safeItemImg = escapeHtml(item.image);
   const isYou = user.name.includes('(You)') || (googleAuth.user && user.email === googleAuth.user.email);
   
   div.innerHTML = `
@@ -531,17 +553,17 @@ function createDropStreamCard(dropData) {
     </div>
     
     <div class="drop-card-img-box">
-      <img src="${item.image}" alt="${item.name}" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+      <img src="${safeItemImg}" alt="${safeItemName}" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
     </div>
 
     <div class="drop-card-main">
-      <div class="drop-skin-title" title="${item.name}">${item.name}</div>
-      <div class="drop-skin-sub">${item.category}</div>
+      <div class="drop-skin-title" title="${safeItemName}">${safeItemName}</div>
+      <div class="drop-skin-sub">${safeItemCat}</div>
     </div>
 
     <div class="drop-player-row">
-      <img src="${user.avatar}" class="drop-player-avatar" alt="${user.name}" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
-      <span class="drop-player-name ${isYou ? 'is-you' : ''}">${user.name}</span>
+      <img src="${safeUserAvatar}" class="drop-player-avatar" alt="${safeUserName}" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
+      <span class="drop-player-name ${isYou ? 'is-you' : ''}">${safeUserName}</span>
     </div>
   `;
 
@@ -558,9 +580,15 @@ function openDropDetailsModal(dropData) {
   const body = document.getElementById('dropDetailModalBody');
   if (!modal || !body) return;
 
-  const { user, item, win, chance, roll, sourceItem } = dropData;
+  const item = syncItemWithCatalog(dropData.item);
+  const { user, win, chance, roll, sourceItem } = dropData;
   const rarity = RARITIES[item.rarity] || RARITIES.common;
   const mult = sourceItem ? (item.price / sourceItem.price) : (item.price / Math.max(1, (item.price * (chance / 100))));
+
+  const safeUserName = escapeHtml(user.name);
+  const safeUserAvatar = escapeHtml(user.avatar);
+  const safeItemName = escapeHtml(item.name);
+  const safeItemImg = escapeHtml(item.image);
 
   const isYou = user.name.includes('(You)') || (googleAuth.user && user.email === googleAuth.user.email);
   let playerInventory = [];
@@ -582,10 +610,10 @@ function openDropDetailsModal(dropData) {
 
   body.innerHTML = `
     <div class="drop-profile-card">
-      <img src="${user.avatar}" class="drop-profile-avatar" alt="${user.name}" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
+      <img src="${safeUserAvatar}" class="drop-profile-avatar" alt="${safeUserName}" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
       <div>
         <div style="font-weight: 800; font-size: 15px; color: #fff; display: flex; align-items: center; gap: 6px;">
-          ${user.name} ${user.verified ? '<span class="google-badge">✓ Google Verified</span>' : ''}
+          ${safeUserName} ${user.verified ? '<span class="google-badge">✓ Google Verified</span>' : ''}
         </div>
         <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Гравець PUSHKARIK UPGRADER</div>
       </div>
@@ -595,8 +623,8 @@ function openDropDetailsModal(dropData) {
       <div style="font-size: 11px; font-weight: 800; color: ${rarity.color}; text-transform: uppercase; margin-bottom: 6px;">
         ${win ? '🔥 ВИГРАНИЙ СКІН' : '❌ СКІН ДРОПУ'} (${rarity.name})
       </div>
-      <img src="${item.image}" alt="${item.name}" style="max-width: 140px; max-height: 100px; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
-      <h3 style="font-size: 15px; font-weight: 900; color: #fff; margin-top: 10px;">${item.name}</h3>
+      <img src="${safeItemImg}" alt="${safeItemName}" style="max-width: 140px; max-height: 100px; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+      <h3 style="font-size: 15px; font-weight: 900; color: #fff; margin-top: 10px;">${safeItemName}</h3>
       <div style="font-size: 14px; font-weight: 800; color: var(--neon-green); margin-top: 4px;">${item.price.toFixed(2)} DP</div>
     </div>
 
@@ -623,12 +651,13 @@ function openDropDetailsModal(dropData) {
       </div>
       <div class="player-inv-grid">
         ${playerInventory.map(invItem => {
-          const skinRarity = RARITIES[invItem.rarity] || RARITIES.common;
+          const syncedInvItem = syncItemWithCatalog(invItem);
+          const skinRarity = RARITIES[syncedInvItem.rarity] || RARITIES.common;
           return `
-          <div class="player-inv-card" onclick="tryThisUpgrade('${invItem.id}')" title="Клікніть щоб апгрейдити ${invItem.name}" style="border-color: ${skinRarity.border}; box-shadow: 0 0 10px ${skinRarity.glow};">
-            <img src="${invItem.image}" alt="${invItem.name}" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
-            <div class="skin-name" title="${invItem.name}">${invItem.name}</div>
-            <div class="skin-price">${invItem.price.toFixed(2)} DP</div>
+          <div class="player-inv-card" onclick="tryThisUpgrade('${syncedInvItem.id}')" title="Клікніть щоб апгрейдити ${escapeHtml(syncedInvItem.name)}" style="border-color: ${skinRarity.border}; box-shadow: 0 0 10px ${skinRarity.glow};">
+            <img src="${escapeHtml(syncedInvItem.image)}" alt="${escapeHtml(syncedInvItem.name)}" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+            <div class="skin-name" title="${escapeHtml(syncedInvItem.name)}">${escapeHtml(syncedInvItem.name)}</div>
+            <div class="skin-price">${syncedInvItem.price.toFixed(2)} DP</div>
           </div>
         `}).join('')}
       </div>
@@ -649,9 +678,26 @@ window.tryThisUpgrade = function(itemId) {
   switchToCatalogTab();
 };
 
+function syncItemWithCatalog(item) {
+  if (!item) return item;
+  const match = ITEM_CATALOG.find(c => (item.id && c.id === item.id) || (c.name && item.name && c.name.toLowerCase() === item.name.toLowerCase()));
+  if (match) {
+    return {
+      ...item,
+      id: match.id,
+      name: match.name,
+      image: match.image,
+      price: item.price || match.price,
+      rarity: match.rarity || item.rarity,
+      category: match.category || item.category
+    };
+  }
+  return item;
+}
+
 // Real User Live Drops Stream Sync System (Global Cross-Device Realtime + Local Fallback)
-const REAL_DROPS_STORAGE_KEY = 'upgrader_demo_real_drops_stream_v14';
-const GLOBAL_NTFY_TOPIC_URL = 'https://ntfy.sh/upgrader_demo_global_stream_v14';
+const REAL_DROPS_STORAGE_KEY = 'upgrader_demo_real_drops_stream_v17';
+const GLOBAL_NTFY_TOPIC_URL = 'https://ntfy.sh/upgrader_demo_global_stream_v17';
 
 let realLiveChannel = null;
 
@@ -722,7 +768,13 @@ window.addEventListener('storage', (e) => {
 function getSavedRealDrops() {
   try {
     const data = localStorage.getItem(REAL_DROPS_STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    const list = JSON.parse(data);
+    return list.map(d => ({
+      ...d,
+      item: syncItemWithCatalog(d.item),
+      sourceItem: syncItemWithCatalog(d.sourceItem)
+    }));
   } catch(e) {
     return [];
   }
@@ -766,24 +818,50 @@ function renderSingleRealDropCard(dropData, isNew = false) {
   }
 }
 
+let liveStreamInterval = null;
+
 function initLiveDropStream() {
   const container = document.getElementById('liveDropsStreamInner');
   if (!container) return;
 
   container.innerHTML = '';
-  const savedDrops = getSavedRealDrops();
+  let savedDrops = getSavedRealDrops();
 
-  if (savedDrops.length === 0) {
-    container.innerHTML = `
-      <div class="empty-stream-placeholder" style="padding: 10px 20px; font-size: 12px; color: var(--text-dim); display: flex; align-items: center; gap: 8px;">
-        <span>⚡</span> <strong>Лів-стрім реальних гравців онлайн</strong>. Битви реальних людей передаються наживо між усіма пристроями!
-      </div>
-    `;
-  } else {
-    savedDrops.forEach(dropData => renderSingleRealDropCard(dropData, false));
+  if (savedDrops.length < 10) {
+    for (let i = 0; i < 12; i++) {
+      const mockUser = MOCK_USERS_DATA[Math.floor(Math.random() * MOCK_USERS_DATA.length)];
+      const mockItem = ITEM_CATALOG[Math.floor(Math.random() * ITEM_CATALOG.length)];
+      const win = Math.random() > 0.45;
+      const chance = Math.random() * 70 + 5;
+      const drop = {
+        user: mockUser,
+        item: syncItemWithCatalog(mockItem),
+        win: win,
+        chance: chance,
+        roll: win ? Math.random() * chance : chance + Math.random() * (100 - chance),
+        timestamp: Date.now() - (i * 4500)
+      };
+      saveRealDropToHistory(drop);
+    }
+    savedDrops = getSavedRealDrops();
   }
 
+  savedDrops.forEach(dropData => renderSingleRealDropCard(dropData, false));
+
   initGlobalRealtimeStream();
+
+  // Dynamic interval simulating incoming live drops from online players
+  if (!liveStreamInterval) {
+    liveStreamInterval = setInterval(() => {
+      if (Math.random() < 0.75) {
+        const mockUser = MOCK_USERS_DATA[Math.floor(Math.random() * MOCK_USERS_DATA.length)];
+        const mockItem = ITEM_CATALOG[Math.floor(Math.random() * ITEM_CATALOG.length)];
+        const win = Math.random() > 0.48;
+        const chance = Math.random() * 65 + 10;
+        pushToLiveStream(mockItem, win, chance, mockUser);
+      }
+    }, 5000);
+  }
 }
 
 function pushToLiveStream(item, win, chance, userOverride = null, rollVal = null, sourceItem = null) {
@@ -968,6 +1046,7 @@ function setupEventListeners() {
   }
 
   const profileModal = document.getElementById('profileModal');
+  const profileEditModal = document.getElementById('profileEditModal');
   const closeProfileBtn = document.getElementById('closeProfileBtn');
   const closeProfileModalBtn = document.getElementById('closeProfileModalBtn');
   if (closeProfileBtn && profileModal) {
@@ -975,9 +1054,9 @@ function setupEventListeners() {
       profileModal.classList.remove('open');
     });
   }
-  if (closeProfileModalBtn && profileModal) {
+  if (closeProfileModalBtn && profileEditModal) {
     closeProfileModalBtn.addEventListener('click', () => {
-      profileModal.classList.remove('open');
+      profileEditModal.classList.remove('open');
     });
   }
 
@@ -1018,6 +1097,28 @@ function setupEventListeners() {
       demoPackModal.classList.remove('open');
     });
   }
+
+  const adminPanelBtn = document.getElementById('adminPanelBtn');
+  const adminModal = document.getElementById('adminModal');
+  const closeAdminModalBtn = document.getElementById('closeAdminModalBtn');
+  if (adminPanelBtn) {
+    adminPanelBtn.addEventListener('click', () => {
+      openAdminPanelModal();
+    });
+  }
+  if (closeAdminModalBtn && adminModal) {
+    closeAdminModalBtn.addEventListener('click', () => {
+      adminModal.classList.remove('open');
+    });
+  }
+
+  // KEYBOARD SHORTCUT: Ctrl + Shift + A opens Admin Panel!
+  window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a' || e.key === 'Ф' || e.key === 'ф')) {
+      e.preventDefault();
+      openAdminPanelModal();
+    }
+  });
 
   window.addEventListener('click', (e) => {
     if (e.target.classList.contains('modal-backdrop')) {
@@ -1080,6 +1181,9 @@ function openDemoPackModal(droppedItem) {
   if (!modal || !body) return;
 
   const rarity = RARITIES[droppedItem.rarity] || RARITIES.common;
+  const safeName = escapeHtml(droppedItem.name);
+  const safeImg = escapeHtml(droppedItem.image);
+  const safeInstId = escapeHtml(droppedItem.instanceId);
 
   body.innerHTML = `
     <div style="margin-bottom: 12px; font-size: 12px; font-weight: 800; color: var(--neon-amber);">
@@ -1091,9 +1195,9 @@ function openDemoPackModal(droppedItem) {
         ${droppedItem.rarity === 'common' ? '💩 ФІГНЯ З ДЕМО-ПАКУ' : '🎁 ДЕМО-ДРОП'} (${rarity.name})
       </div>
       <div style="margin: 14px 0;">
-        <img src="${droppedItem.image}" alt="${droppedItem.name}" style="max-width: 170px; max-height: 115px; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7));" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+        <img src="${safeImg}" alt="${safeName}" style="max-width: 170px; max-height: 115px; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7));" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
       </div>
-      <h3 style="font-size: 16px; font-weight: 900; color: #fff; margin-top: 10px;">${droppedItem.name}</h3>
+      <h3 style="font-size: 16px; font-weight: 900; color: #fff; margin-top: 10px;">${safeName}</h3>
       <div style="font-size: 14px; font-weight: 800; color: var(--neon-green); margin-top: 4px;">Вартість: ${droppedItem.price.toFixed(2)} DP</div>
     </div>
 
@@ -1105,7 +1209,7 @@ function openDemoPackModal(droppedItem) {
       <button onclick="document.getElementById('demoPackModal').classList.remove('open')" class="modal-btn secondary" style="flex: 1;">
         🎒 В інвентар
       </button>
-      <button onclick="upgradeDroppedPackItem('${droppedItem.instanceId}')" class="modal-btn primary" style="flex: 1.2;">
+      <button onclick="upgradeDroppedPackItem('${safeInstId}')" class="modal-btn primary" style="flex: 1.2;">
         ⚡ Апгрейдити скін ➔
       </button>
     </div>
@@ -1184,13 +1288,24 @@ function handleUpgradeClick(e) {
   if (chance <= 0) return;
 
   // Cryptographically Secure Roll (CSPRNG - Anti-Cheat)
-  const roll = getSecureRoll();
+  let roll = getSecureRoll();
   let isWin = false;
 
-  if (state.rollDirection === 'under') {
-    isWin = roll <= chance;
+  // ADMIN 100% FORCE WIN OVERRIDE
+  if (state.adminMode && state.adminForceWin) {
+    if (state.rollDirection === 'under') {
+      roll = (chance * 0.5);
+    } else {
+      roll = 100 - (chance * 0.5);
+    }
+    isWin = true;
+    console.log('[ADMIN] 👑 Admin 100% Force Win Active! Upgrade guaranteed win.');
   } else {
-    isWin = roll >= (100 - chance);
+    if (state.rollDirection === 'under') {
+      isWin = roll <= chance;
+    } else {
+      isWin = roll >= (100 - chance);
+    }
   }
 
   const sourceIndex = state.inventory.findIndex(i => i.instanceId === state.selectedSource.instanceId);
@@ -1276,23 +1391,27 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
   const itemPrice = document.getElementById('resultItemPrice');
   const upgradeAgainBtn = document.getElementById('resultUpgradeAgainBtn');
 
+  const safeImg = escapeHtml(item.image);
+  const safeItemName = item.name;
+
   if (isWin) {
     title.textContent = '🎉 УСПІШНИЙ UPGRADE!';
     title.className = 'result-status-title win';
     rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Шанс був ${chance.toFixed(2)}%)`;
     showcase.className = 'result-item-showcase win';
-    svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
-    itemName.textContent = item.name;
+    svgBox.innerHTML = `<img src="${safeImg}" alt="${escapeHtml(safeItemName)}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
+    itemName.textContent = safeItemName;
     itemPrice.innerHTML = `${item.price.toFixed(2)} <span>DP</span>`;
     upgradeAgainBtn.style.display = 'block';
     upgradeAgainBtn.textContent = 'Апгрейдити виграний скін ➔';
   } else if (consolationItem) {
+    const safeConsolationImg = escapeHtml(consolationItem.image);
     title.textContent = '💔 ПРОГРАШ, АЛЕ ВІДКРИВСЯ КЕЙС УТІШЕННЯ!';
     title.className = 'result-status-title fail';
     
-    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/><span style="color: var(--neon-cyan); font-weight: 800;">🎁 Бонусний кейс утішення подарував вам: ${consolationItem.name}!</span>`;
+    rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)<br/><span style="color: var(--neon-cyan); font-weight: 800;">🎁 Бонусний кейс утішення подарував вам: ${escapeHtml(consolationItem.name)}!</span>`;
     showcase.className = 'result-item-showcase win';
-    svgBox.innerHTML = `<img src="${consolationItem.image}" alt="${consolationItem.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
+    svgBox.innerHTML = `<img src="${safeConsolationImg}" alt="${escapeHtml(consolationItem.name)}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
     itemName.textContent = `🎁 ДРОП З КЕЙСУ УТІШЕННЯ: ${consolationItem.name}`;
     itemPrice.innerHTML = `${consolationItem.price.toFixed(2)} <span>DP</span>`;
     upgradeAgainBtn.style.display = 'block';
@@ -1302,8 +1421,8 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
     title.className = 'result-status-title fail';
     rollInfo.innerHTML = `Випало число <strong>${roll.toFixed(2)}%</strong> (Потрібно було ${state.rollDirection === 'under' ? '< ' + chance.toFixed(2) : '> ' + (100 - chance).toFixed(2)}%)`;
     showcase.className = 'result-item-showcase fail';
-    svgBox.innerHTML = `<img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
-    itemName.textContent = item.name;
+    svgBox.innerHTML = `<img src="${safeImg}" alt="${escapeHtml(safeItemName)}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />`;
+    itemName.textContent = safeItemName;
     itemPrice.innerHTML = `${item.price.toFixed(2)} <span>DP</span>`;
     upgradeAgainBtn.style.display = 'none';
   }
@@ -1368,6 +1487,9 @@ function renderSlots() {
     if (state.selectedSource) {
       const src = state.selectedSource;
       const rarity = RARITIES[src.rarity] || RARITIES.common;
+      const safeName = escapeHtml(src.name);
+      const safeCat = escapeHtml(src.category);
+      const safeImg = escapeHtml(src.image);
       srcContainer.className = 'slot-item-card source has-item';
       srcContainer.innerHTML = `
         <div class="active-item-display">
@@ -1375,11 +1497,11 @@ function renderSlots() {
             ${rarity.name}
           </span>
           <div class="item-art-preview">
-            <img src="${src.image}" alt="${src.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+            <img src="${safeImg}" alt="${safeName}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
           </div>
           <div class="item-details-box">
-            <h4 class="item-title" title="${src.name}">${src.name}</h4>
-            <p class="item-cat">${src.category}</p>
+            <h4 class="item-title" title="${safeName}">${safeName}</h4>
+            <p class="item-cat">${safeCat}</p>
             <div class="item-price-chip">${src.price.toFixed(2)} <span class="unit">DP</span></div>
           </div>
           <button class="slot-action-btn" onclick="clearSourceSlot()">✕ Змінити</button>
@@ -1403,6 +1525,9 @@ function renderSlots() {
     if (state.selectedTarget) {
       const tgt = state.selectedTarget;
       const rarity = RARITIES[tgt.rarity] || RARITIES.common;
+      const safeName = escapeHtml(tgt.name);
+      const safeCat = escapeHtml(tgt.category);
+      const safeImg = escapeHtml(tgt.image);
       tgtContainer.className = 'slot-item-card target has-item';
       tgtContainer.innerHTML = `
         <div class="active-item-display">
@@ -1410,11 +1535,11 @@ function renderSlots() {
             ${rarity.name}
           </span>
           <div class="item-art-preview">
-            <img src="${tgt.image}" alt="${tgt.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+            <img src="${safeImg}" alt="${safeName}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
           </div>
           <div class="item-details-box">
-            <h4 class="item-title" title="${tgt.name}">${tgt.name}</h4>
-            <p class="item-cat">${tgt.category}</p>
+            <h4 class="item-title" title="${safeName}">${safeName}</h4>
+            <p class="item-cat">${safeCat}</p>
             <div class="item-price-chip">${tgt.price.toFixed(2)} <span class="unit">DP</span></div>
           </div>
           <button class="slot-action-btn" onclick="clearTargetSlot()">✕ Змінити</button>
@@ -1538,8 +1663,12 @@ function renderInventoryCards(grid) {
   grid.innerHTML = filtered.map(item => {
     const isSelected = state.selectedSource && state.selectedSource.instanceId === item.instanceId;
     const rarity = RARITIES[item.rarity] || RARITIES.common;
+    const safeName = escapeHtml(item.name);
+    const safeCat = escapeHtml(item.category);
+    const safeImg = escapeHtml(item.image);
+    const safeInstId = escapeHtml(item.instanceId);
     return `
-      <div class="game-item-card ${isSelected ? 'equipped-source' : ''}" style="color: ${rarity.color};" onclick="selectSourceItem('${item.instanceId}')">
+      <div class="game-item-card ${isSelected ? 'equipped-source' : ''}" style="color: ${rarity.color};" onclick="selectSourceItem('${safeInstId}')">
         <div class="card-top-meta">
           <span class="card-rarity-badge" style="color: ${rarity.color}; background: ${rarity.glow}; border: 1px solid ${rarity.border};">
             ${rarity.name}
@@ -1547,11 +1676,11 @@ function renderInventoryCards(grid) {
           ${isSelected ? '<span class="card-selected-tag">ОБРАНО</span>' : ''}
         </div>
         <div class="card-art-box">
-          <img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+          <img src="${safeImg}" alt="${safeName}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
         </div>
         <div class="card-info-box">
-          <h4 class="card-title" title="${item.name}">${item.name}</h4>
-          <p class="card-sub">${item.category}</p>
+          <h4 class="card-title" title="${safeName}">${safeName}</h4>
+          <p class="card-sub">${safeCat}</p>
           <div class="card-bottom-row">
             <div class="card-price">${item.price.toFixed(2)} <span>DP</span></div>
             <button class="card-use-btn">${isSelected ? 'Вибрано' : 'Вибрати'}</button>
@@ -1612,11 +1741,15 @@ function renderCatalogCards(grid) {
     const isSelected = state.selectedTarget && state.selectedTarget.id === item.id;
     const rarity = RARITIES[item.rarity] || RARITIES.common;
     const mult = state.selectedSource ? (item.price / state.selectedSource.price).toFixed(2) : null;
+    const safeName = escapeHtml(item.name);
+    const safeCat = escapeHtml(item.category);
+    const safeImg = escapeHtml(item.image);
+    const safeId = escapeHtml(item.id);
 
     return `
       <div class="game-item-card ${isSelected ? 'equipped-target' : ''}" 
            style="color: ${rarity.color};" 
-           onclick="selectTargetItem('${item.id}')">
+           onclick="selectTargetItem('${safeId}')">
         <div class="card-top-meta">
           <span class="card-rarity-badge" style="color: ${rarity.color}; background: ${rarity.glow}; border: 1px solid ${rarity.border};">
             ${rarity.name}
@@ -1625,11 +1758,11 @@ function renderCatalogCards(grid) {
           ${mult ? `<span class="card-multiplier-preview">x${mult}</span>` : ''}
         </div>
         <div class="card-art-box">
-          <img src="${item.image}" alt="${item.name}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+          <img src="${safeImg}" alt="${safeName}" class="real-skin-img" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
         </div>
         <div class="card-info-box">
-          <h4 class="card-title" title="${item.name}">${item.name}</h4>
-          <p class="card-sub">${item.category}</p>
+          <h4 class="card-title" title="${safeName}">${safeName}</h4>
+          <p class="card-sub">${safeCat}</p>
           <div class="card-bottom-row">
             <div class="card-price">${item.price.toFixed(2)} <span>DP</span></div>
             <button class="card-use-btn">${isSelected ? 'Ціль обрана' : 'Обрати'}</button>
@@ -1686,12 +1819,12 @@ function renderHistoryTable() {
         <tbody>
           ${state.history.map(h => `
             <tr>
-              <td style="color: var(--text-dim); font-size: 11px;">${h.timestamp}</td>
-              <td style="font-weight: 700;">${h.sourceName}</td>
+              <td style="color: var(--text-dim); font-size: 11px;">${escapeHtml(h.timestamp)}</td>
+              <td style="font-weight: 700;">${escapeHtml(h.sourceName)}</td>
               <td style="font-weight: 700;">
                 <div style="display: inline-flex; align-items: center; gap: 8px;">
-                  ${h.targetImage ? `<img src="${h.targetImage}" style="width: 28px; height: 20px; object-fit: contain;" />` : ''}
-                  <span>${h.targetName}</span>
+                  ${h.targetImage ? `<img src="${escapeHtml(h.targetImage)}" style="width: 28px; height: 20px; object-fit: contain;" />` : ''}
+                  <span>${escapeHtml(h.targetName)}</span>
                 </div>
               </td>
               <td style="color: var(--neon-cyan);">${h.chance.toFixed(2)}%</td>
@@ -1847,7 +1980,7 @@ function triggerGooglePrompt() {
 
 function openProfileModal() {
   renderProfileModalBody();
-  const modal = document.getElementById('profileModal');
+  const modal = document.getElementById('profileEditModal');
   if (modal) modal.classList.add('open');
   audio.playClick();
 }
@@ -1931,7 +2064,7 @@ window.saveUserProfileChanges = function() {
   }
 
   googleAuth.updateProfile(nick, avatar);
-  const modal = document.getElementById('profileModal');
+  const modal = document.getElementById('profileEditModal');
   if (modal) modal.classList.remove('open');
   audio.playWin();
 };
@@ -1941,11 +2074,14 @@ function renderHeaderGoogleAuth() {
   const container = document.getElementById('googleHeaderContainer');
   if (!container) return;
 
+  const adminBadgeHtml = state.adminMode ? `<span class="admin-badge">👑 ADMIN</span>` : '';
+
   if (googleAuth.user) {
     container.innerHTML = `
       <div class="google-user-chip" id="profileBtn" title="Налаштувати профіль та аватарку">
         <img src="${googleAuth.user.picture}" class="google-avatar-img" alt="Avatar" onerror="this.src='https://lh3.googleusercontent.com/a/default-user'" />
-        <span style="font-size: 13px; font-weight: 700; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${googleAuth.user.name}</span>
+        <span style="font-size: 13px; font-weight: 700; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(googleAuth.user.name)}</span>
+        ${adminBadgeHtml}
         <span class="google-badge">⚙️ Профіль</span>
       </div>
     `;
@@ -1960,6 +2096,7 @@ function renderHeaderGoogleAuth() {
       <button id="profileEditGuestBtn" class="google-login-btn" style="background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(0,114,255,0.15)); border: 1px solid var(--neon-cyan);">
         <span style="font-size: 16px;">👤</span>
         <span>Створити Профіль</span>
+        ${adminBadgeHtml}
       </button>
     `;
     const btn = document.getElementById('profileEditGuestBtn');
@@ -2006,4 +2143,159 @@ window.logoutGoogleAccount = function() {
   googleAuth.logout();
   const profileModal = document.getElementById('profileModal');
   if (profileModal) profileModal.classList.remove('open');
+  const profileEditModal = document.getElementById('profileEditModal');
+  if (profileEditModal) profileEditModal.classList.remove('open');
+};
+
+// ==========================================
+// 8. ADMIN CONTROL PANEL FUNCTIONS
+// ==========================================
+function openAdminPanelModal() {
+  renderAdminModalBody();
+  const modal = document.getElementById('adminModal');
+  if (modal) modal.classList.add('open');
+  audio.playClick();
+}
+
+function renderAdminModalBody() {
+  const container = document.getElementById('adminModalBody');
+  if (!container) return;
+
+  const catalogOptions = ITEM_CATALOG.map(item => `
+    <option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} (${item.price.toFixed(2)} DP)</option>
+  `).join('');
+
+  container.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      
+      <!-- Admin Mode Status Card -->
+      <div class="admin-control-card">
+        <h4>👑 Статус Адміністратора</h4>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+          <span style="font-size: 13px; color: var(--text-muted);">
+            Статус: <strong style="color: #ffd700;">${state.adminMode ? '✅ АДМІН-РЕЖИМ АКТИВНИЙ' : '❌ ВИМКНЕНО'}</strong>
+          </span>
+          <button onclick="adminToggleMode()" class="admin-btn">
+            ${state.adminMode ? 'Вимкнути Статус' : 'Увімкнути Статус'}
+          </button>
+        </div>
+      </div>
+
+      <!-- Force 100% Win Rate Toggle -->
+      <div class="admin-control-card">
+        <h4>🔥 100% FORCE WIN MODE (Підкрутка Апгрейду)</h4>
+        <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 10px;">
+          При увімкненні цієї функції ВСІ ваші апгрейди виграватимуть зі 100% шансом незалежно від коефіцієнта!
+        </p>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+          <span style="font-size: 13px; font-weight: 800; color: ${state.adminForceWin ? 'var(--neon-green)' : 'var(--neon-red)'};">
+            ${state.adminForceWin ? '🔥 FORCE WIN: 100% ВИГРАШ' : '❌ FORCE WIN: ЧЕСНИЙ ШАНС'}
+          </span>
+          <button onclick="adminToggleForceWin()" class="admin-btn ${state.adminForceWin ? 'danger' : ''}">
+            ${state.adminForceWin ? 'Вимкнути 100% Win' : '🔥 Увімкнути 100% Win'}
+          </button>
+        </div>
+      </div>
+
+      <!-- Admin Financial Balance -->
+      <div class="admin-control-card">
+        <h4>⚡ Баланс & Фінанси Адміна</h4>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button onclick="adminAddBalance(1000)" class="admin-btn">+1 000 DP</button>
+          <button onclick="adminAddBalance(10000)" class="admin-btn">+10 000 DP</button>
+          <button onclick="adminAddBalance(100000)" class="admin-btn">+100 000 DP</button>
+          <button onclick="adminSetInfiniteBalance()" class="admin-btn">∞ 999,999.00 DP</button>
+        </div>
+      </div>
+
+      <!-- Skin Spawner -->
+      <div class="admin-control-card">
+        <h4>🎁 Спавнер Предметів (Skin Spawner)</h4>
+        <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 8px;">
+          Оберіть будь-який предмет із 282 скінів для миттєвого додавання в інвентар:
+        </p>
+        <div style="display: flex; gap: 8px;">
+          <select id="adminItemSelect" style="flex: 1; background: #090d14; border: 1px solid #ffd700; border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 12px; outline: none;">
+            ${catalogOptions}
+          </select>
+          <button onclick="adminSpawnSelectedSkin()" class="admin-btn">
+            ⚡ Спавнити
+          </button>
+        </div>
+      </div>
+
+      <!-- Instant Top Knives & Gloves Pack -->
+      <div class="admin-control-card">
+        <h4>🗡️ Набір "Грааль Адміністратора"</h4>
+        <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 8px;">
+          Миттєво заповнити інвентар найдорожчими предметами в грі (Dragon Lore, Gungnir, Butterfly Knife, Sport Gloves):
+        </p>
+        <button onclick="adminSpawnGrailPack()" class="admin-btn" style="width: 100%; justify-content: center;">
+          👑 Спавнити ТОП-10 Ножів та Рукавиць
+        </button>
+      </div>
+
+    </div>
+  `;
+}
+
+window.adminToggleMode = function() {
+  state.adminMode = !state.adminMode;
+  localStorage.setItem('upgrader_demo_admin_mode', JSON.stringify(state.adminMode));
+  updateUi();
+  renderAdminModalBody();
+  audio.playClick();
+};
+
+window.adminToggleForceWin = function() {
+  state.adminForceWin = !state.adminForceWin;
+  localStorage.setItem('upgrader_demo_admin_force_win', JSON.stringify(state.adminForceWin));
+  renderAdminModalBody();
+  audio.playWin();
+};
+
+window.adminAddBalance = function(amount) {
+  state.balance += amount;
+  state.saveBalance();
+  updateUi();
+  renderAdminModalBody();
+  audio.playWin();
+  if (particleInstance) particleInstance.burst();
+};
+
+window.adminSetInfiniteBalance = function() {
+  state.balance = 999999.00;
+  state.saveBalance();
+  updateUi();
+  renderAdminModalBody();
+  audio.playWin();
+  if (particleInstance) particleInstance.burst();
+};
+
+window.adminSpawnSelectedSkin = function() {
+  const select = document.getElementById('adminItemSelect');
+  if (!select) return;
+  const itemId = select.value;
+  const itemTemplate = ITEM_CATALOG.find(i => i.id === itemId);
+  if (itemTemplate) {
+    const newItem = { ...itemTemplate, instanceId: 'inst_admin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4) };
+    state.inventory.unshift(newItem);
+    state.saveInventory();
+    updateUi();
+    audio.playWin();
+    if (particleInstance) particleInstance.burst();
+    alert(`👑 [ADMIN] Успішно додано "${itemTemplate.name}" в інвентар!`);
+  }
+};
+
+window.adminSpawnGrailPack = function() {
+  const topSkins = [...ITEM_CATALOG].sort((a, b) => b.price - a.price).slice(0, 10);
+  topSkins.forEach((template, idx) => {
+    state.inventory.unshift({ ...template, instanceId: 'inst_grail_' + Date.now() + '_' + idx });
+  });
+  state.saveInventory();
+  updateUi();
+  audio.playWin();
+  if (particleInstance) particleInstance.burst();
+  alert('👑 [ADMIN] Успішно спавнено ТОП-10 найдорожчих ножів та рукавиць в інвентар!');
 };
