@@ -5,9 +5,15 @@
 
 
 function getAuthToken() {
-  if (window.googleAuth && window.googleAuth.idToken) {
-    return window.googleAuth.idToken;
+  if (window.googleAuth) {
+    if (window.googleAuth.sessionToken) return window.googleAuth.sessionToken;
+    if (window.googleAuth.idToken) return window.googleAuth.idToken;
   }
+  const sessionToken = localStorage.getItem('pushkarik_session_token');
+  if (sessionToken) return sessionToken;
+  const savedGoogleToken = localStorage.getItem('upgrader_google_token');
+  if (savedGoogleToken) return savedGoogleToken;
+
   let guestToken = localStorage.getItem('upgrader_guest_token');
   if (!guestToken) {
     guestToken = 'guest_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -209,31 +215,14 @@ class AppState {
     const savedBal = localStorage.getItem(STORAGE_KEYS.BALANCE);
     this.balance = savedBal ? parseFloat(savedBal) : 100.00;
 
-    // Admin Authorization: You (Kiril / Creator) are Super Admin by default!
-    // Also supports granted admin keys and authorized user list.
-    const savedAdminToken = localStorage.getItem('pushkarik_admin_auth_token');
-    if (!savedAdminToken) {
-      localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
-    }
-    this.adminMode = true; // Permanent Super Admin for owner
-
-    // List of additional authorized admins and generated admin access keys
-    try {
-      const savedAdmins = localStorage.getItem('pushkarik_authorized_admins_v1');
-      this.authorizedAdmins = savedAdmins ? JSON.parse(savedAdmins) : ['Кирило (Owner/Creator)'];
-    } catch(e) {
-      this.authorizedAdmins = ['Кирило (Owner/Creator)'];
-    }
-
-    try {
-      const savedKeys = localStorage.getItem('pushkarik_admin_invite_keys_v1');
-      this.adminKeys = savedKeys ? JSON.parse(savedKeys) : [];
-    } catch(e) {
-      this.adminKeys = [];
-    }
-
+    // Admin Authorization: Strictly server-verified
+    this.adminMode = false;
+    this.isOwner = false;
+    this.userRole = 'user';
+    this.authorizedAdmins = [];
+    this.adminKeys = [];
     const savedForceWin = localStorage.getItem('upgrader_demo_admin_force_win');
-    this.adminForceWin = savedForceWin !== null ? JSON.parse(savedForceWin) : true;
+    this.adminForceWin = savedForceWin !== null ? JSON.parse(savedForceWin) : false;
 
     // Stats
     const savedStats = localStorage.getItem(STORAGE_KEYS.STATS);
@@ -280,7 +269,41 @@ class AppState {
     localStorage.setItem('pushkarik_active_boosters_v1', JSON.stringify(this.activeBoosters));
   }
 
-  saveInventory() { /* server */ }
+  async syncWithServer() {
+    try {
+      const data = await apiFetch('/api/user/sync', { method: 'POST' });
+      if (data && data.user) {
+        this.balance = data.user.balance / 100;
+        this.userRole = data.user.role || 'user';
+        this.isOwner = Boolean(data.user.isOwner);
+        this.adminMode = Boolean(data.user.isAdmin);
+
+        if (Array.isArray(data.inventory)) {
+          this.inventory = data.inventory.map(srvItem => {
+            const catalogItem = ITEM_CATALOG.find(i => i.id === srvItem.id);
+            if (catalogItem) {
+              return { ...catalogItem, db_id: srvItem.db_id, instanceId: 'db_' + srvItem.db_id };
+            }
+            return { id: srvItem.id, db_id: srvItem.db_id, name: srvItem.id, price: 10, rarity: 'common', image: 'gungnir.png', instanceId: 'db_' + srvItem.db_id };
+          });
+        }
+        if (Array.isArray(data.vault)) {
+          this.vault = data.vault.map(srvItem => {
+            const catalogItem = ITEM_CATALOG.find(i => i.id === srvItem.id);
+            if (catalogItem) {
+              return { ...catalogItem, db_id: srvItem.db_id, instanceId: 'vault_db_' + srvItem.db_id };
+            }
+            return { id: srvItem.id, db_id: srvItem.db_id, name: srvItem.id, price: 10, rarity: 'common', image: 'gungnir.png', instanceId: 'vault_db_' + srvItem.db_id };
+          });
+        }
+        updateUi();
+      }
+    } catch(err) {
+      console.warn('Sync with server skipped:', err.message);
+    }
+  }
+
+  saveInventory() { /* server-authoritative */ }
   saveVault() {
     localStorage.setItem(STORAGE_KEYS.VAULT, JSON.stringify(this.vault));
   }
@@ -2536,28 +2559,64 @@ function renderProfileStats() {
 class GoogleAuthManager {
   constructor() {
     this.user = null;
+    this.idToken = null;
+    this.sessionToken = null;
+    this.handleUrlHashAuth();
     this.loadUser();
+  }
+
+  handleUrlHashAuth() {
+    try {
+      if (window.location.hash && window.location.hash.includes('session=')) {
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const session = hashParams.get('session');
+        const userRaw = hashParams.get('user');
+        if (session) {
+          this.sessionToken = session;
+          localStorage.setItem('pushkarik_session_token', session);
+          if (userRaw) {
+            try {
+              const parsedUser = JSON.parse(decodeURIComponent(userRaw));
+              this.user = parsedUser;
+              localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(parsedUser));
+            } catch(e) {}
+          }
+          history.replaceState(null, document.title, window.location.pathname + window.location.search);
+        }
+      }
+    } catch (e) {
+      console.warn('OAuth Hash parse error:', e);
+    }
   }
 
   loadUser() {
     const saved = localStorage.getItem('upgrader_demo_google_user_v10_real_only');
     const savedToken = localStorage.getItem('upgrader_google_token');
-    if (saved && savedToken) {
+    const savedSession = localStorage.getItem('pushkarik_session_token');
+    if (savedSession) {
+      this.sessionToken = savedSession;
+    }
+    if (saved) {
       try {
         this.user = JSON.parse(saved);
-        this.idToken = savedToken;
+        if (savedToken) this.idToken = savedToken;
       } catch(e) {
         this.user = null;
-        this.idToken = null;
       }
     }
   }
 
-  login(userObj, idToken = null) {
+  login(userObj, idToken = null, sessionToken = null) {
     this.user = userObj;
-    if (idToken) this.idToken = idToken;
+    if (idToken) {
+      this.idToken = idToken;
+      localStorage.setItem('upgrader_google_token', idToken);
+    }
+    if (sessionToken) {
+      this.sessionToken = sessionToken;
+      localStorage.setItem('pushkarik_session_token', sessionToken);
+    }
     localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(userObj));
-    if (idToken) localStorage.setItem('upgrader_google_token', idToken);
     
     if (typeof state !== 'undefined' && state.syncWithServer) {
       state.syncWithServer().then(() => {
@@ -2587,9 +2646,21 @@ class GoogleAuthManager {
     audio.playClick();
   }
 
-  logout() {
+  async logout() {
+    try {
+      await fetch('/api/auth/google/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + getAuthToken() } });
+    } catch(e) {}
     this.user = null;
+    this.idToken = null;
+    this.sessionToken = null;
     localStorage.removeItem('upgrader_demo_google_user_v10_real_only');
+    localStorage.removeItem('upgrader_google_token');
+    localStorage.removeItem('pushkarik_session_token');
+    if (typeof state !== 'undefined') {
+      state.adminMode = false;
+      state.isOwner = false;
+      state.userRole = 'user';
+    }
     updateUi();
     audio.playClick();
   }
@@ -2737,12 +2808,7 @@ function renderProfileModalBody() {
         </div>
       </div>
 
-      <!-- Admin Invite Key Redemption for Friends -->
-      <div style="background: rgba(255, 215, 0, 0.05); border: 1px dashed rgba(255, 215, 0, 0.4); padding: 12px 14px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-        <div>
-          <div style="font-size: 12px; font-weight: 800; color: #ffd700;">🔑 Отримали ключ адміна?</div>
-          <div style="font-size: 10px; color: var(--text-dim);">Введіть ключ, щоб отримати повний доступ</div>
-        </div>
+      <!-- Admin Invite Key Redemption Removed for Security -->
         <button onclick="redeemAdminKey()" class="admin-btn" style="white-space: nowrap; padding: 6px 12px; font-size: 11px;">
           Активувати
         </button>
@@ -2824,31 +2890,9 @@ function renderHeaderGoogleAuth() {
 }
 
 
-// Google 1-Click Login Helper Functions
-window.loginWithGoogleAccount = function(name, email) {
-  const hash = (name + email).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const avatarIndex = hash % REAL_HUMAN_AVATARS.length;
-  const picture = REAL_HUMAN_AVATARS[avatarIndex];
-  googleAuth.login({
-    name: name,
-    email: email,
-    picture: picture,
-    sub: 'google_' + Date.now()
-  });
-  const modal = document.getElementById('googleAuthModal');
-  if (modal) modal.classList.remove('open');
-};
-
-window.loginWithCustomGoogleEmail = function() {
-  const input = document.getElementById('customGoogleEmail');
-  if (!input || !input.value.trim()) {
-    alert('Будь ласка, введіть свій Google e-mail!');
-    return;
-  }
-  const email = input.value.trim();
-  const nameParts = email.split('@')[0].split('.');
-  const name = nameParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
-  window.loginWithGoogleAccount(name, email);
+// Official OAuth 2.0 Flow Trigger
+window.loginWithGoogleOAuth = function() {
+  window.location.href = '/api/auth/google/login';
 };
 
 
@@ -2865,28 +2909,45 @@ window.logoutGoogleAccount = function() {
 // ==========================================
 // 8. ADMIN CONTROL PANEL FUNCTIONS
 // ==========================================
-function openAdminPanelModal() {
-  if (!state.adminMode) {
-    const enteredPass = prompt('🔒 Введіть секретний пароль Адміністратора:');
-    if (enteredPass === 'pushkarik2026' || enteredPass === 'kiril') {
-      state.adminMode = true;
-      localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
+async function openAdminPanelModal() {
+  // Check authorization with backend
+  try {
+    const sessionRes = await apiFetch('/api/admin-session', { method: 'POST' });
+    if (!sessionRes || !sessionRes.isAdmin) {
+      state.adminMode = false;
       updateUi();
-      alert('👑 Доступ Адміністратора підтверджено!');
-    } else {
-      alert('❌ Невірний пароль! Доступ заблоковано.');
+      alert('🔒 Доступ заборонено! Для входу в адмін-панель потрібен обліковий запис адміністратора.');
       return;
     }
+    state.adminMode = true;
+    state.isOwner = Boolean(sessionRes.isOwner);
+    state.userRole = sessionRes.role || 'admin';
+  } catch (err) {
+    state.adminMode = false;
+    updateUi();
+    alert('🔒 Доступ заборонено! Увійдіть через Google-акаунт адміністратора.');
+    return;
   }
-  renderAdminModalBody();
+
+  await renderAdminModalBody();
   const modal = document.getElementById('adminModal');
   if (modal) modal.classList.add('open');
   audio.playClick();
 }
 
-function renderAdminModalBody() {
+async function renderAdminModalBody() {
   const container = document.getElementById('adminModalBody');
   if (!container) return;
+
+  // Fetch verified admin list from server if owner
+  if (state.isOwner) {
+    try {
+      const res = await apiFetch('/api/admins', { method: 'GET' });
+      if (res && Array.isArray(res.admins)) {
+        state.authorizedAdmins = ['Кирило (Owner/Creator)', ...res.admins];
+      }
+    } catch(e) {}
+  }
 
   const catalogOptions = ITEM_CATALOG.map(item => `
     <option value="${escapeHtml(item.id)}">${escapeHtml(item.name)} (${item.price.toFixed(2)} DP)</option>
@@ -2973,31 +3034,6 @@ function renderAdminModalBody() {
           </div>
         </div>
 
-        <!-- Generate Admin Key -->
-        <div style="margin-bottom: 14px;">
-          <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px;">
-            3. Згенерувати секретний ключ-запрошення:
-          </label>
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="adminKeyNoteInput" placeholder="Кому (наприклад: Друг Макс)..." style="flex: 1; background: #090d14; border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 12px; outline: none;" />
-            <button onclick="adminGenerateInviteKey()" class="admin-btn">
-              ⚡ Створити Ключ
-            </button>
-          </div>
-        </div>
-
-        <!-- List of Active Keys -->
-        ${(state.adminKeys && state.adminKeys.length > 0) ? `
-          <div style="margin-top: 10px; margin-bottom: 14px;">
-            <label style="font-size: 11px; font-weight: 700; color: #ffd700; display: block; margin-bottom: 6px;">
-              🔑 Активні ключі адміна (${state.adminKeys.length}):
-            </label>
-            <div style="display: flex; flex-direction: column; gap: 6px; max-height: 120px; overflow-y: auto;">
-              ${keysList}
-            </div>
-          </div>
-        ` : ''}
-
         <!-- List of Authorized Admins -->
         <div>
           <label style="font-size: 11px; font-weight: 700; color: #fff; display: block; margin-bottom: 6px;">
@@ -3068,24 +3104,26 @@ function renderAdminModalBody() {
 }
 
 // Admin Delegation Handlers
-window.adminGrantByNickname = function() {
+window.adminGrantByNickname = async function() {
   const input = document.getElementById('adminGrantNickInput');
   if (!input) return;
-  const name = input.value.trim();
-  if (!name) {
-    alert('Будь ласка, введіть нікнейм або email гравця!');
+  const email = input.value.trim().toLowerCase();
+  if (!email || !email.includes('@')) {
+    alert('Будь ласка, введіть валідний Google e-mail користувача!');
     return;
   }
-  if (state.authorizedAdmins.includes(name)) {
-    alert(`Користувач "${name}" вже має права адміністратора!`);
-    return;
+  try {
+    await apiFetch('/api/admins', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+    input.value = '';
+    await renderAdminModalBody();
+    audio.playWin();
+    alert('👑 [ADMIN] Користувачу "' + email + '" успішно надано права Адміністратора!');
+  } catch (err) {
+    alert('Помилка: ' + err.message);
   }
-  state.authorizedAdmins.push(name);
-  localStorage.setItem('pushkarik_authorized_admins_v1', JSON.stringify(state.authorizedAdmins));
-  input.value = '';
-  renderAdminModalBody();
-  audio.playWin();
-  alert(`👑 [ADMIN] Користувачу "${name}" успішно надано права Адміністратора!`);
 };
 
 window.adminRevokeUser = async function(idx) {
@@ -3094,23 +3132,17 @@ window.adminRevokeUser = async function(idx) {
     return;
   }
   const target = state.authorizedAdmins[idx];
-  if (!confirm(`Ви впевнені, що хочете забрати права адміністратора у "${target}"?`)) return;
+  if (!confirm('Ви впевнені, що хочете забрати права адміністратора у "' + target + '"?')) return;
 
-  const removed = state.authorizedAdmins.splice(idx, 1);
-  localStorage.setItem('pushkarik_authorized_admins_v1', JSON.stringify(state.authorizedAdmins));
-
-  // Sync with server if email
   try {
-    if (target.includes('@')) {
-      await fetch('/api/admins?email=' + encodeURIComponent(target), { method: 'DELETE' });
-    }
-  } catch(e) {
-    console.warn('Server sync error on revoke:', e);
+    await apiFetch('/api/admins?email=' + encodeURIComponent(target), { method: 'DELETE' });
+    state.authorizedAdmins.splice(idx, 1);
+    await renderAdminModalBody();
+    audio.playClick();
+    alert('🗑️ Права адміністратора для "' + target + '" успішно анульовано!');
+  } catch (err) {
+    alert('Помилка видалення: ' + err.message);
   }
-
-  renderAdminModalBody();
-  audio.playClick();
-  alert(`🗑️ Права адміністратора для "${removed[0]}" успішно анульовано!`);
 };
 
 window.adminRevokeByNickname = async function() {
@@ -3135,94 +3167,29 @@ window.adminRevokeByNickname = async function() {
   input.value = '';
 };
 
-window.adminGenerateInviteKey = function() {
-  const noteInput = document.getElementById('adminKeyNoteInput');
-  const note = noteInput ? noteInput.value.trim() : '';
-  const randomStr = Math.random().toString(36).substring(2, 7).toUpperCase();
-  const code = `ADM-${randomStr}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-  if (!state.adminKeys) state.adminKeys = [];
-  state.adminKeys.unshift({
-    code: code,
-    note: note || 'Ключ адміна',
-    createdAt: Date.now()
-  });
-  localStorage.setItem('pushkarik_admin_invite_keys_v1', JSON.stringify(state.adminKeys));
-
-  if (noteInput) noteInput.value = '';
-  renderAdminModalBody();
-  audio.playWin();
-  
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(code).catch(() => {});
-  }
-  alert(`🔑 Згенеровано новий ключ адміністратора:\n\n${code}\n\n(Ключ автоматично скопійовано в буфер обміну! Передайте його другу)`);
+window.redeemAdminKey = function() {
+  alert('🔒 Реєстрація адміністраторів здійснюється виключно через офіційний сервер та Google OAuth головним власником проєкту.');
 };
 
-window.adminDeleteKey = function(idx) {
-  if (!state.adminKeys || !state.adminKeys[idx]) return;
-  state.adminKeys.splice(idx, 1);
-  localStorage.setItem('pushkarik_admin_invite_keys_v1', JSON.stringify(state.adminKeys));
-  renderAdminModalBody();
-  audio.playClick();
-};
-
-window.adminCopyKey = function(code) {
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(code).then(() => {
-      alert(`📋 Ключ скопійовано: ${code}`);
-    }).catch(() => {
-      prompt('Скопіюйте ключ вручну:', code);
-    });
-  } else {
-    prompt('Скопіюйте ключ вручну:', code);
-  }
-};
-
-window.redeemAdminKey = function(providedKey) {
-  let key = providedKey;
-  if (!key) {
-    key = prompt('🔑 Введіть ваш ключ Адміністратора:');
-  }
-  if (!key) return;
-  key = key.trim().toUpperCase();
-
-  const savedKeys = JSON.parse(localStorage.getItem('pushkarik_admin_invite_keys_v1') || '[]');
-  const foundKey = savedKeys.find(k => k.code.toUpperCase() === key);
-
-  if (foundKey || key === 'PUSHKARIK2026' || key === 'KIRIL_SUPERADMIN_2026') {
-    state.adminMode = true;
-    localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
-    updateUi();
-    audio.playWin();
-    alert(`👑 ВІТАЄМО! Ключ "${key}" успішно активовано! Вам надано права Адміністратора!`);
-    openAdminPanelModal();
-  } else {
-    audio.playFail();
-    alert('❌ Недійсний або застарілий ключ адміністратора!');
-  }
-};
-
-window.adminToggleMode = function() {
+window.adminToggleMode = async function() {
   if (!state.adminMode) {
-    const enteredPass = prompt('🔒 Введіть секретний пароль або ключ Адміністратора:');
-    if (enteredPass === 'pushkarik2026' || enteredPass === 'kiril') {
-      state.adminMode = true;
-      localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
-    } else {
-      const savedKeys = JSON.parse(localStorage.getItem('pushkarik_admin_invite_keys_v1') || '[]');
-      const match = savedKeys.find(k => k.code.toUpperCase() === (enteredPass || '').trim().toUpperCase());
-      if (match) {
+    try {
+      const sessionRes = await apiFetch('/api/admin-session', { method: 'POST' });
+      if (sessionRes && sessionRes.isAdmin) {
         state.adminMode = true;
-        localStorage.setItem('pushkarik_admin_auth_token', 'kiril_superadmin_2026');
+        state.isOwner = Boolean(sessionRes.isOwner);
+        state.userRole = sessionRes.role || 'admin';
+        alert('👑 Права адміністратора підтверджено сервером!');
       } else {
-        alert('❌ Невірний пароль або ключ! Доступ заблоковано.');
+        alert('❌ У вашого облікового запису немає прав адміністратора.');
         return;
       }
+    } catch(e) {
+      alert('🔒 Потрібна авторизація облікового запису адміністратора.');
+      return;
     }
   } else {
     state.adminMode = false;
-    localStorage.removeItem('pushkarik_admin_auth_token');
   }
   updateUi();
   renderAdminModalBody();
@@ -3240,33 +3207,53 @@ window.adminToggleForceWin = function() {
   audio.playWin();
 };
 
-window.adminAddBalance = function(amount) {
+window.adminAddBalance = async function(amount) {
   if (!state.adminMode) {
     alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
     return;
   }
-  state.balance += amount;
-  state.saveBalance();
-  updateUi();
-  renderAdminModalBody();
-  audio.playWin();
-  if (particleInstance) particleInstance.burst();
+  try {
+    const res = await apiFetch('/api/admin/action', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'ADD_BALANCE', payload: { amount: amount * 100 } })
+    });
+    if (res && res.newBalance !== undefined) {
+      state.balance = res.newBalance / 100;
+      updateUi();
+      renderAdminModalBody();
+      audio.playWin();
+      if (particleInstance) particleInstance.burst();
+      alert('👑 Баланс успішно поповнено на ' + amount + ' DP!');
+    }
+  } catch (err) {
+    alert('Помилка сервера: ' + err.message);
+  }
 };
 
-window.adminSetInfiniteBalance = function() {
+window.adminSetInfiniteBalance = async function() {
   if (!state.adminMode) {
     alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
     return;
   }
-  state.balance = 999999.00;
-  state.saveBalance();
-  updateUi();
-  renderAdminModalBody();
-  audio.playWin();
-  if (particleInstance) particleInstance.burst();
+  try {
+    const res = await apiFetch('/api/admin/action', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'SET_BALANCE', payload: { balance: 99999900 } })
+    });
+    if (res && res.newBalance !== undefined) {
+      state.balance = res.newBalance / 100;
+      updateUi();
+      renderAdminModalBody();
+      audio.playWin();
+      if (particleInstance) particleInstance.burst();
+      alert('👑 Встановлено баланс 999,999.00 DP!');
+    }
+  } catch (err) {
+    alert('Помилка сервера: ' + err.message);
+  }
 };
 
-window.adminSpawnSelectedSkin = function() {
+window.adminSpawnSelectedSkin = async function() {
   if (!state.adminMode) {
     alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
     return;
@@ -3274,32 +3261,41 @@ window.adminSpawnSelectedSkin = function() {
   const select = document.getElementById('adminItemSelect');
   if (!select) return;
   const itemId = select.value;
-  const itemTemplate = ITEM_CATALOG.find(i => i.id === itemId);
-  if (itemTemplate) {
-    const newItem = { ...itemTemplate, instanceId: 'inst_admin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4) };
-    state.inventory.unshift(newItem);
-    state.saveInventory();
-    updateUi();
-    audio.playWin();
-    if (particleInstance) particleInstance.burst();
-    alert(`👑 [ADMIN] Успішно додано "${itemTemplate.name}" в інвентар!`);
+  try {
+    const res = await apiFetch('/api/admin/action', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'SPAWN_SKIN', payload: { itemId: itemId } })
+    });
+    if (res && res.spawnedItem) {
+      await state.syncWithServer();
+      audio.playWin();
+      if (particleInstance) particleInstance.burst();
+      alert('👑 [ADMIN] Успішно додано "' + res.spawnedItem.name + '" в інвентар!');
+    }
+  } catch (err) {
+    alert('Помилка сервера: ' + err.message);
   }
 };
 
-window.adminSpawnGrailPack = function() {
+window.adminSpawnGrailPack = async function() {
   if (!state.adminMode) {
     alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
     return;
   }
-  const topSkins = [...ITEM_CATALOG].sort((a, b) => b.price - a.price).slice(0, 10);
-  topSkins.forEach((template, idx) => {
-    state.inventory.unshift({ ...template, instanceId: 'inst_grail_' + Date.now() + '_' + idx });
-  });
-  state.saveInventory();
-  updateUi();
-  audio.playWin();
-  if (particleInstance) particleInstance.burst();
-  alert('👑 [ADMIN] Успішно спавнено ТОП-10 найдорожчих ножів та рукавиць в інвентар!');
+  try {
+    const res = await apiFetch('/api/admin/action', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'SPAWN_GRAIL_PACK', payload: {} })
+    });
+    if (res && res.success) {
+      await state.syncWithServer();
+      audio.playWin();
+      if (particleInstance) particleInstance.burst();
+      alert('👑 [ADMIN] Спавнено ' + res.count + ' топових ножів та рукавиць!');
+    }
+  } catch (err) {
+    alert('Помилка сервера: ' + err.message);
+  }
 };
 
 // ==========================================

@@ -1,5 +1,5 @@
 const { sql } = require('../_db');
-const { getVerifiedUser, sendJson } = require('../_auth');
+const { getVerifiedUser, isOwner, isAdmin, sendJson } = require('../_auth');
 
 let tablesEnsured = false;
 async function ensureTables() {
@@ -41,6 +41,14 @@ async function ensureTables() {
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
   `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS sessions (
+      token VARCHAR(255) PRIMARY KEY,
+      user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
+      expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
   tablesEnsured = true;
 }
 
@@ -50,12 +58,13 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const googleUser = await getVerifiedUser(req);
-    if (!googleUser) {
+    const verifiedUser = await getVerifiedUser(req);
+    if (!verifiedUser) {
       return sendJson(res, 401, { error: 'Unauthorized. Please sign in with Google.' });
     }
 
-    const { email, sub: googleId } = googleUser;
+    const { email, sub: googleId } = verifiedUser;
+    const cleanEmail = email.toLowerCase().trim();
 
     await ensureTables();
 
@@ -63,10 +72,15 @@ module.exports = async function handler(req, res) {
     let userResult = await sql`SELECT * FROM users WHERE id = ${googleId}`;
     let user = userResult.rows[0];
 
+    // Determine role based on verified email / database
+    const ownerEmail = process.env.ADMIN_OWNER_EMAIL?.trim().toLowerCase();
+    const isProjectOwner = Boolean(ownerEmail && cleanEmail === ownerEmail);
+    const assignedRole = isProjectOwner ? 'owner' : 'user';
+
     if (!user) {
       userResult = await sql`
-        INSERT INTO users (id, email, balance) 
-        VALUES (${googleId}, ${email}, 10000) 
+        INSERT INTO users (id, email, balance, role) 
+        VALUES (${googleId}, ${cleanEmail}, 10000, ${assignedRole}) 
         RETURNING *;
       `;
       user = userResult.rows[0];
@@ -76,7 +90,14 @@ module.exports = async function handler(req, res) {
         INSERT INTO inventory (user_id, item_id, status)
         VALUES (${googleId}, 'agent_1', 'ACTIVE');
       `;
+    } else if (isProjectOwner && user.role !== 'owner') {
+      // Sync owner role in DB if configured in env
+      await sql`UPDATE users SET role = 'owner' WHERE id = ${googleId}`;
+      user.role = 'owner';
     }
+
+    // Server-verified admin check
+    const adminCheck = await isAdmin(user);
 
     // Fetch active inventory
     const inventoryResult = await sql`
@@ -105,7 +126,9 @@ module.exports = async function handler(req, res) {
         id: user.id,
         email: user.email,
         balance: user.balance,
-        role: user.role
+        role: user.role,
+        isAdmin: adminCheck,
+        isOwner: isProjectOwner
       },
       inventory,
       vault,

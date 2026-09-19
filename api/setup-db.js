@@ -3,28 +3,12 @@ const { getVerifiedUser, isOwner, sendJson } = require('./_auth');
 
 module.exports = async function handler(req, res) {
   try {
-    const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
-    const key = url.searchParams.get('key') || req.query?.key;
-    const secret = url.searchParams.get('secret') || req.query?.secret;
-
-    let authorized = false;
-    if (key === 'kiril_superadmin_2026' || secret === 'pushkarik_admin_2026') {
-      authorized = true;
-    } else {
-      const user = await getVerifiedUser(req);
-      if (user && isOwner(user)) {
-        authorized = true;
-      }
+    const user = await getVerifiedUser(req);
+    if (!user || !isOwner(user)) {
+      return sendJson(res, 403, { error: 'Access denied. Only verified project owner can initialize or update DB schema.' });
     }
 
-    if (!authorized) {
-      return sendJson(res, 403, { 
-        error: 'Access denied. Only owner can setup DB.',
-        hint: 'Use ?key=kiril_superadmin_2026 in the URL or log in as superadmin.'
-      });
-    }
-
-    // Create Users table
+    // 1. Create / Update Users table
     await sql`
       CREATE TABLE IF NOT EXISTS users (
         id VARCHAR(255) PRIMARY KEY,
@@ -35,7 +19,35 @@ module.exports = async function handler(req, res) {
       );
     `;
 
-    // Create Inventory table
+    // 2. Ensure role column exists and set owner role
+    const ownerEmail = process.env.ADMIN_OWNER_EMAIL?.trim().toLowerCase();
+    if (ownerEmail) {
+      await sql`
+        UPDATE users SET role = 'owner' WHERE LOWER(email) = ${ownerEmail};
+      `;
+    }
+
+    // 3. Create Sessions table for secure server-side session management
+    await sql`
+      CREATE TABLE IF NOT EXISTS sessions (
+        token VARCHAR(255) PRIMARY KEY,
+        user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
+        expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    // 4. Create OAuth States table (for authorization code flow CSRF protection)
+    await sql`
+      CREATE TABLE IF NOT EXISTS oauth_states (
+        state VARCHAR(255) PRIMARY KEY,
+        nonce VARCHAR(255),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+      );
+    `;
+
+    // 5. Create Inventory table
     await sql`
       CREATE TABLE IF NOT EXISTS inventory (
         id SERIAL PRIMARY KEY,
@@ -46,7 +58,7 @@ module.exports = async function handler(req, res) {
       );
     `;
 
-    // Create Boosters table
+    // 6. Create Boosters table
     await sql`
       CREATE TABLE IF NOT EXISTS boosters (
         id SERIAL PRIMARY KEY,
@@ -56,7 +68,7 @@ module.exports = async function handler(req, res) {
       );
     `;
 
-    // Create Transactions history
+    // 7. Create Transactions history
     await sql`
       CREATE TABLE IF NOT EXISTS transactions (
         id SERIAL PRIMARY KEY,
@@ -71,7 +83,7 @@ module.exports = async function handler(req, res) {
 
     return sendJson(res, 200, { 
       success: true,
-      message: 'Database initialized successfully! All tables created (users, inventory, boosters, transactions).' 
+      message: 'Database tables verified & initialized securely without backdoors.' 
     });
   } catch (error) {
     console.error('DB Setup Error:', error);
