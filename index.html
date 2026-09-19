@@ -123,6 +123,11 @@
               <button class="preset-btn" data-mult="50.0">50x</button>
             </div>
 
+            <!-- Active Boosters Bar -->
+            <div id="activeBoostersBar" class="active-boosters-bar">
+              <!-- Rendered dynamically via JS renderActiveBoosters() -->
+            </div>
+
             <!-- Giant UPGRADE Action Button -->
             <div class="upgrade-cta-wrapper">
               <button id="upgradeBtn" class="upgrade-big-btn" disabled>
@@ -223,7 +228,15 @@
           🏦 Загальна вартість збережених скінів: <strong id="vaultTotalValue" style="color: var(--neon-green);">0.00</strong> <strong>DP</strong>
         </div>
         <div class="inv-quick-btns">
-          <button id="vaultReturnAllBtn" class="quick-action-btn" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">🎒 Повернути все в робочий інвентар</button>
+          <button id="openBoosterShopBtn" class="quick-action-btn" style="border-color: var(--neon-amber); color: var(--neon-amber); background: rgba(255, 183, 3, 0.1);">
+            ⚡ Магазин Тимчасових Бустерів
+          </button>
+          <button id="vaultSellAllBtn" class="quick-action-btn" style="border-color: var(--neon-amber); color: var(--neon-amber);">
+            💰 Продати весь сейф за DP
+          </button>
+          <button id="vaultReturnAllBtn" class="quick-action-btn" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">
+            🎒 Повернути все в робочий інвентар
+          </button>
         </div>
       </div>
 
@@ -495,9 +508,25 @@
     </div>
   </div>
 
+  <!-- BOOSTER SHOP MODAL -->
+  <div id="boosterShopModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 640px;">
+      <div class="modal-header" style="border-bottom-color: rgba(255, 183, 3, 0.4);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 22px;">⚡</span>
+          <span class="modal-title" style="color: var(--neon-amber);">Магазин Тимчасових Бустерів</span>
+        </div>
+        <button id="closeBoosterShopBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="boosterShopModalBody">
+        <!-- Injected via JS renderBoosterShopModalBody() -->
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
-  <script src="cosmetics_data.js?v=39.0.0"></script>
-  <script src="items.js?v=39.0.0"></script>
-  <script src="app.js?v=39.0.0"></script>
+  <script src="cosmetics_data.js?v=40.0.0"></script>
+  <script src="items.js?v=40.0.0"></script>
+  <script src="app.js?v=40.0.0"></script>
 </body>
 </html>

@@ -226,6 +226,32 @@ class AppState {
     // Sound
     const savedSound = localStorage.getItem(STORAGE_KEYS.SOUND);
     audio.enabled = savedSound !== null ? JSON.parse(savedSound) : true;
+
+    // Temporary Boosters purchased with DP currency from sold vault skins
+    try {
+      const savedBoosters = localStorage.getItem('pushkarik_active_boosters_v1');
+      this.activeBoosters = savedBoosters ? JSON.parse(savedBoosters) : [];
+      this.cleanExpiredBoosters();
+    } catch(e) {
+      this.activeBoosters = [];
+    }
+  }
+
+  cleanExpiredBoosters() {
+    if (!this.activeBoosters) {
+      this.activeBoosters = [];
+      return;
+    }
+    const now = Date.now();
+    const initialLen = this.activeBoosters.length;
+    this.activeBoosters = this.activeBoosters.filter(b => b.expiresAt > now);
+    if (this.activeBoosters.length !== initialLen) {
+      this.saveBoosters();
+    }
+  }
+
+  saveBoosters() {
+    localStorage.setItem('pushkarik_active_boosters_v1', JSON.stringify(this.activeBoosters));
   }
 
   saveInventory() {
@@ -254,6 +280,7 @@ class AppState {
     this.balance = 100.00;
     this.stats = { total: 0, wins: 0, losses: 0, bestMultiplier: 1.0, totalWonValue: 0 };
     this.history = [];
+    this.activeBoosters = [];
     this.selectedSource = null;
     this.selectedTarget = null;
     this.saveInventory();
@@ -261,6 +288,7 @@ class AppState {
     this.saveBalance();
     this.saveStats();
     this.saveHistory();
+    this.saveBoosters();
   }
 
   calculateChance() {
@@ -268,7 +296,19 @@ class AppState {
     // Down-grade is physically impossible in an upgrader
     if (this.selectedTarget.price <= this.selectedSource.price) return 0;
     // 100% PURE FAIR MATHEMATICAL RATIO: (Source Price / Target Price) * 100
-    const pureChance = (this.selectedSource.price / this.selectedTarget.price) * 100;
+    let pureChance = (this.selectedSource.price / this.selectedTarget.price) * 100;
+    
+    // Apply Active Temporary Boosters
+    this.cleanExpiredBoosters();
+    const luckBooster = (this.activeBoosters || []).find(b => b.id === 'booster_luck_10');
+    if (luckBooster) {
+      pureChance += 10.0; // +10% Chance Booster
+    }
+    const megaLuckBooster = (this.activeBoosters || []).find(b => b.id === 'booster_luck_25');
+    if (megaLuckBooster) {
+      pureChance += 25.0; // +25% Mega Chance Booster
+    }
+
     return Math.min(Math.max(pureChance, 0.01), 95.00);
   }
 
@@ -1087,6 +1127,28 @@ function setupEventListeners() {
     });
   }
 
+  const vaultSellAllBtn = document.getElementById('vaultSellAllBtn');
+  if (vaultSellAllBtn) {
+    vaultSellAllBtn.addEventListener('click', () => {
+      window.sellAllSkinsFromVault();
+    });
+  }
+
+  const openBoosterShopBtn = document.getElementById('openBoosterShopBtn');
+  if (openBoosterShopBtn) {
+    openBoosterShopBtn.addEventListener('click', () => {
+      window.openBoosterShopModal();
+    });
+  }
+
+  const closeBoosterShopBtn = document.getElementById('closeBoosterShopBtn');
+  const boosterShopModal = document.getElementById('boosterShopModal');
+  if (closeBoosterShopBtn && boosterShopModal) {
+    closeBoosterShopBtn.addEventListener('click', () => {
+      boosterShopModal.classList.remove('open');
+    });
+  }
+
   const profileModal = document.getElementById('profileModal');
   const profileEditModal = document.getElementById('profileEditModal');
   const closeProfileBtn = document.getElementById('closeProfileBtn');
@@ -1401,7 +1463,19 @@ function finishUpgrade(isWin, roll, chance) {
     if (particleInstance) particleInstance.burst();
   } else {
     state.stats.losses++;
-    state.balance += 1.00;
+
+    // Check if Shield Booster is active (preserves the source skin on loss!)
+    const hasShield = (state.activeBoosters || []).some(b => b.id === 'booster_shield');
+    if (hasShield) {
+      state.inventory.unshift(sourceItem);
+      state.saveInventory();
+      showToastNotification(`🛡️ ЩИТ СПАСІННЯ ВРЯТУВАВ ВАШ СКІН: "${sourceItem.name}" повернено в інвентар!`);
+    }
+
+    // Check Double Cashback Booster (gives 20% value refund instead of 1 DP!)
+    const hasCashback = (state.activeBoosters || []).some(b => b.id === 'booster_cashback');
+    const cashbackAmount = hasCashback ? (sourceItem.price * 0.20) : 1.00;
+    state.balance += cashbackAmount;
     state.saveBalance();
 
     // 20% chance for Loss Consolation Case drop on lose roll (rare bonus!)
@@ -1514,6 +1588,7 @@ function updateUi() {
   renderHeaderGoogleAuth();
   renderSlots();
   renderRadialCenter();
+  renderActiveBoosters();
   renderTabContent();
   if (wheelInstance) wheelInstance.draw();
 }
@@ -1898,6 +1973,9 @@ function renderVaultCards(grid) {
               <button class="quick-action-btn" onclick="event.stopPropagation(); openInspectModal('${safeInstId}', true)" title="Детальний огляд">
                 🔍
               </button>
+              <button class="card-sell-btn" onclick="sellSkinFromVault('${safeInstId}')" title="Продати скін за ${item.price.toFixed(2)} DP">
+                💰 Продати
+              </button>
               <button class="card-return-btn" onclick="returnItemFromVault('${safeInstId}')" title="Повернути предмет в робочий інвентар">
                 🎒 В інвентар
               </button>
@@ -1908,6 +1986,242 @@ function renderVaultCards(grid) {
     `;
   }).join('');
 }
+
+// Vault Selling & Booster Shop Catalog
+const BOOSTER_CATALOG = [
+  {
+    id: 'booster_luck_10',
+    title: '🍀 Фартовий Бустер +10%',
+    desc: 'Додає фіксовані +10.0% до шансу успіху в усіх апгрейдах!',
+    icon: '🍀',
+    price: 50.00,
+    durationMs: 15 * 60 * 1000, // 15 minutes
+    durationLabel: '15 хв'
+  },
+  {
+    id: 'booster_luck_25',
+    title: '👑 Мега-Удача +25%',
+    desc: 'Величезний бонус +25.0% до шансу успіху для підкорення найдорожчих ножів!',
+    icon: '👑',
+    price: 150.00,
+    durationMs: 10 * 60 * 1000, // 10 minutes
+    durationLabel: '10 хв'
+  },
+  {
+    id: 'booster_shield',
+    title: '🛡️ Щит Спасіння Скіна',
+    desc: 'При будь-якому невдалому апгрейді ваш вхідний скін НЕ згорає, а повертається назад!',
+    icon: '🛡️',
+    price: 100.00,
+    durationMs: 20 * 60 * 1000, // 20 minutes
+    durationLabel: '20 хв'
+  },
+  {
+    id: 'booster_cashback',
+    title: '💎 Подвійний Кешбек 20%',
+    desc: 'При поразці повертає 20% вартості скіна на баланс замість звичайного 1 DP!',
+    icon: '💎',
+    price: 75.00,
+    durationMs: 30 * 60 * 1000, // 30 minutes
+    durationLabel: '30 хв'
+  }
+];
+
+window.sellSkinFromVault = function(instanceId) {
+  if (!state.vault) state.vault = [];
+  const index = state.vault.findIndex(i => i.instanceId === instanceId);
+  if (index === -1) return;
+
+  const item = state.vault[index];
+  if (!confirm(`Продати скін "${item.name}" за ${item.price.toFixed(2)} DP?\n(Отриману валюту можна використати для покупки тимчасових бустерів!)`)) {
+    return;
+  }
+
+  state.vault.splice(index, 1);
+  state.balance += item.price;
+  state.saveVault();
+  state.saveBalance();
+  updateUi();
+  audio.playWin();
+  if (particleInstance) particleInstance.burst();
+
+  showToastNotification(`💰 Продано "${item.name}" за +${item.price.toFixed(2)} DP!`);
+};
+
+window.sellAllSkinsFromVault = function() {
+  if (!state.vault || state.vault.length === 0) {
+    alert('Віртуальний сейф порожній!');
+    return;
+  }
+  const totalVal = state.vault.reduce((a, c) => a + c.price, 0);
+  const count = state.vault.length;
+
+  if (!confirm(`Продати всі скіни з сейфу (${count} шт.) на суму ${totalVal.toFixed(2)} DP?`)) {
+    return;
+  }
+
+  state.vault = [];
+  state.balance += totalVal;
+  state.saveVault();
+  state.saveBalance();
+  updateUi();
+  audio.playWin();
+  if (particleInstance) particleInstance.burst();
+
+  showToastNotification(`💰 Продано ${count} скінів за +${totalVal.toFixed(2)} DP!`);
+};
+
+window.openBoosterShopModal = function() {
+  renderBoosterShopModalBody();
+  const modal = document.getElementById('boosterShopModal');
+  if (modal) modal.classList.add('open');
+  audio.playClick();
+};
+
+function renderBoosterShopModalBody() {
+  const container = document.getElementById('boosterShopModalBody');
+  if (!container) return;
+
+  state.cleanExpiredBoosters();
+  const now = Date.now();
+
+  const cardsHtml = BOOSTER_CATALOG.map(booster => {
+    const active = (state.activeBoosters || []).find(b => b.id === booster.id && b.expiresAt > now);
+    const timeLeftSec = active ? Math.max(0, Math.floor((active.expiresAt - now) / 1000)) : 0;
+    const mins = Math.floor(timeLeftSec / 60);
+    const secs = timeLeftSec % 60;
+
+    return `
+      <div class="booster-shop-card ${active ? 'active-owned' : ''}">
+        <div>
+          <div class="booster-icon-box">${booster.icon}</div>
+          <div class="booster-title">${escapeHtml(booster.title)}</div>
+          <div class="booster-desc">${escapeHtml(booster.desc)}</div>
+        </div>
+
+        <div>
+          ${active ? `
+            <div style="background: rgba(0, 255, 136, 0.15); border: 1px solid var(--neon-green); border-radius: 6px; padding: 8px; text-align: center; margin-bottom: 10px;">
+              <span style="font-size: 11px; font-weight: 800; color: var(--neon-green);">
+                АКТИВНИЙ: ще ${mins}хв ${secs < 10 ? '0' : ''}${secs}с
+              </span>
+            </div>
+          ` : ''}
+
+          <div class="booster-price-row">
+            <div>
+              <div class="booster-price">${booster.price.toFixed(2)} DP</div>
+              <div style="font-size: 10px; color: var(--text-dim);">Час дії: ${booster.durationLabel}</div>
+            </div>
+            <button onclick="buyTemporaryBooster('${booster.id}')" class="google-login-btn" style="padding: 8px 14px; font-size: 12px; font-weight: 800; background: ${state.balance >= booster.price ? 'linear-gradient(135deg, #ffd700, #ff8c00)' : 'rgba(255,255,255,0.1)'}; color: ${state.balance >= booster.price ? '#000' : 'var(--text-dim)'}; border: none; border-radius: var(--radius-sm);" ${state.balance < booster.price ? 'disabled' : ''}>
+              ${active ? '⚡ Продовжити' : 'Купити'}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 14px;">
+      
+      <!-- User Balance Info -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); padding: 14px 18px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Ваш баланс для покупок:</div>
+          <div style="font-size: 20px; font-weight: 900; color: var(--neon-amber);">${state.balance.toFixed(2)} DP</div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-muted); max-width: 280px; text-align: right;">
+          💡 Продавайте збережені скіни у вкладці <strong>«Віртуальний Сейф»</strong>, щоб отримувати валюту DP на покупку будь-яких бустерів!
+        </div>
+      </div>
+
+      <!-- Boosters Grid -->
+      <div class="booster-shop-grid">
+        ${cardsHtml}
+      </div>
+
+    </div>
+  `;
+}
+
+window.buyTemporaryBooster = function(boosterId) {
+  const booster = BOOSTER_CATALOG.find(b => b.id === boosterId);
+  if (!booster) return;
+
+  if (state.balance < booster.price) {
+    alert(`Недостатньо валюти DP! Потрібно ${booster.price.toFixed(2)} DP. Продайте кілька скінів у Віртуальному Сейфі для поповнення балансу.`);
+    return;
+  }
+
+  state.balance -= booster.price;
+  state.saveBalance();
+
+  state.cleanExpiredBoosters();
+  const existing = (state.activeBoosters || []).find(b => b.id === boosterId);
+  const now = Date.now();
+
+  if (existing && existing.expiresAt > now) {
+    existing.expiresAt += booster.durationMs;
+  } else {
+    if (!state.activeBoosters) state.activeBoosters = [];
+    state.activeBoosters.push({
+      id: booster.id,
+      title: booster.title,
+      icon: booster.icon,
+      expiresAt: now + booster.durationMs
+    });
+  }
+
+  state.saveBoosters();
+  updateUi();
+  renderBoosterShopModalBody();
+  audio.playWin();
+  if (particleInstance) particleInstance.burst();
+
+  showToastNotification(`⚡ Активовано: ${booster.title} на ${booster.durationLabel}!`);
+};
+
+function renderActiveBoosters() {
+  const container = document.getElementById('activeBoostersBar');
+  if (!container) return;
+
+  state.cleanExpiredBoosters();
+  const now = Date.now();
+  const activeList = state.activeBoosters || [];
+
+  if (activeList.length === 0) {
+    container.innerHTML = '';
+    container.style.display = 'none';
+    return;
+  }
+
+  container.style.display = 'flex';
+  container.innerHTML = activeList.map(b => {
+    const timeLeftSec = Math.max(0, Math.floor((b.expiresAt - now) / 1000));
+    const mins = Math.floor(timeLeftSec / 60);
+    const secs = timeLeftSec % 60;
+    return `
+      <div class="booster-active-badge" title="Активний тимчасовий бустер">
+        <span>${b.icon}</span>
+        <span>${escapeHtml(b.title)} (${mins}:${secs < 10 ? '0' : ''}${secs})</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// Live timer tick for active boosters
+setInterval(() => {
+  if (state.activeBoosters && state.activeBoosters.length > 0) {
+    renderActiveBoosters();
+    // Also re-render shop body if shop modal is open
+    const shopModal = document.getElementById('boosterShopModal');
+    if (shopModal && shopModal.classList.contains('open')) {
+      renderBoosterShopModalBody();
+    }
+  }
+}, 1000);
+
 
 window.withdrawItemToVault = function(instanceId, silent = false) {
   const index = state.inventory.findIndex(i => i.instanceId === instanceId);
