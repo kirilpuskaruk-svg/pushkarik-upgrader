@@ -1149,6 +1149,14 @@ function setupEventListeners() {
     });
   }
 
+  const closeWithdrawModalBtn = document.getElementById('closeWithdrawModalBtn');
+  const vaultWithdrawModal = document.getElementById('vaultWithdrawModal');
+  if (closeWithdrawModalBtn && vaultWithdrawModal) {
+    closeWithdrawModalBtn.addEventListener('click', () => {
+      vaultWithdrawModal.classList.remove('open');
+    });
+  }
+
   const adminPanelBtn = document.getElementById('adminPanelBtn');
   const adminModal = document.getElementById('adminModal');
   const closeAdminModalBtn = document.getElementById('closeAdminModalBtn');
@@ -1901,7 +1909,7 @@ function renderVaultCards(grid) {
   }).join('');
 }
 
-window.withdrawItemToVault = function(instanceId) {
+window.withdrawItemToVault = function(instanceId, silent = false) {
   const index = state.inventory.findIndex(i => i.instanceId === instanceId);
   if (index !== -1) {
     const item = state.inventory.splice(index, 1)[0];
@@ -1914,6 +1922,11 @@ window.withdrawItemToVault = function(instanceId) {
     state.saveVault();
     updateUi();
     audio.playWin();
+    if (particleInstance) particleInstance.burst();
+
+    if (!silent) {
+      showWithdrawSuccessModal(item);
+    }
   }
 };
 
@@ -1927,11 +1940,17 @@ window.returnItemFromVault = function(instanceId) {
     state.saveVault();
     updateUi();
     audio.playClick();
+    showToastNotification(`🎒 "${item.name}" успішно повернуто в робочий інвентар!`);
   }
 };
 
 window.withdrawAllToVault = function() {
-  if (state.inventory.length === 0) return;
+  if (state.inventory.length === 0) {
+    alert('Ваш робочий інвентар порожній!');
+    return;
+  }
+  const count = state.inventory.length;
+  const totalVal = state.inventory.reduce((a, c) => a + c.price, 0);
   if (!state.vault) state.vault = [];
   state.vault.unshift(...state.inventory);
   state.inventory = [];
@@ -1940,17 +1959,102 @@ window.withdrawAllToVault = function() {
   state.saveVault();
   updateUi();
   audio.playWin();
+  if (particleInstance) particleInstance.burst();
+
+  showToastNotification(`🏦 Усі предмети (${count} шт., ${totalVal.toFixed(2)} DP) виведено у Сейф!`);
 };
 
 window.returnAllFromVault = function() {
-  if (!state.vault || state.vault.length === 0) return;
+  if (!state.vault || state.vault.length === 0) {
+    alert('Віртуальний сейф порожній!');
+    return;
+  }
+  const count = state.vault.length;
   state.inventory.unshift(...state.vault);
   state.vault = [];
   state.saveInventory();
   state.saveVault();
   updateUi();
   audio.playClick();
+  showToastNotification(`🎒 Усі предмети (${count} шт.) повернуто у робочий інвентар!`);
 };
+
+function showWithdrawSuccessModal(item) {
+  const modal = document.getElementById('vaultWithdrawModal');
+  const body = document.getElementById('vaultWithdrawModalBody');
+  if (!modal || !body) {
+    showToastNotification(`🏦 "${item.name}" виведено у Віртуальний Сейф!`);
+    return;
+  }
+
+  const rarity = RARITIES[item.rarity] || RARITIES.common;
+  const safeName = escapeHtml(item.name);
+  const safeImg = escapeHtml(item.image);
+  const totalVaultCount = (state.vault || []).length;
+
+  body.innerHTML = `
+    <div class="withdraw-success-box">
+      <div class="withdraw-step-chip">
+        ✓ УСПІШНО ВИВЕДЕНО В СЕЙФ
+      </div>
+
+      <img src="${safeImg}" alt="${safeName}" class="withdraw-item-preview" onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='gungnir.png';}" />
+      
+      <h3 style="color: ${rarity.color}; font-size: 16px; font-weight: 800; margin-bottom: 6px;">
+        ${safeName}
+      </h3>
+      <div style="font-size: 14px; font-weight: 800; color: var(--neon-green); margin-bottom: 14px;">
+        ${item.price.toFixed(2)} DP
+      </div>
+
+      <p style="font-size: 12px; color: var(--text-dim); line-height: 1.5; margin-bottom: 18px;">
+        Предмет перенесено у ваш <strong>Віртуальний Сейф</strong>. Він захищений від випадкового апгрейду та збереже всі нанесені наклейки, брелоки та характеристики Float!
+      </p>
+
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button onclick="switchToVaultTabAndCloseModal()" class="google-login-btn" style="padding: 10px 18px; font-size: 12px; font-weight: 800; background: linear-gradient(135deg, var(--neon-green), #00c96b); color: #000; border: none; border-radius: var(--radius-sm);">
+          🏦 Переглянути Сейф (${totalVaultCount})
+        </button>
+        <button onclick="closeWithdrawModal()" class="quick-action-btn" style="padding: 10px 16px; font-size: 12px; font-weight: 700;">
+          Продовжити гру
+        </button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('open');
+}
+
+window.switchToVaultTabAndCloseModal = function() {
+  const modal = document.getElementById('vaultWithdrawModal');
+  if (modal) modal.classList.remove('open');
+  const vaultTabBtn = document.querySelector('.tab-btn[data-tab="vault"]');
+  if (vaultTabBtn) vaultTabBtn.click();
+  const el = document.getElementById('itemsHubSection');
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+};
+
+window.closeWithdrawModal = function() {
+  const modal = document.getElementById('vaultWithdrawModal');
+  if (modal) modal.classList.remove('open');
+};
+
+function showToastNotification(message) {
+  const existing = document.querySelector('.withdraw-toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'withdraw-toast';
+  toast.innerHTML = `<span>✨</span> <span>${escapeHtml(message)}</span>`;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.transition = 'opacity 0.4s, transform 0.4s';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100%)';
+    setTimeout(() => toast.remove(), 400);
+  }, 3500);
+}
 
 window.selectSourceItem = function(instanceId) {
   if (state.isSpinning) return;

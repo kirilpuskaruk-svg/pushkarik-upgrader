@@ -2041,6 +2041,75 @@ body {
   border: 1px solid rgba(0, 255, 136, 0.4);
 }
 
+/* Withdrawal Success Animated Modal & Notification */
+.withdraw-success-box {
+  background: linear-gradient(180deg, rgba(0, 255, 136, 0.08), rgba(9, 13, 20, 0.95));
+  border: 1px solid var(--neon-green);
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.25);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.withdraw-success-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+}
+.withdraw-item-preview {
+  max-width: 180px;
+  max-height: 120px;
+  object-fit: contain;
+  margin: 14px auto;
+  filter: drop-shadow(0 10px 20px rgba(0, 255, 136, 0.3));
+  animation: floatPreview 3s ease-in-out infinite;
+}
+@keyframes floatPreview {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.withdraw-step-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(0, 255, 136, 0.15);
+  border: 1px solid var(--neon-green);
+  border-radius: var(--radius-full);
+  color: var(--neon-green);
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.withdraw-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  background: #0d111a;
+  border: 1px solid var(--neon-green);
+  box-shadow: 0 8px 30px rgba(0, 255, 136, 0.3);
+  padding: 14px 20px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  animation: slideInToast 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideInToast {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+
 /* ==========================================================================
    COSMETICS SYSTEM (WEAPONS, STICKERS, CHARMS, WEAR & INSPECTION)
    ========================================================================== */
