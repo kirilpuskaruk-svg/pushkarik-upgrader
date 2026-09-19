@@ -4,15 +4,23 @@
  */
 
 
-async function apiFetch(endpoint, options = {}) {
-  if (!googleAuth || !googleAuth.idToken) {
-    const modal = document.getElementById('googleAuthModal');
-    if (modal) modal.classList.add('open');
-    throw new Error('Увійдіть через Google');
+function getAuthToken() {
+  if (window.googleAuth && window.googleAuth.idToken) {
+    return window.googleAuth.idToken;
   }
+  let guestToken = localStorage.getItem('upgrader_guest_token');
+  if (!guestToken) {
+    guestToken = 'guest_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem('upgrader_guest_token', guestToken);
+  }
+  return guestToken;
+}
+
+async function apiFetch(endpoint, options = {}) {
+  const token = getAuthToken();
   const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${googleAuth.idToken}`,
+    'Authorization': `Bearer ${token}`,
     ...options.headers
   };
   const response = await fetch(endpoint, { ...options, headers });
@@ -1388,13 +1396,17 @@ let _isBanned = false;
 
 async function handleUpgradeClick(e) {
   if (state.isSpinning) return;
-  if (!state.selectedSource || !state.selectedTarget) {
-      alert('Оберіть предмети');
-      return;
+  if (!state.selectedSource) {
+    alert('Оберіть предмет зі свого інвентарю для покращення!');
+    return;
+  }
+  if (!state.selectedTarget) {
+    alert('Оберіть бажаний предмет із каталогу цілей!');
+    return;
   }
   if (state.selectedTarget.price <= state.selectedSource.price) {
-      alert('Не можна робити даунгрейд!');
-      return;
+    alert('Апгрейд можливий тільки на дорожчий скін!');
+    return;
   }
 
   state.isSpinning = true;
@@ -1403,9 +1415,6 @@ async function handleUpgradeClick(e) {
   if (particleInstance) particleInstance.startSpeed();
 
   try {
-    const btn = document.getElementById('upgradeBtn');
-    if(btn) { btn.disabled = true; btn.textContent = 'ОБРОБКА...'; }
-
     const data = await apiFetch('/api/game/upgrade', {
       method: 'POST',
       body: JSON.stringify({
@@ -1416,26 +1425,60 @@ async function handleUpgradeClick(e) {
       })
     });
 
-    const wheelValEl = document.getElementById('wheelRollValue');
-    if(wheelValEl) wheelValEl.textContent = "ROLLING...";
-    await new Promise(r => setTimeout(r, 2000));
-    if(wheelValEl) wheelValEl.textContent = data.roll.toFixed(2);
-    
-    await state.syncWithServer();
-    
-    let resultItem = data.isWin ? state.selectedTarget : null;
-    showResultModal(data.isWin, resultItem, data.roll, data.chance, null);
+    // SPIN THE WHEEL WITH REAL ANIMATION
+    wheelInstance.spinTo(data.roll, async () => {
+      await state.syncWithServer();
+      finishUpgrade(data.isWin, data.roll, data.chance, data);
+    });
 
   } catch (error) {
+    console.error('Upgrade error:', error);
     alert('Помилка оновлення: ' + error.message);
-  } finally {
     state.isSpinning = false;
     if (particleInstance) particleInstance.stopSpeed();
     updateUi();
   }
 }
 
-function finishUpgrade(isWin, roll, chance) {}
+function finishUpgrade(isWin, roll, chance, serverData) {
+  const sourceItem = state.selectedSource;
+  const targetItem = state.selectedTarget;
+  const mult = targetItem ? (targetItem.price / (sourceItem ? sourceItem.price : 1)) : 1.0;
+
+  state.stats.total++;
+  if (isWin) {
+    state.stats.wins++;
+    state.stats.totalWonValue += (targetItem ? targetItem.price : 0);
+    if (mult > state.stats.bestMultiplier) {
+      state.stats.bestMultiplier = mult;
+    }
+    audio.playWin();
+    if (particleInstance) particleInstance.burst();
+  } else {
+    state.stats.losses++;
+    audio.playFail();
+    if (serverData && serverData.shieldUsed) {
+      alert('🛡️ ЩИТ СПАСІННЯ ВРЯТУВАВ ВАШ СКІН: Скін збережено в інвентарі!');
+    }
+  }
+
+  state.history.unshift({
+    timestamp: new Date().toLocaleTimeString(),
+    sourceName: sourceItem ? sourceItem.name : 'Unknown',
+    targetName: targetItem ? targetItem.name : 'Unknown',
+    targetImage: targetItem ? targetItem.image : '',
+    chance: chance,
+    roll: roll,
+    isWin: isWin
+  });
+
+  pushToLiveStream(targetItem, isWin, chance, null, roll, sourceItem);
+
+  state.selectedSource = null;
+  updateUi();
+
+  showResultModal(isWin, targetItem, roll, chance, null);
+}
 
 function showResultModal(isWin, item, roll, chance, consolationItem = null) {
   const modal = document.getElementById('resultModal');
