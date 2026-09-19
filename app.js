@@ -494,49 +494,80 @@ class RadialWheel {
     ctx.restore();
   }
 
-  spinTo(finalRollPercentage, onComplete) {
+  startSpin() {
     this.animating = true;
-    state.isSpinning = true;
-    updateUi();
-
-    const rollAngle = (finalRollPercentage / 100) * 360;
-    const extraRotations = 4 * 360;
-    const startAngle = this.currentAngle % 360;
-    const targetDelta = extraRotations + (360 - startAngle) + rollAngle;
-    const endAngle = this.currentAngle + targetDelta;
-
-    const duration = 4200;
-    const startTime = performance.now();
+    this.spinState = 'spinning';
+    this.spinStartTime = performance.now();
+    this.lastFrameTime = performance.now();
     this.lastTickAngle = this.currentAngle;
 
-    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
     const step = (now) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = easeOutCubic(progress);
+      if (!this.animating) return;
 
-      this.currentAngle = startAngle + targetDelta * easedProgress;
+      if (this.spinState === 'spinning') {
+        const dt = Math.min((now - this.lastFrameTime) / 1000, 0.1);
+        this.lastFrameTime = now;
+        this.currentAngle = (this.currentAngle + dt * 850) % 3600000;
 
-      if (Math.abs(this.currentAngle - this.lastTickAngle) > 18) {
-        audio.playTick();
-        this.lastTickAngle = this.currentAngle;
-      }
+        if (Math.abs(this.currentAngle - this.lastTickAngle) >= 16) {
+          audio.playTick();
+          this.lastTickAngle = this.currentAngle;
+        }
 
-      this.draw();
-
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      } else {
-        this.currentAngle = endAngle % 360;
-        this.animating = false;
-        state.isSpinning = false;
         this.draw();
-        onComplete();
+        requestAnimationFrame(step);
+      } else if (this.spinState === 'stopping') {
+        const elapsed = now - this.stopStartTime;
+        const progress = Math.min(elapsed / this.stopDuration, 1);
+        // Cubic deceleration curve for ultra-smooth realistic friction
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+        this.currentAngle = this.stopStartAngle + this.targetDelta * easedProgress;
+
+        if (Math.abs(this.currentAngle - this.lastTickAngle) >= 16) {
+          audio.playTick();
+          this.lastTickAngle = this.currentAngle;
+        }
+
+        this.draw();
+
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          this.currentAngle = (this.stopStartAngle + this.targetDelta) % 360;
+          this.animating = false;
+          this.spinState = 'idle';
+          this.draw();
+          if (typeof this.onStopCallback === 'function') {
+            this.onStopCallback();
+          }
+        }
       }
     };
 
     requestAnimationFrame(step);
+  }
+
+  landOn(finalRollPercentage, onComplete) {
+    this.onStopCallback = onComplete;
+    const rollAngle = (finalRollPercentage / 100) * 360;
+    const currentNorm = this.currentAngle % 360;
+    let diff = rollAngle - currentNorm;
+    if (diff <= 0) diff += 360;
+
+    this.stopStartAngle = this.currentAngle;
+    // 3 complete fast spins + exact landing angle
+    this.targetDelta = 3 * 360 + diff;
+    this.stopStartTime = performance.now();
+    this.stopDuration = 3200;
+    this.spinState = 'stopping';
+  }
+
+  spinTo(finalRollPercentage, onComplete) {
+    this.startSpin();
+    setTimeout(() => {
+      this.landOn(finalRollPercentage, onComplete);
+    }, 400);
   }
 }
 
@@ -1446,19 +1477,26 @@ async function handleUpgradeClick(e) {
   audio.playClick();
   if (particleInstance) particleInstance.startSpeed();
 
-  let data;
+  // 1. START WHEEL ROTATING IMMEDIATELY! (0ms delay!)
+  wheelInstance.startSpin();
+
+  // 2. Fetch server outcome with a 2-second timeout so it NEVER freezes
+  let data = null;
+  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000));
+  const fetchPromise = apiFetch('/api/game/upgrade', {
+    method: 'POST',
+    body: JSON.stringify({
+      sourceItemId: state.selectedSource.id,
+      targetItemCatalogId: state.selectedTarget.id,
+      direction: state.rollDirection,
+      idempotencyKey: 'upg_' + Date.now() + Math.random().toString(36).substring(7)
+    })
+  });
+
   try {
-    data = await apiFetch('/api/game/upgrade', {
-      method: 'POST',
-      body: JSON.stringify({
-        sourceItemId: state.selectedSource.id,
-        targetItemCatalogId: state.selectedTarget.id,
-        direction: state.rollDirection,
-        idempotencyKey: 'upg_' + Date.now() + Math.random().toString(36).substring(7)
-      })
-    });
+    data = await Promise.race([fetchPromise, timeoutPromise]);
   } catch (apiErr) {
-    console.warn('Backend upgrade API error, performing fair client simulation:', apiErr);
+    console.warn('Upgrade server slow or offline, instant client fair simulation:', apiErr);
     const chance = state.calculateChance();
     const roll = Math.floor(Math.random() * 10000) / 100;
     const isWin = state.rollDirection === 'under' ? (roll <= chance) : (roll >= (100 - chance));
@@ -1470,11 +1508,15 @@ async function handleUpgradeClick(e) {
     };
   }
 
-  // GUARANTEED SPIN THE WHEEL WITH REAL ANIMATION & AUDIO
-  wheelInstance.spinTo(data.roll, async () => {
-    try { await state.syncWithServer(); } catch(e) {}
-    finishUpgrade(data.isWin, data.roll, data.chance, data);
-  });
+  // 3. Smoothly decelerate to final target roll
+  setTimeout(() => {
+    wheelInstance.landOn(data.roll, async () => {
+      state.isSpinning = false;
+      if (particleInstance) particleInstance.stopSpeed();
+      try { await state.syncWithServer(); } catch(e) {}
+      finishUpgrade(data.isWin, data.roll, data.chance, data);
+    });
+  }, 600);
 }
 
 function finishUpgrade(isWin, roll, chance, serverData) {
