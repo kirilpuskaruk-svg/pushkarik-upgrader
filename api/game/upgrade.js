@@ -1,4 +1,4 @@
-const { sql } = require('@vercel/postgres');
+const { sql } = require('../_db');
 const { getVerifiedUser, sendJson } = require('../_auth');
 const crypto = require('crypto');
 const items = require('../../items.js'); // Assuming items.js exports ITEM_CATALOG
