@@ -282,7 +282,9 @@ class AppState {
 
 Object.freeze(AppState.prototype);
 const state = new AppState();
+window.state = state;
 Object.seal(state);
+
 
 // ==========================================
 // 3. RADIAL GAUGE CANVAS ENGINE
