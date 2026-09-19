@@ -2240,6 +2240,15 @@ function openProfileModal() {
   if (modal) modal.classList.add('open');
   audio.playClick();
 }
+window.openProfileModal = openProfileModal;
+
+// Auto-open profile modal if URL contains #profile or ?profile=true
+if (window.location.hash === '#profile' || window.location.search.includes('profile=true')) {
+  setTimeout(() => {
+    openProfileModal();
+  }, 300);
+}
+
 
 function renderProfileModalBody() {
   const container = document.getElementById('profileModalBody');
