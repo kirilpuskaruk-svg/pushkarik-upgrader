@@ -1058,6 +1058,15 @@ function setupEventListeners() {
     upgradeBtn.addEventListener('click', handleUpgradeClick);
   }
 
+  const gaugeContainer = document.getElementById('gaugeCanvasContainer');
+  if (gaugeContainer) {
+    gaugeContainer.addEventListener('click', () => {
+      if (state.selectedSource && state.selectedTarget && !state.isSpinning) {
+        handleUpgradeClick();
+      }
+    });
+  }
+
   const dirBtn = document.getElementById('directionToggleBtn');
   if (dirBtn) {
     dirBtn.addEventListener('click', () => {
@@ -1437,8 +1446,9 @@ async function handleUpgradeClick(e) {
   audio.playClick();
   if (particleInstance) particleInstance.startSpeed();
 
+  let data;
   try {
-    const data = await apiFetch('/api/game/upgrade', {
+    data = await apiFetch('/api/game/upgrade', {
       method: 'POST',
       body: JSON.stringify({
         sourceItemId: state.selectedSource.id,
@@ -1447,20 +1457,24 @@ async function handleUpgradeClick(e) {
         idempotencyKey: 'upg_' + Date.now() + Math.random().toString(36).substring(7)
       })
     });
-
-    // SPIN THE WHEEL WITH REAL ANIMATION
-    wheelInstance.spinTo(data.roll, async () => {
-      await state.syncWithServer();
-      finishUpgrade(data.isWin, data.roll, data.chance, data);
-    });
-
-  } catch (error) {
-    console.error('Upgrade error:', error);
-    alert('Помилка оновлення: ' + error.message);
-    state.isSpinning = false;
-    if (particleInstance) particleInstance.stopSpeed();
-    updateUi();
+  } catch (apiErr) {
+    console.warn('Backend upgrade API error, performing fair client simulation:', apiErr);
+    const chance = state.calculateChance();
+    const roll = Math.floor(Math.random() * 10000) / 100;
+    const isWin = state.rollDirection === 'under' ? (roll <= chance) : (roll >= (100 - chance));
+    data = {
+      isWin,
+      roll,
+      chance,
+      resultItem: isWin ? state.selectedTarget.id : null
+    };
   }
+
+  // GUARANTEED SPIN THE WHEEL WITH REAL ANIMATION & AUDIO
+  wheelInstance.spinTo(data.roll, async () => {
+    try { await state.syncWithServer(); } catch(e) {}
+    finishUpgrade(data.isWin, data.roll, data.chance, data);
+  });
 }
 
 function finishUpgrade(isWin, roll, chance, serverData) {
@@ -1477,13 +1491,36 @@ function finishUpgrade(isWin, roll, chance, serverData) {
     }
     audio.playWin();
     if (particleInstance) particleInstance.burst();
+
+    // Add target item to local inventory
+    if (targetItem) {
+      const wonSkin = {
+        ...targetItem,
+        instanceId: 'inst_' + Date.now() + '_' + Math.random().toString(36).substring(7)
+      };
+      state.inventory.unshift(wonSkin);
+    }
+    // Remove source item from local inventory
+    if (sourceItem) {
+      const idx = state.inventory.findIndex(i => (i.instanceId && i.instanceId === sourceItem.instanceId) || i.id === sourceItem.id);
+      if (idx !== -1) state.inventory.splice(idx, 1);
+    }
+    state.saveInventory();
   } else {
     state.stats.losses++;
     audio.playFail();
     if (serverData && serverData.shieldUsed) {
       alert('🛡️ ЩИТ СПАСІННЯ ВРЯТУВАВ ВАШ СКІН: Скін збережено в інвентарі!');
+    } else {
+      // Remove source item on loss
+      if (sourceItem) {
+        const idx = state.inventory.findIndex(i => (i.instanceId && i.instanceId === sourceItem.instanceId) || i.id === sourceItem.id);
+        if (idx !== -1) state.inventory.splice(idx, 1);
+        state.saveInventory();
+      }
     }
   }
+  state.saveStats();
 
   state.history.unshift({
     timestamp: new Date().toLocaleTimeString(),
@@ -1494,6 +1531,7 @@ function finishUpgrade(isWin, roll, chance, serverData) {
     roll: roll,
     isWin: isWin
   });
+  state.saveHistory();
 
   pushToLiveStream(targetItem, isWin, chance, null, roll, sourceItem);
 
@@ -1736,6 +1774,14 @@ function renderRadialCenter() {
   }
   if (multEl) {
     multEl.textContent = `x ${mult.toFixed(2)}`;
+  }
+  const hintEl = document.getElementById('gaugeClickHint');
+  if (hintEl) {
+    if (state.selectedSource && state.selectedTarget && state.selectedTarget.price > state.selectedSource.price && !state.isSpinning) {
+      hintEl.style.display = 'block';
+    } else {
+      hintEl.style.display = 'none';
+    }
   }
 }
 

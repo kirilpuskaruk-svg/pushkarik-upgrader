@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <title>PUSHKARIK UPGRADER — Демонстраційний симулятор апгрейду</title>
-  <link rel="stylesheet" href="styles.css?v=35.0.0" />
+  <link rel="stylesheet" href="styles.css?v=41.0.0" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/></svg>" />
 </head>
 <body>
@@ -102,12 +102,13 @@
 
           <!-- CENTER: Radial Upgrade Wheel / Gauge -->
           <div class="radial-center-wrap">
-            <div class="gauge-canvas-container">
+            <div id="gaugeCanvasContainer" class="gauge-canvas-container" title="Натисніть для запуску апгрейду">
               <canvas id="radialCanvas"></canvas>
               <div class="gauge-core-info">
                 <span class="gauge-chance-label">Шанс успіху</span>
                 <span id="gaugeChanceValue" class="gauge-chance-value">0.00%</span>
                 <span id="gaugeMultiplierChip" class="gauge-multiplier-chip">x 1.00</span>
+                <span id="gaugeClickHint" class="gauge-click-hint" style="margin-top: 6px; font-size: 10px; font-weight: 800; color: var(--neon-cyan); letter-spacing: 1px; text-transform: uppercase; display: none;">⚡ КЛІКНІТЬ ДЛЯ КРУТІННЯ</span>
               </div>
             </div>
 
@@ -526,6 +527,6 @@
   <!-- Scripts -->
   <script src="cosmetics_data.js?v=40.0.0"></script>
   <script src="items.js?v=40.0.0"></script>
-  <script src="app.js?v=40.0.0"></script>
+  <script src="app.js?v=41.0.0"></script>
 </body>
 </html>

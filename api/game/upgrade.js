@@ -22,10 +22,16 @@ module.exports = async function handler(req, res) {
       return sendJson(res, 409, { error: 'Transaction already processed' });
     }
 
-    // 2. Find source item in DB
-    const sourceDbItem = await sql`SELECT id, item_id FROM inventory WHERE user_id = ${googleId} AND item_id = ${sourceItemId} AND status = 'ACTIVE' LIMIT 1 FOR UPDATE`;
+    // 2. Find source item in DB (or register starter/catalog item if not yet synced)
+    let sourceDbItem = await sql`SELECT id, item_id FROM inventory WHERE user_id = ${googleId} AND item_id = ${sourceItemId} AND status = 'ACTIVE' LIMIT 1 FOR UPDATE`;
     if (sourceDbItem.rows.length === 0) {
-      return sendJson(res, 400, { error: 'Source item not found in active inventory' });
+      const validItem = items.ITEM_CATALOG.find(i => i.id === sourceItemId);
+      if (validItem) {
+        const insertRes = await sql`INSERT INTO inventory (user_id, item_id, status) VALUES (${googleId}, ${sourceItemId}, 'ACTIVE') RETURNING id, item_id`;
+        sourceDbItem = insertRes;
+      } else {
+        return sendJson(res, 400, { error: 'Source item not found in active inventory' });
+      }
     }
     const sourceDbId = sourceDbItem.rows[0].id;
 
