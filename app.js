@@ -3,6 +3,24 @@
  * 100% DEMO - NO REAL MONEY - NO GAMBLING
  */
 
+
+async function apiFetch(endpoint, options = {}) {
+  if (!googleAuth || !googleAuth.idToken) {
+    const modal = document.getElementById('googleAuthModal');
+    if (modal) modal.classList.add('open');
+    throw new Error('Увійдіть через Google');
+  }
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${googleAuth.idToken}`,
+    ...options.headers
+  };
+  const response = await fetch(endpoint, { ...options, headers });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Server error');
+  return data;
+}
+
 function escapeHtml(str) {
   if (typeof str !== 'string') return '';
   return str.replace(/[&<>"']/g, function(m) {
@@ -254,10 +272,7 @@ class AppState {
     localStorage.setItem('pushkarik_active_boosters_v1', JSON.stringify(this.activeBoosters));
   }
 
-  saveInventory() {
-    localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(this.inventory));
-  }
-
+  saveInventory() { /* server */ }
   saveVault() {
     localStorage.setItem(STORAGE_KEYS.VAULT, JSON.stringify(this.vault));
   }
@@ -1275,25 +1290,16 @@ function applyMultiplierPreset(multTarget) {
 }
 
 function claimDemoBonus() {
-  const budgetSkins = ITEM_CATALOG.filter(i => i.rarity === 'common');
-  const otherSkins = ITEM_CATALOG.filter(i => i.rarity !== 'common');
-
-  const selectedTemplate = Math.random() < 0.85 
-    ? budgetSkins[Math.floor(Math.random() * budgetSkins.length)]
-    : otherSkins[Math.floor(Math.random() * otherSkins.length)];
-
-  const newItem = { ...selectedTemplate, instanceId: 'inst_' + Date.now() + '_pack' };
-
-  state.inventory.unshift(newItem);
-  state.balance += 50.00;
-  state.saveInventory();
-  state.saveBalance();
-  updateUi();
-
-  audio.playWin();
-  if (particleInstance) particleInstance.burst();
-
-  openDemoPackModal(newItem);
+  apiFetch('/api/game/claim-bonus', {
+    method: 'POST',
+    body: JSON.stringify({ idempotencyKey: 'bon_' + Date.now() + Math.random() })
+  }).then(async (data) => {
+    await state.syncWithServer();
+    audio.playWin();
+    if (particleInstance) particleInstance.burst();
+    const newItem = state.inventory.find(i => i.db_id === data.item.db_id);
+    if (newItem) openDemoPackModal(newItem);
+  }).catch(e => alert('Помилка: ' + e.message));
 }
 
 function openDemoPackModal(droppedItem) {
@@ -1365,154 +1371,57 @@ let _lastUpgradeTime = 0;
 let _botAttempts = 0;
 let _isBanned = false;
 
-function handleUpgradeClick(e) {
-  // 1. Anti-Auto-Clicker & Script Injection Detection (Hardware Trusted Event Check)
-  if (!e || !e.isTrusted) {
-    _botAttempts++;
-    console.error('[ANTI-CHEAT] 🚨 Відхилено! Виявлено автоклікер або скрипт. (e.isTrusted === false)');
-    if (_botAttempts > 3) {
-      _isBanned = true;
-      alert('🚨 ANTI-CHEAT: Виявлено використання сторонніх скриптів або ботів! Апгрейди тимчасово заблоковано.');
-    }
-    return;
-  }
 
-  // 2. Ban Check
-  if (_isBanned) {
-    alert('🚨 ANTI-CHEAT: Ваш клієнт заблоковано за підозрілу активність. Оновіть сторінку.');
-    return;
-  }
-
-  // 3. Rate Limiting (Prevent Macro Spam)
-  const now = Date.now();
-  if (now - _lastUpgradeTime < 1500) {
-    console.warn('[ANTI-CHEAT] ⏳ Занадто швидко! Спрацював Rate-Limit (1.5 сек cooldown).');
-    return;
-  }
-  _lastUpgradeTime = now;
-
+async function handleUpgradeClick(e) {
   if (state.isSpinning) return;
-  if (!state.selectedSource) {
-    alert('Оберіть предмет зі свого інвентарю для покращення!');
-    return;
-  }
-  if (!state.selectedTarget) {
-    alert('Оберіть бажаний предмет із каталогу цілей!');
-    return;
+  if (!state.selectedSource || !state.selectedTarget) {
+      alert('Оберіть предмети');
+      return;
   }
   if (state.selectedTarget.price <= state.selectedSource.price) {
-    alert('Апгрейд можливий тільки на дорожчий скін! Обрана ціль дешевша або рівна вашому скіну.');
-    return;
+      alert('Не можна робити даунгрейд!');
+      return;
   }
 
-  const chance = state.calculateChance();
-  if (chance <= 0) return;
-
-  // Cryptographically Secure Roll (CSPRNG - Anti-Cheat)
-  let roll = getSecureRoll();
-  let isWin = false;
-
-  // ADMIN 100% FORCE WIN OVERRIDE
-  if (state.adminMode && state.adminForceWin) {
-    if (state.rollDirection === 'under') {
-      roll = (chance * 0.5);
-    } else {
-      roll = 100 - (chance * 0.5);
-    }
-    isWin = true;
-    console.log('[ADMIN] 👑 Admin 100% Force Win Active! Upgrade guaranteed win.');
-  } else {
-    if (state.rollDirection === 'under') {
-      isWin = roll <= chance;
-    } else {
-      isWin = roll >= (100 - chance);
-    }
-  }
-
-  const sourceIndex = state.inventory.findIndex(i => i.instanceId === state.selectedSource.instanceId);
-  if (sourceIndex > -1) {
-    state.inventory.splice(sourceIndex, 1);
-    state.saveInventory();
-  }
-
-  wheelInstance.spinTo(roll, () => {
-    finishUpgrade(isWin, roll, chance);
-  });
-}
-
-function finishUpgrade(isWin, roll, chance) {
-  const sourceItem = state.selectedSource;
-  const targetItem = state.selectedTarget;
-  const mult = targetItem.price / sourceItem.price;
-
-  let consolationItem = null;
-
-  state.stats.total++;
-  if (isWin) {
-    state.stats.wins++;
-    state.stats.totalWonValue += targetItem.price;
-    if (mult > state.stats.bestMultiplier) {
-      state.stats.bestMultiplier = mult;
-    }
-    const newWonItem = { ...targetItem, instanceId: 'inst_' + Date.now() };
-    state.inventory.unshift(newWonItem);
-    state.lastWonItem = newWonItem;
-    state.saveInventory();
-
-    audio.playWin();
-    if (particleInstance) particleInstance.burst();
-  } else {
-    state.stats.losses++;
-
-    // Check if Shield Booster is active (preserves the source skin on loss!)
-    const hasShield = (state.activeBoosters || []).some(b => b.id === 'booster_shield');
-    if (hasShield) {
-      state.inventory.unshift(sourceItem);
-      state.saveInventory();
-      showToastNotification(`🛡️ ЩИТ СПАСІННЯ ВРЯТУВАВ ВАШ СКІН: "${sourceItem.name}" повернено в інвентар!`);
-    }
-
-    // Check Double Cashback Booster (gives 20% value refund instead of 1 DP!)
-    const hasCashback = (state.activeBoosters || []).some(b => b.id === 'booster_cashback');
-    const cashbackAmount = hasCashback ? (sourceItem.price * 0.20) : 1.00;
-    state.balance += cashbackAmount;
-    state.saveBalance();
-
-    // 20% chance for Loss Consolation Case drop on lose roll (rare bonus!)
-    const hasConsolationDrop = Math.random() < 0.20;
-    if (hasConsolationDrop) {
-      const budgetSkins = ITEM_CATALOG.filter(i => i.rarity === 'common' || i.rarity === 'rare');
-      const template = budgetSkins[Math.floor(Math.random() * budgetSkins.length)];
-      consolationItem = { ...template, instanceId: 'inst_' + Date.now() + '_consolation' };
-      state.inventory.unshift(consolationItem);
-      state.lastWonItem = consolationItem;
-      state.saveInventory();
-    } else {
-      state.lastWonItem = null;
-    }
-
-    audio.playFail();
-  }
-
-  state.history.unshift({
-    timestamp: new Date().toLocaleTimeString(),
-    sourceName: sourceItem.name,
-    targetName: targetItem.name,
-    targetImage: targetItem.image,
-    chance: chance,
-    roll: roll,
-    isWin: isWin
-  });
-  state.saveStats();
-  state.saveHistory();
-
-  pushToLiveStream(targetItem, isWin, chance, null, roll, sourceItem);
-
-  state.selectedSource = null;
+  state.isSpinning = true;
   updateUi();
+  audio.playClick();
+  if (particleInstance) particleInstance.startSpeed();
 
-  showResultModal(isWin, targetItem, roll, chance, consolationItem);
+  try {
+    const btn = document.getElementById('upgradeBtn');
+    if(btn) { btn.disabled = true; btn.textContent = 'ОБРОБКА...'; }
+
+    const data = await apiFetch('/api/game/upgrade', {
+      method: 'POST',
+      body: JSON.stringify({
+        sourceItemId: state.selectedSource.id,
+        targetItemCatalogId: state.selectedTarget.id,
+        direction: state.rollDirection,
+        idempotencyKey: 'upg_' + Date.now() + Math.random().toString(36).substring(7)
+      })
+    });
+
+    const wheelValEl = document.getElementById('wheelRollValue');
+    if(wheelValEl) wheelValEl.textContent = "ROLLING...";
+    await new Promise(r => setTimeout(r, 2000));
+    if(wheelValEl) wheelValEl.textContent = data.roll.toFixed(2);
+    
+    await state.syncWithServer();
+    
+    let resultItem = data.isWin ? state.selectedTarget : null;
+    showResultModal(data.isWin, resultItem, data.roll, data.chance, null);
+
+  } catch (error) {
+    alert('Помилка оновлення: ' + error.message);
+  } finally {
+    state.isSpinning = false;
+    if (particleInstance) particleInstance.stopSpeed();
+    updateUi();
+  }
 }
+
+function finishUpgrade(isWin, roll, chance) {}
 
 function showResultModal(isWin, item, roll, chance, consolationItem = null) {
   const modal = document.getElementById('resultModal');
@@ -2575,13 +2484,17 @@ class GoogleAuthManager {
 
   loadUser() {
     const saved = localStorage.getItem('upgrader_demo_google_user_v10_real_only');
-    if (saved) {
+    const savedToken = localStorage.getItem('upgrader_google_token');
+    if (saved && savedToken) {
       try {
         this.user = JSON.parse(saved);
+        this.idToken = savedToken;
       } catch(e) {
         this.user = null;
+        this.idToken = null;
       }
     }
+  }
   }
 
   login(userObj) {
