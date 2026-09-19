@@ -2495,14 +2495,22 @@ class GoogleAuthManager {
       }
     }
   }
-  }
 
-  login(userObj) {
+  login(userObj, idToken = null) {
     this.user = userObj;
+    if (idToken) this.idToken = idToken;
     localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(userObj));
-    updateUi();
-    audio.playWin();
-    if (particleInstance) particleInstance.burst();
+    if (idToken) localStorage.setItem('upgrader_google_token', idToken);
+    
+    if (typeof state !== 'undefined' && state.syncWithServer) {
+      state.syncWithServer().then(() => {
+        updateUi();
+        audio.playWin();
+        if (particleInstance) particleInstance.burst();
+      });
+    } else {
+      updateUi();
+    }
   }
 
   updateProfile(name, picture) {
@@ -2551,11 +2559,11 @@ window.onGoogleSignIn = function(response) {
     const payload = googleAuth.decodeJwt(response.credential);
     if (payload) {
       googleAuth.login({
-        name: payload.name || 'Google User',
-        email: payload.email || 'user@gmail.com',
-        picture: payload.picture || 'https://lh3.googleusercontent.com/a/default-user',
-        sub: payload.sub
-      });
+          name: payload.name || 'Google User',
+          email: payload.email || 'user@gmail.com',
+          picture: payload.picture || 'https://lh3.googleusercontent.com/a/default-user',
+          sub: payload.sub
+        }, response.credential);
       const modal = document.getElementById('googleAuthModal');
       if (modal) modal.classList.remove('open');
     }
