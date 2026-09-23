@@ -2316,7 +2316,7 @@ const DEFAULT_USER_INVENTORY = [
   { ...ITEM_CATALOG.find(i => i.name === 'AK-47 | Redline') || ITEM_CATALOG[7], instanceId: 'inst_6' },
   { ...ITEM_CATALOG.find(i => i.name === 'AWP | Neo-Noir') || ITEM_CATALOG[6], instanceId: 'inst_7' },
   { ...ITEM_CATALOG.find(i => i.id === 'sticker_titan_holo') || { id: 'sticker_titan_holo', name: 'Sticker | Titan (Holo)', price: 45000, rarity: 'ancient', image: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0P27V6VsOf-fC2O52_J0uL9qSnK-rBhptWzZy936In-Tbw8kB9QjE947f_s2YIrg7g', type: 'sticker' }, instanceId: 'inst_sticker_1' },
-  { ...ITEM_CATALOG.find(i => i.id === 'charm_semi_precious') || { id: 'charm_semi_precious', name: 'Charm | Semi-Precious', price: 320, rarity: 'legendary', image: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW5V6FmPPCGDGWn0fB_teR_Ti6j8Fk44WiC84_8cnGUbwJ1CZV4ErY5f_tnYIrv0l1q', type: 'charm' }, instanceId: 'inst_charm_1' }
+  { ...ITEM_CATALOG.find(i => i.id === 'charm_semi_precious') || { id: 'charm_semi_precious', name: 'Charm | Semi-Precious', price: 320, rarity: 'legendary', image: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOip3u9CRe0PG8cbd5IfzdXT_Bwr4u4rU9GSrrx09042TUm4z7eXOVbFcgC5J4Q7QL4BW_x4CzMPSiuVKoeSA8mg', type: 'charm' }, instanceId: 'inst_charm_1' }
 ];
 
 if (typeof window !== 'undefined') {

@@ -218,7 +218,7 @@ const CHARMS_CATALOG = [
     category: "Charm",
     rarity: "legendary",
     price: 320.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW5V6FmPPCGDGWn0fB_teR_Ti6j8Fk44WiC84_8cnGUbwJ1CZV4ErY5f_tnYIrv0l1q",
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOip3u9CRe0PG8cbd5IfzdXT_Bwr4u4rU9GSrrx09042TUm4z7eXOVbFcgC5J4Q7QL4BW_x4CzMPSiuVKoeSA8mg",
     description: "Дорогоцінний кристал у металевій оправі, що прикріплюється до ствольної коробки зброї."
   },
   {
@@ -228,7 +228,7 @@ const CHARMS_CATALOG = [
     category: "Charm",
     rarity: "legendary",
     price: 245.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW3V6FmPPCGDGWn0fB_teR_Ti6j8Fk44WiC84_8cnGUbwJ1CZV4ErY5f_tnYIrv0l1q",
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOnYLr8ytd6s2pZ6hpbqGVXWOWwLoktLFtHnDmwU4l4jnUwt6pInqSO1AiWJp1QuVeu0S4kt35d7S1otZRy58",
     description: "Мініатюрна золота фігурка бійця спецпідрозділу з рухомими ніжками."
   },
   {
@@ -238,7 +238,7 @@ const CHARMS_CATALOG = [
     category: "Charm",
     rarity: "legendary",
     price: 260.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW1V6FmPPCGDGWn0fB_teR_Ti6j8Fk44WiC84_8cnGUbwJ1CZV4ErY5f_tnYIrv0l1q",
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOip3u9CRe0PWhZKAjJPOXWDGWlOgm47QxTH7jwExy5zmAw977cinCbgcgCJNzFLID50bsw8qnab1NtMpc9Q",
     description: "Мініатюрна золота фігурка терориста з фірмовою маскою."
   },
   {
@@ -248,7 +248,7 @@ const CHARMS_CATALOG = [
     category: "Charm",
     rarity: "epic",
     price: 110.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW2V6FmPPCGDGWn0fB_teR_Ti6j8Fk44WiC84_8cnGUbwJ1CZV4ErY5f_tnYIrv0l1q",
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IWsPGiE7Fhy-I764RbsQiL8l4Xz9Cxc4_ugY5tlL-efQGKTmbxztbJoFnvjkBtw4zjcw9v8ICiTOwcpDpZyF-FYsBO9k4W2Nbn8p1uJTS_m1eQ",
     description: "Вогняний міні-вовк у стилі культового Howl, що гойдається під час стрільби."
   },
   {
@@ -258,7 +258,7 @@ const CHARMS_CATALOG = [
     category: "Charm",
     rarity: "rare",
     price: 65.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW4V6FmPPCGDGWn0fB_teR_Ti6j8Fk44WiC84_8cnGUbwJ1CZV4ErY5f_tnYIrv0l1q",
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOn53f9ydX4-vgPvw_efKXXzWWkL0ksrQwGCjmlBl24DjUyNipcS-WOFQoDsd2Te9Zsg74zIPxCozwxw",
     description: "Металевий міні-автомат Калашникова на кільці для кріплення."
   },
   {
@@ -268,7 +268,7 @@ const CHARMS_CATALOG = [
     category: "Charm",
     rarity: "rare",
     price: 42.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW6V6FmPPCGDGWn0fB_teR_Ti6j8Fk44WiC84_8cnGUbwJ1CZV4ErY5f_tnYIrv0l1q",
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IWsPGiE7Fhy-I764RbsQiL8l4Xz9Cxc4_ugY5tgL_6AGmKCj79wtOVrTijixU0m5m3UntioI3PEZldzCpd1FOJfsxXtmtCxNezk5gTAy9USJfGXAGI",
     description: "Кумедний монстрик, що додає зброї унікальної харизми."
   },
   {
@@ -278,7 +278,7 @@ const CHARMS_CATALOG = [
     category: "Charm",
     rarity: "common",
     price: 19.50,
-    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW7V6FmPPCGDGWn0fB_teR_Ti6j8Fk44WiC84_8cnGUbwJ1CZV4ErY5f_tnYIrv0l1q",
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOi4Xwwjta_fzgPvNoJfPLDDDHwLcjtrdsGS3lwxwl52qGm9b_eHiVO1IgCMR4QO5Yuw74zIPBDwTYVQ",
     description: "Текстильний брелок ручної роботи у вигляді патрона."
   }
 ];
