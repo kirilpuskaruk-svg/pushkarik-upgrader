@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node server.js",
-    "build": "node -c app.js && node -c items.js && node -c cosmetics_data.js && node scratch/test_browser_runtime.js",
+    "build": "node -c app.js && node -c items.js && node -c cosmetics_data.js",
     "test": "node -c app.js"
   },
   "repository": {
