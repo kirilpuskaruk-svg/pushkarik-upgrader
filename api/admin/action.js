@@ -44,6 +44,16 @@ module.exports = async function handler(req, res) {
       return sendJson(res, 200, { success: true, newBalance: balance });
     }
 
+    // 2.1 TOGGLE FORCE WIN
+    if (action === 'TOGGLE_FORCE_WIN') {
+      const targetUserId = payload?.targetUserId || user.sub;
+      const currentRes = await sql`SELECT force_win FROM users WHERE id = ${targetUserId} LIMIT 1`;
+      const currentVal = currentRes.rows.length > 0 ? Boolean(currentRes.rows[0].force_win) : false;
+      const newVal = payload?.forceWin !== undefined ? Boolean(payload.forceWin) : !currentVal;
+      await sql`UPDATE users SET force_win = ${newVal} WHERE id = ${targetUserId};`;
+      return sendJson(res, 200, { success: true, forceWin: newVal });
+    }
+
     // 3. SPAWN SELECTED SKIN
     if (action === 'SPAWN_SKIN') {
       const itemId = payload?.itemId;

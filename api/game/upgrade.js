@@ -58,11 +58,28 @@ module.exports = async function handler(req, res) {
     let finalChance = Math.min(Math.max(pureChance, 0.01), 95.00);
 
     // 5. Generate Secure RNG (0 to 100)
-    const roll = crypto.randomInt(0, 10000) / 100; // 0.00 to 99.99
+    let roll = crypto.randomInt(0, 10000) / 100; // 0.00 to 99.99
+
+    // Check if user is verified admin with force_win enabled
+    const { isAdmin } = require('../_auth');
+    const userIsAdmin = await isAdmin(googleUser);
+    let isForceWin = false;
+    if (userIsAdmin) {
+      const userDb = await sql`SELECT force_win FROM users WHERE id = ${googleId} LIMIT 1`;
+      if (userDb.rows.length > 0 && userDb.rows[0].force_win) {
+        isForceWin = true;
+      }
+    }
     
     let isWin = false;
-    if (direction === 'under') isWin = roll <= finalChance;
-    else isWin = roll >= (100 - finalChance);
+    if (isForceWin) {
+      isWin = true;
+      roll = direction === 'under' ? Math.max(0, finalChance - 1.0) : Math.min(99.99, (100 - finalChance) + 1.0);
+    } else if (direction === 'under') {
+      isWin = roll <= finalChance;
+    } else {
+      isWin = roll >= (100 - finalChance);
+    }
 
     // 6. Apply outcome
     if (isWin) {

@@ -10,9 +10,14 @@ async function ensureTables() {
       email VARCHAR(255) UNIQUE NOT NULL,
       balance INTEGER DEFAULT 10000,
       role VARCHAR(50) DEFAULT 'user',
+      force_win BOOLEAN DEFAULT FALSE,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
   `;
+  try {
+    await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS force_win BOOLEAN DEFAULT FALSE;`;
+  } catch(e) {}
+  await sql`
   await sql`
     CREATE TABLE IF NOT EXISTS inventory (
       id SERIAL PRIMARY KEY,
@@ -128,7 +133,8 @@ module.exports = async function handler(req, res) {
         balance: user.balance,
         role: user.role,
         isAdmin: adminCheck,
-        isOwner: isProjectOwner
+        isOwner: isProjectOwner,
+        forceWin: Boolean(user.force_win)
       },
       inventory,
       vault,

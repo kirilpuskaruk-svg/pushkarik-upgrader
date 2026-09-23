@@ -15,11 +15,17 @@ module.exports = async function handler(req, res) {
         email VARCHAR(255) UNIQUE NOT NULL,
         balance INTEGER DEFAULT 10000,
         role VARCHAR(50) DEFAULT 'user',
+        force_win BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `;
 
-    // 2. Ensure role column exists and set owner role
+    // Ensure force_win column exists on existing installations
+    try {
+      await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS force_win BOOLEAN DEFAULT FALSE;`;
+    } catch (e) {}
+
+    // Ensure role column exists and set owner role
     const ownerEmail = process.env.ADMIN_OWNER_EMAIL?.trim().toLowerCase();
     if (ownerEmail) {
       await sql`

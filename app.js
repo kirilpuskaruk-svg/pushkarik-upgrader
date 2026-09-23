@@ -1267,6 +1267,25 @@ function initApp() {
   initLiveDropStream();
   setupEventListeners();
   updateUi();
+
+  // Automatic Server-Side State & Admin Sync
+  if (state && typeof state.syncWithServer === 'function') {
+    state.syncWithServer().then(() => {
+      // Check if user came via direct admin URL: /?admin=true or /admin
+      const pathname = (window.location && window.location.pathname) || '';
+      const search = (window.location && window.location.search) || '';
+      const isDirectAdminUrl = search.includes('admin=true') || 
+                               pathname === '/admin' || 
+                               pathname.startsWith('/admin/');
+      if (isDirectAdminUrl) {
+        if (state.adminMode) {
+          openAdminPanelModal();
+        } else {
+          alert('🔒 Доступ заборонено! Для перегляду адмінки потрібен обліковий запис адміністратора.');
+        }
+      }
+    });
+  }
 }
 
 if (document.readyState === 'loading') {
@@ -1689,19 +1708,22 @@ async function handleUpgradeClick(e) {
   // 1. START WHEEL ROTATING IMMEDIATELY! (0ms delay!)
   wheelInstance.startSpin();
 
-  // 2. Compute fair RNG roll locally so animation NEVER hangs
+  // 2. Initial roll prediction for zero-latency start
   const chance = state.calculateChance();
-  const roll = Math.floor(Math.random() * 10000) / 100;
-  const isWin = state.rollDirection === 'under' ? (roll <= chance) : (roll >= (100 - chance));
-  const data = {
+  let roll = Math.floor(Math.random() * 10000) / 100;
+  if (state.adminMode && state.adminForceWin) {
+    roll = state.rollDirection === 'under' ? Math.max(0, chance - 1.0) : Math.min(99.99, (100 - chance) + 1.0);
+  }
+  let isWin = state.rollDirection === 'under' ? (roll <= chance) : (roll >= (100 - chance));
+  let finalData = {
     isWin,
     roll,
     chance,
     resultItem: isWin ? state.selectedTarget.id : null
   };
 
-  // 3. Background server sync (does NOT block animation)
-  apiFetch('/api/game/upgrade', {
+  // 3. Authoritative server sync in background (wheel spins while waiting, never freezing)
+  const serverPromise = apiFetch('/api/game/upgrade', {
     method: 'POST',
     body: JSON.stringify({
       sourceItemId: state.selectedSource.id,
@@ -1709,14 +1731,26 @@ async function handleUpgradeClick(e) {
       direction: state.rollDirection,
       idempotencyKey: 'upg_' + Date.now() + Math.random().toString(36).substring(7)
     })
+  }).then(srvRes => {
+    if (srvRes && typeof srvRes.roll === 'number') {
+      finalData.roll = srvRes.roll;
+      finalData.isWin = srvRes.isWin;
+      finalData.chance = srvRes.chance || chance;
+      finalData.resultItem = srvRes.resultItem;
+      finalData.shieldUsed = srvRes.shieldUsed;
+    }
   }).catch(() => {});
 
-  // 4. Smoothly decelerate to final target roll
-  setTimeout(() => {
-    wheelInstance.landOn(data.roll, () => {
+  // 4. Smoothly decelerate to final authoritative roll
+  setTimeout(async () => {
+    try {
+      await Promise.race([serverPromise, new Promise(r => setTimeout(r, 600))]);
+    } catch(e) {}
+
+    wheelInstance.landOn(finalData.roll, () => {
       state.isSpinning = false;
       if (particleInstance) particleInstance.stopSpeed();
-      finishUpgrade(data.isWin, data.roll, data.chance, data);
+      finishUpgrade(finalData.isWin, finalData.roll, finalData.chance, finalData);
     });
   }, 700);
 }
@@ -3362,15 +3396,26 @@ window.adminToggleMode = async function() {
   audio.playClick();
 };
 
-window.adminToggleForceWin = function() {
+window.adminToggleForceWin = async function() {
   if (!state.adminMode) {
     alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
     return;
   }
-  state.adminForceWin = !state.adminForceWin;
-  localStorage.setItem('upgrader_demo_admin_force_win', JSON.stringify(state.adminForceWin));
-  renderAdminModalBody();
-  audio.playWin();
+  try {
+    const res = await apiFetch('/api/admin/action', {
+      method: 'POST',
+      body: JSON.stringify({ action: 'TOGGLE_FORCE_WIN', payload: { forceWin: !state.adminForceWin } })
+    });
+    if (res && res.success) {
+      state.adminForceWin = res.forceWin;
+      localStorage.setItem('upgrader_demo_admin_force_win', JSON.stringify(state.adminForceWin));
+      renderAdminModalBody();
+      audio.playWin();
+      showToastNotification(state.adminForceWin ? '🔥 FORCE WIN: Увімкнено 100% виграш на сервері!' : '❌ FORCE WIN: Вимкнено. Чесний шанс!');
+    }
+  } catch (err) {
+    alert('Помилка сервера: ' + err.message);
+  }
 };
 
 window.adminAddBalance = async function(amount) {

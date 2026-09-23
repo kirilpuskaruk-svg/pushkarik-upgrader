@@ -2,5 +2,15 @@
   "version": 2,
   "name": "pushkarik-upgrader",
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/admin",
+      "destination": "/index.html?admin=true"
+    },
+    {
+      "source": "/((?!api/|_next/|_static/|favicon.ico|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
