@@ -1,19 +1,35 @@
 const crypto = require('crypto');
 const { sql } = require('../../_db');
-const { sendJson } = require('../../_auth');
+const { sendJson, getBearerToken } = require('../../_auth');
 
 module.exports = async function handler(req, res) {
+  // 0. HANDLE LOGOUT IF REQUEST METHOD IS POST OR QUERY/ACTION IS LOGOUT
+  if (req.method === 'POST') {
+    const token = getBearerToken(req);
+    if (token) {
+      try {
+        await sql`DELETE FROM sessions WHERE token = ${token}`;
+      } catch (e) {
+        console.error('Logout error:', e);
+      }
+    }
+    res.setHeader('Set-Cookie', 'pushkarik_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax');
+    return sendJson(res, 200, { success: true, message: 'Logged out successfully' });
+  }
+
   const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
   const error = url.searchParams.get('error');
 
   if (error) {
-    return res.redirect(302, '/?auth_error=' + encodeURIComponent(error));
+    res.writeHead(302, { Location: '/?auth_error=' + encodeURIComponent(error) });
+    return res.end();
   }
 
   if (!code || !state) {
-    return res.redirect(302, '/?auth_error=missing_code_or_state');
+    res.writeHead(302, { Location: '/?auth_error=missing_code_or_state' });
+    return res.end();
   }
 
   // 1. Verify and consume state to prevent CSRF / Replay attacks
@@ -24,7 +40,8 @@ module.exports = async function handler(req, res) {
       RETURNING nonce;
     `;
     if (stateRes.rows.length === 0) {
-      return res.redirect(302, '/?auth_error=invalid_or_expired_state');
+      res.writeHead(302, { Location: '/?auth_error=invalid_or_expired_state' });
+      return res.end();
     }
     const expectedNonce = stateRes.rows[0].nonce;
 
@@ -37,7 +54,8 @@ module.exports = async function handler(req, res) {
 
     if (!clientId || !clientSecret) {
       console.error('Google OAuth credentials missing on server');
-      return res.redirect(302, '/?auth_error=server_oauth_unconfigured');
+      res.writeHead(302, { Location: '/?auth_error=server_oauth_unconfigured' });
+      return res.end();
     }
 
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -55,7 +73,8 @@ module.exports = async function handler(req, res) {
     if (!tokenResponse.ok) {
       const errText = await tokenResponse.text();
       console.error('Token exchange error:', errText);
-      return res.redirect(302, '/?auth_error=token_exchange_failed');
+      res.writeHead(302, { Location: '/?auth_error=token_exchange_failed' });
+      return res.end();
     }
 
     const tokenData = await tokenResponse.json();
@@ -64,15 +83,18 @@ module.exports = async function handler(req, res) {
     // 3. Verify ID Token claims
     const tokenInfoRes = await fetch('https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(idToken));
     if (!tokenInfoRes.ok) {
-      return res.redirect(302, '/?auth_error=invalid_id_token');
+      res.writeHead(302, { Location: '/?auth_error=invalid_id_token' });
+      return res.end();
     }
 
     const claims = await tokenInfoRes.json();
     if (claims.aud !== clientId) {
-      return res.redirect(302, '/?auth_error=invalid_audience');
+      res.writeHead(302, { Location: '/?auth_error=invalid_audience' });
+      return res.end();
     }
     if (claims.email_verified !== 'true' && claims.email_verified !== true) {
-      return res.redirect(302, '/?auth_error=unverified_email');
+      res.writeHead(302, { Location: '/?auth_error=unverified_email' });
+      return res.end();
     }
 
     const email = claims.email.toLowerCase().trim();
@@ -155,10 +177,12 @@ module.exports = async function handler(req, res) {
       token: sessionToken
     }));
 
-    return res.redirect(302, `/#session=${sessionToken}&user=${clientUserPayload}`);
+    res.writeHead(302, { Location: `/#session=${sessionToken}&user=${clientUserPayload}` });
+    return res.end();
 
   } catch (err) {
     console.error('OAuth Callback Error:', err);
-    return res.redirect(302, '/?auth_error=' + encodeURIComponent(err.message || 'oauth_internal_error'));
+    res.writeHead(302, { Location: '/?auth_error=' + encodeURIComponent(err.message || 'oauth_internal_error') });
+    return res.end();
   }
 };

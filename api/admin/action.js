@@ -1,22 +1,115 @@
 const { sql } = require('../_db');
-const { getVerifiedUser, isAdmin, isOwner, sendJson } = require('../_auth');
+const { getVerifiedUser, isAdmin, isOwner, readAdmins, writeAdmins, sendJson } = require('../_auth');
 const { ITEM_CATALOG } = require('../../items.js');
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
-
   try {
     const user = await getVerifiedUser(req);
     if (!user) {
-      return sendJson(res, 401, { error: 'Authentication required' });
+      return sendJson(res, 401, { isOwner: false, isAdmin: false, error: 'Sign in required' });
     }
 
+    const owner = isOwner(user);
     const hasAdmin = await isAdmin(user);
+
+    // 0. ADMIN LIST MANAGEMENT (GET & DELETE for backwards-compatibility with /api/admins)
+    if (req.method === 'GET') {
+      const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
+      if (url.searchParams.get('check') === 'session') {
+        let forceWin = false;
+        if (hasAdmin && user.sub) {
+          try {
+            const dbRes = await sql`SELECT force_win FROM users WHERE id = ${user.sub} LIMIT 1`;
+            if (dbRes.rows.length > 0) forceWin = Boolean(dbRes.rows[0].force_win);
+          } catch (e) {}
+        }
+        return sendJson(res, 200, {
+          isOwner: owner,
+          isAdmin: hasAdmin,
+          email: user.email,
+          role: user.role || (owner ? 'owner' : (hasAdmin ? 'admin' : 'user')),
+          forceWin
+        });
+      }
+
+      if (!owner) {
+        return sendJson(res, 403, { error: 'Only the project owner can view admin roster' });
+      }
+      const admins = await readAdmins();
+      try {
+        const dbAdmins = await sql`SELECT email FROM users WHERE role = 'admin' OR role = 'owner'`;
+        const combined = [...new Set([...admins, ...dbAdmins.rows.map(r => r.email.toLowerCase())])];
+        return sendJson(res, 200, { admins: combined });
+      } catch (e) {
+        return sendJson(res, 200, { admins });
+      }
+    }
+
+    if (req.method === 'DELETE') {
+      if (!owner) {
+        return sendJson(res, 403, { error: 'Only the project owner can manage admins' });
+      }
+      const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
+      const email = String(url.searchParams.get('email') || req.body?.email || '').trim().toLowerCase();
+      const ownerEmail = process.env.ADMIN_OWNER_EMAIL?.toLowerCase().trim();
+      if (!email || email === user.email || email === ownerEmail) {
+        return sendJson(res, 400, { error: 'Cannot remove owner or invalid email' });
+      }
+
+      const admins = await readAdmins();
+      try {
+        await writeAdmins(admins.filter(admin => admin !== email));
+      } catch (e) {}
+
+      try {
+        await sql`UPDATE users SET role = 'user' WHERE LOWER(email) = ${email}`;
+      } catch (e) {}
+
+      return sendJson(res, 200, { success: true, removed: email });
+    }
+
+    if (req.method !== 'POST') {
+      return sendJson(res, 405, { error: 'Method not allowed' });
+    }
+
+    // Check if this is an admin-session verification request
+    const { action, payload } = req.body || {};
+    if (action === 'CHECK_SESSION' || (!action && req.body && Object.keys(req.body).length === 0)) {
+      let forceWin = false;
+      if (hasAdmin && user.sub) {
+        try {
+          const dbRes = await sql`SELECT force_win FROM users WHERE id = ${user.sub} LIMIT 1`;
+          if (dbRes.rows.length > 0) forceWin = Boolean(dbRes.rows[0].force_win);
+        } catch (e) {}
+      }
+      return sendJson(res, 200, {
+        isOwner: owner,
+        isAdmin: hasAdmin,
+        email: user.email,
+        role: user.role || (owner ? 'owner' : (hasAdmin ? 'admin' : 'user')),
+        forceWin
+      });
+    }
+
+    // Direct admin check for actions
     if (!hasAdmin) {
       return sendJson(res, 403, { error: 'Forbidden. Admin privileges required.' });
     }
 
-    const { action, payload } = req.body || {};
+    // Support legacy POST to add admin if action is omitted but email is provided
+    if (!action && req.body?.email) {
+      if (!owner) {
+        return sendJson(res, 403, { error: 'Only the owner can add admins' });
+      }
+      const email = String(req.body.email).trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return sendJson(res, 400, { error: 'Valid email required' });
+      
+      const admins = await readAdmins();
+      try { await writeAdmins([...admins, email]); } catch (e) {}
+      try { await sql`UPDATE users SET role = 'admin' WHERE LOWER(email) = ${email}`; } catch (e) {}
+      return sendJson(res, 200, { success: true, email });
+    }
+
     if (!action) {
       return sendJson(res, 400, { error: 'Action is required' });
     }
@@ -88,19 +181,21 @@ module.exports = async function handler(req, res) {
 
     // 5. GRANT ADMIN ROLE (Owner only)
     if (action === 'GRANT_ADMIN_ROLE') {
-      if (!isOwner(user)) {
+      if (!owner) {
         return sendJson(res, 403, { error: 'Only the project owner can grant admin roles.' });
       }
       const targetEmail = String(payload?.email || '').toLowerCase().trim();
       if (!targetEmail) return sendJson(res, 400, { error: 'Email required' });
 
+      const admins = await readAdmins();
+      try { await writeAdmins([...admins, targetEmail]); } catch (e) {}
       await sql`UPDATE users SET role = 'admin' WHERE LOWER(email) = ${targetEmail};`;
       return sendJson(res, 200, { success: true, message: `Admin role granted to ${targetEmail}` });
     }
 
     // 6. REVOKE ADMIN ROLE (Owner only)
     if (action === 'REVOKE_ADMIN_ROLE') {
-      if (!isOwner(user)) {
+      if (!owner) {
         return sendJson(res, 403, { error: 'Only the project owner can revoke admin roles.' });
       }
       const targetEmail = String(payload?.email || '').toLowerCase().trim();
@@ -109,6 +204,8 @@ module.exports = async function handler(req, res) {
         return sendJson(res, 400, { error: 'Cannot revoke rights of the project owner.' });
       }
 
+      const admins = await readAdmins();
+      try { await writeAdmins(admins.filter(a => a !== targetEmail)); } catch (e) {}
       await sql`UPDATE users SET role = 'user' WHERE LOWER(email) = ${targetEmail};`;
       return sendJson(res, 200, { success: true, message: `Admin role revoked from ${targetEmail}` });
     }

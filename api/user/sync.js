@@ -18,7 +18,6 @@ async function ensureTables() {
     await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS force_win BOOLEAN DEFAULT FALSE;`;
   } catch(e) {}
   await sql`
-  await sql`
     CREATE TABLE IF NOT EXISTS inventory (
       id SERIAL PRIMARY KEY,
       user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
