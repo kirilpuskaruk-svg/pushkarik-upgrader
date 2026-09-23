@@ -1,10 +1,8 @@
 {
-  "version": 2,
-  "name": "pushkarik-upgrader",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/admin", "destination": "/index.html?admin=true" },
+    { "source": "/admin", "destination": "/index.html" },
     { "source": "/api/admin-session", "destination": "/api/admin/action" },
     { "source": "/api/admins", "destination": "/api/admin/action" },
     { "source": "/api/auth/google/logout", "destination": "/api/auth/google/callback" }
