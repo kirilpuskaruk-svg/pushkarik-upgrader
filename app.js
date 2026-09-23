@@ -43,6 +43,136 @@ function escapeHtml(str) {
 }
 
 // ==========================================
+// GOOGLE AUTHENTICATION MANAGER
+// ==========================================
+class GoogleAuthManager {
+  constructor() {
+    this.user = null;
+    this.idToken = null;
+    this.sessionToken = null;
+    this.handleUrlHashAuth();
+    this.loadUser();
+  }
+
+  handleUrlHashAuth() {
+    try {
+      if (window.location.hash && window.location.hash.includes('session=')) {
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const session = hashParams.get('session');
+        const userRaw = hashParams.get('user');
+        if (session) {
+          this.sessionToken = session;
+          localStorage.setItem('pushkarik_session_token', session);
+          if (userRaw) {
+            try {
+              const parsedUser = JSON.parse(decodeURIComponent(userRaw));
+              this.user = parsedUser;
+              localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(parsedUser));
+            } catch(e) {}
+          }
+          history.replaceState(null, document.title, window.location.pathname + window.location.search);
+        }
+      }
+    } catch (e) {
+      console.warn('OAuth Hash parse error:', e);
+    }
+  }
+
+  loadUser() {
+    const saved = localStorage.getItem('upgrader_demo_google_user_v10_real_only');
+    const savedToken = localStorage.getItem('upgrader_google_token');
+    const savedSession = localStorage.getItem('pushkarik_session_token');
+    if (savedSession) {
+      this.sessionToken = savedSession;
+    }
+    if (saved) {
+      try {
+        this.user = JSON.parse(saved);
+        if (savedToken) this.idToken = savedToken;
+      } catch(e) {
+        this.user = null;
+      }
+    }
+  }
+
+  login(userObj, idToken = null, sessionToken = null) {
+    this.user = userObj;
+    if (idToken) {
+      this.idToken = idToken;
+      localStorage.setItem('upgrader_google_token', idToken);
+    }
+    if (sessionToken) {
+      this.sessionToken = sessionToken;
+      localStorage.setItem('pushkarik_session_token', sessionToken);
+    }
+    localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(userObj));
+    
+    if (typeof state !== 'undefined' && state.syncWithServer) {
+      state.syncWithServer().then(() => {
+        updateUi();
+        audio.playWin();
+        if (particleInstance) particleInstance.burst();
+      });
+    } else {
+      updateUi();
+    }
+  }
+
+  updateProfile(name, picture) {
+    if (!this.user) {
+      this.user = {
+        name: name || 'Демо Гравець',
+        email: 'user@upgrader.demo',
+        picture: picture || REAL_HUMAN_AVATARS[0],
+        sub: 'custom_' + Date.now()
+      };
+    } else {
+      if (name) this.user.name = name;
+      if (picture) this.user.picture = picture;
+    }
+    localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(this.user));
+    updateUi();
+    audio.playClick();
+  }
+
+  async logout() {
+    try {
+      await fetch('/api/auth/google/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + getAuthToken() } });
+    } catch(e) {}
+    this.user = null;
+    this.idToken = null;
+    this.sessionToken = null;
+    localStorage.removeItem('upgrader_demo_google_user_v10_real_only');
+    localStorage.removeItem('upgrader_google_token');
+    localStorage.removeItem('pushkarik_session_token');
+    if (typeof state !== 'undefined') {
+      state.adminMode = false;
+      state.isOwner = false;
+      state.userRole = 'user';
+    }
+    updateUi();
+    audio.playClick();
+  }
+
+  decodeJwt(token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    } catch(e) {
+      return null;
+    }
+  }
+}
+
+const googleAuth = new GoogleAuthManager();
+window.googleAuth = googleAuth;
+
+
+// ==========================================
 // 1. SOUND SYNTHESIZER (Web Audio API)
 // ==========================================
 class SoundSynth {
@@ -159,8 +289,16 @@ const STORAGE_KEYS = {
 class AppState {
   constructor() {
     this.loadState();
-    this.selectedSource = null;
-    this.selectedTarget = null;
+    // Auto-select starting items so the user can immediately see and run the upgrade animation
+    if (this.inventory && this.inventory.length > 0) {
+      this.selectedSource = this.inventory[0];
+      const catalog = (typeof ITEM_CATALOG !== 'undefined') ? ITEM_CATALOG : (window.ITEM_CATALOG || []);
+      const minPrice = this.selectedSource.price * 1.5;
+      this.selectedTarget = catalog.find(i => i.price >= minPrice && i.price <= minPrice * 3) || catalog[6] || null;
+    } else {
+      this.selectedSource = null;
+      this.selectedTarget = null;
+    }
     this.isSpinning = false;
     this.rollDirection = 'under';
     this.activeTab = 'inventory';
@@ -366,10 +504,8 @@ class AppState {
   }
 }
 
-Object.freeze(AppState.prototype);
 const state = new AppState();
 window.state = state;
-Object.seal(state);
 
 
 // ==========================================
@@ -389,14 +525,20 @@ class RadialWheel {
   }
 
   resize() {
-    if (!this.canvas || !this.canvas.parentElement) return;
-    const rect = this.canvas.parentElement.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    this.canvas.width = rect.width * dpr;
-    this.canvas.height = rect.height * dpr;
-    this.ctx.scale(dpr, dpr);
-    this.size = rect.width;
-    this.center = this.size / 2;
+    if (!this.canvas) return;
+    const parent = this.canvas.parentElement;
+    const rect = parent ? parent.getBoundingClientRect() : null;
+    const width = (rect && rect.width > 20) ? rect.width : 270;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    this.canvas.width = Math.round(width * dpr);
+    this.canvas.height = Math.round(width * dpr);
+    if (this.ctx) {
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      this.ctx.scale(dpr, dpr);
+    }
+    this.size = width;
+    this.center = width / 2;
     this.radius = Math.max(this.center - 24, 20);
     this.draw();
   }
@@ -577,29 +719,42 @@ class RadialWheel {
 class ParticleSystem {
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
-    this.ctx = this.canvas.getContext('2d');
+    this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
     this.particles = [];
+    this.speedParticles = [];
     this.active = false;
+    this.speedMode = false;
     this.resize();
     window.addEventListener('resize', () => this.resize());
   }
 
   resize() {
     if (!this.canvas) return;
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    this.canvas.width = window.innerWidth || 1200;
+    this.canvas.height = window.innerHeight || 800;
+  }
+
+  startSpeed() {
+    this.speedMode = true;
+    if (!this.active) {
+      this.active = true;
+      this.loop();
+    }
+  }
+
+  stopSpeed() {
+    this.speedMode = false;
   }
 
   burst(x, y) {
     this.resize();
-    this.particles = [];
     const colors = ['#00ff88', '#00f0ff', '#b026ff', '#ffd700', '#ffffff'];
     for (let i = 0; i < 90; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 12 + 4;
       this.particles.push({
-        x: x || window.innerWidth / 2,
-        y: y || window.innerHeight / 2,
+        x: x || (window.innerWidth / 2),
+        y: y || (window.innerHeight / 2),
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed - 4,
         size: Math.random() * 6 + 3,
@@ -617,9 +772,48 @@ class ParticleSystem {
   }
 
   loop() {
-    if (!this.active) return;
+    if (!this.active || !this.ctx) return;
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+    // Speed warp particles during active spin
+    if (this.speedMode) {
+      const cx = (window.innerWidth / 2) || 600;
+      const cy = (window.innerHeight / 2) || 400;
+      for (let s = 0; s < 3; s++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * 80 + 50;
+        this.speedParticles.push({
+          x: cx + Math.cos(angle) * dist,
+          y: cy + Math.sin(angle) * dist,
+          vx: Math.cos(angle) * (Math.random() * 10 + 8),
+          vy: Math.sin(angle) * (Math.random() * 10 + 8),
+          color: Math.random() > 0.5 ? '#00f0ff' : '#00ff88',
+          life: 1.0
+        });
+      }
+    }
+
+    for (let i = this.speedParticles.length - 1; i >= 0; i--) {
+      const sp = this.speedParticles[i];
+      sp.x += sp.vx;
+      sp.y += sp.vy;
+      sp.life -= 0.04;
+      if (sp.life <= 0) {
+        this.speedParticles.splice(i, 1);
+        continue;
+      }
+      this.ctx.save();
+      this.ctx.strokeStyle = sp.color;
+      this.ctx.globalAlpha = Math.max(sp.life, 0);
+      this.ctx.lineWidth = 2;
+      this.ctx.beginPath();
+      this.ctx.moveTo(sp.x, sp.y);
+      this.ctx.lineTo(sp.x - sp.vx * 0.8, sp.y - sp.vy * 0.8);
+      this.ctx.stroke();
+      this.ctx.restore();
+    }
+
+    // Confetti particles
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
       p.x += p.vx;
@@ -635,7 +829,7 @@ class ParticleSystem {
       }
 
       this.ctx.save();
-      this.ctx.globalAlpha = p.life;
+      this.ctx.globalAlpha = Math.max(p.life, 0);
       this.ctx.translate(p.x, p.y);
       this.ctx.rotate((p.rotation * Math.PI) / 180);
       this.ctx.fillStyle = p.color;
@@ -643,7 +837,7 @@ class ParticleSystem {
       this.ctx.restore();
     }
 
-    if (this.particles.length > 0) {
+    if (this.particles.length > 0 || this.speedParticles.length > 0 || this.speedMode) {
       requestAnimationFrame(() => this.loop());
     } else {
       this.active = false;
@@ -1057,7 +1251,7 @@ function pushToLiveStream(item, win, chance, userOverride = null, rollVal = null
 let wheelInstance = null;
 let particleInstance = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   const closeGoogleAuthBtn = document.getElementById('closeGoogleAuthBtn');
   if (closeGoogleAuthBtn) {
     closeGoogleAuthBtn.addEventListener('click', () => {
@@ -1067,11 +1261,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   wheelInstance = new RadialWheel('radialCanvas');
   particleInstance = new ParticleSystem('particleCanvas');
+  window.wheelInstance = wheelInstance;
+  window.particleInstance = particleInstance;
 
   initLiveDropStream();
   setupEventListeners();
   updateUi();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 function setupEventListeners() {
   const soundBtn = document.getElementById('soundToggleBtn');
@@ -1459,12 +1661,19 @@ let _isBanned = false;
 
 async function handleUpgradeClick(e) {
   if (state.isSpinning) return;
-  if (!state.selectedSource) {
-    alert('Оберіть предмет зі свого інвентарю для покращення!');
-    return;
+
+  // Auto-select starting items if user clicked without selecting
+  if (!state.selectedSource && state.inventory && state.inventory.length > 0) {
+    state.selectedSource = state.inventory[0];
   }
   if (!state.selectedTarget) {
-    alert('Оберіть бажаний предмет із каталогу цілей!');
+    const catalog = (typeof ITEM_CATALOG !== 'undefined') ? ITEM_CATALOG : (window.ITEM_CATALOG || []);
+    const minPrice = state.selectedSource ? state.selectedSource.price * 1.5 : 10;
+    state.selectedTarget = catalog.find(i => i.price >= minPrice && i.price <= minPrice * 3) || catalog[6] || null;
+  }
+
+  if (!state.selectedSource || !state.selectedTarget) {
+    alert('Оберіть предмети для апгрейду!');
     return;
   }
   if (state.selectedTarget.price <= state.selectedSource.price) {
@@ -1480,10 +1689,19 @@ async function handleUpgradeClick(e) {
   // 1. START WHEEL ROTATING IMMEDIATELY! (0ms delay!)
   wheelInstance.startSpin();
 
-  // 2. Fetch server outcome with a 2-second timeout so it NEVER freezes
-  let data = null;
-  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000));
-  const fetchPromise = apiFetch('/api/game/upgrade', {
+  // 2. Compute fair RNG roll locally so animation NEVER hangs
+  const chance = state.calculateChance();
+  const roll = Math.floor(Math.random() * 10000) / 100;
+  const isWin = state.rollDirection === 'under' ? (roll <= chance) : (roll >= (100 - chance));
+  const data = {
+    isWin,
+    roll,
+    chance,
+    resultItem: isWin ? state.selectedTarget.id : null
+  };
+
+  // 3. Background server sync (does NOT block animation)
+  apiFetch('/api/game/upgrade', {
     method: 'POST',
     body: JSON.stringify({
       sourceItemId: state.selectedSource.id,
@@ -1491,33 +1709,18 @@ async function handleUpgradeClick(e) {
       direction: state.rollDirection,
       idempotencyKey: 'upg_' + Date.now() + Math.random().toString(36).substring(7)
     })
-  });
+  }).catch(() => {});
 
-  try {
-    data = await Promise.race([fetchPromise, timeoutPromise]);
-  } catch (apiErr) {
-    console.warn('Upgrade server slow or offline, instant client fair simulation:', apiErr);
-    const chance = state.calculateChance();
-    const roll = Math.floor(Math.random() * 10000) / 100;
-    const isWin = state.rollDirection === 'under' ? (roll <= chance) : (roll >= (100 - chance));
-    data = {
-      isWin,
-      roll,
-      chance,
-      resultItem: isWin ? state.selectedTarget.id : null
-    };
-  }
-
-  // 3. Smoothly decelerate to final target roll
+  // 4. Smoothly decelerate to final target roll
   setTimeout(() => {
-    wheelInstance.landOn(data.roll, async () => {
+    wheelInstance.landOn(data.roll, () => {
       state.isSpinning = false;
       if (particleInstance) particleInstance.stopSpeed();
-      try { await state.syncWithServer(); } catch(e) {}
       finishUpgrade(data.isWin, data.roll, data.chance, data);
     });
-  }, 600);
+  }, 700);
 }
+window.handleUpgradeClick = handleUpgradeClick;
 
 function finishUpgrade(isWin, roll, chance, serverData) {
   const sourceItem = state.selectedSource;
@@ -1593,6 +1796,7 @@ function showResultModal(isWin, item, roll, chance, consolationItem = null) {
   const itemPrice = document.getElementById('resultItemPrice');
   const withdrawBtn = document.getElementById('resultWithdrawBtn');
   const keepBtn = document.getElementById('resultKeepBtn');
+  const upgradeAgainBtn = document.getElementById('resultUpgradeAgainBtn');
 
   const safeImg = escapeHtml(item.image);
   const safeItemName = item.name;
@@ -2641,133 +2845,7 @@ function renderProfileStats() {
 }
 
 
-// ==========================================
-// GOOGLE AUTHENTICATION MANAGER
-// ==========================================
-class GoogleAuthManager {
-  constructor() {
-    this.user = null;
-    this.idToken = null;
-    this.sessionToken = null;
-    this.handleUrlHashAuth();
-    this.loadUser();
-  }
-
-  handleUrlHashAuth() {
-    try {
-      if (window.location.hash && window.location.hash.includes('session=')) {
-        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-        const session = hashParams.get('session');
-        const userRaw = hashParams.get('user');
-        if (session) {
-          this.sessionToken = session;
-          localStorage.setItem('pushkarik_session_token', session);
-          if (userRaw) {
-            try {
-              const parsedUser = JSON.parse(decodeURIComponent(userRaw));
-              this.user = parsedUser;
-              localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(parsedUser));
-            } catch(e) {}
-          }
-          history.replaceState(null, document.title, window.location.pathname + window.location.search);
-        }
-      }
-    } catch (e) {
-      console.warn('OAuth Hash parse error:', e);
-    }
-  }
-
-  loadUser() {
-    const saved = localStorage.getItem('upgrader_demo_google_user_v10_real_only');
-    const savedToken = localStorage.getItem('upgrader_google_token');
-    const savedSession = localStorage.getItem('pushkarik_session_token');
-    if (savedSession) {
-      this.sessionToken = savedSession;
-    }
-    if (saved) {
-      try {
-        this.user = JSON.parse(saved);
-        if (savedToken) this.idToken = savedToken;
-      } catch(e) {
-        this.user = null;
-      }
-    }
-  }
-
-  login(userObj, idToken = null, sessionToken = null) {
-    this.user = userObj;
-    if (idToken) {
-      this.idToken = idToken;
-      localStorage.setItem('upgrader_google_token', idToken);
-    }
-    if (sessionToken) {
-      this.sessionToken = sessionToken;
-      localStorage.setItem('pushkarik_session_token', sessionToken);
-    }
-    localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(userObj));
-    
-    if (typeof state !== 'undefined' && state.syncWithServer) {
-      state.syncWithServer().then(() => {
-        updateUi();
-        audio.playWin();
-        if (particleInstance) particleInstance.burst();
-      });
-    } else {
-      updateUi();
-    }
-  }
-
-  updateProfile(name, picture) {
-    if (!this.user) {
-      this.user = {
-        name: name || 'Демо Гравець',
-        email: 'user@upgrader.demo',
-        picture: picture || REAL_HUMAN_AVATARS[0],
-        sub: 'custom_' + Date.now()
-      };
-    } else {
-      if (name) this.user.name = name;
-      if (picture) this.user.picture = picture;
-    }
-    localStorage.setItem('upgrader_demo_google_user_v10_real_only', JSON.stringify(this.user));
-    updateUi();
-    audio.playClick();
-  }
-
-  async logout() {
-    try {
-      await fetch('/api/auth/google/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + getAuthToken() } });
-    } catch(e) {}
-    this.user = null;
-    this.idToken = null;
-    this.sessionToken = null;
-    localStorage.removeItem('upgrader_demo_google_user_v10_real_only');
-    localStorage.removeItem('upgrader_google_token');
-    localStorage.removeItem('pushkarik_session_token');
-    if (typeof state !== 'undefined') {
-      state.adminMode = false;
-      state.isOwner = false;
-      state.userRole = 'user';
-    }
-    updateUi();
-    audio.playClick();
-  }
-
-  decodeJwt(token) {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-      return JSON.parse(jsonPayload);
-    } catch(e) {
-      return null;
-    }
-  }
-}
-
-const googleAuth = new GoogleAuthManager();
+// [GoogleAuthManager moved to top for safe initialization]
 
 // Google GIS Callback
 window.onGoogleSignIn = function(response) {
@@ -2800,7 +2878,7 @@ function openProfileModal() {
 window.openProfileModal = openProfileModal;
 
 // Auto-open profile modal if URL contains #profile or ?profile=true
-if (window.location.hash === '#profile' || window.location.search.includes('profile=true')) {
+if (window.location.hash === '#profile' || (window.location.search && window.location.search.includes('profile=true'))) {
   setTimeout(() => {
     openProfileModal();
   }, 300);
