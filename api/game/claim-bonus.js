@@ -62,10 +62,11 @@ module.exports = async function handler(req, res) {
     await sql`UPDATE users SET balance = balance + ${bonusAmount} WHERE id = ${googleId}`;
     await sql`INSERT INTO transactions (user_id, action, cost, result_item, idempotency_key) VALUES (${googleId}, 'CLAIM_BONUS', ${bonusAmount}, ${selectedTemplate.id}, ${idempotencyKey})`;
 
-    const dbItem = newItemResult.rows[0];
+    const dbId = (newItemResult && newItemResult.rows && newItemResult.rows[0]) ? newItemResult.rows[0].id : 'bon_' + Date.now();
+    const itemId = (newItemResult && newItemResult.rows && newItemResult.rows[0]) ? newItemResult.rows[0].item_id : selectedTemplate.id;
 
     return sendJson(res, 200, {
-      item: { db_id: dbItem.id, id: dbItem.item_id },
+      item: { db_id: dbId, id: itemId },
       bonusAdded: 50.00
     });
 

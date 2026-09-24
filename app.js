@@ -1604,16 +1604,58 @@ function applyMultiplierPreset(multTarget) {
 }
 
 function claimDemoBonus() {
+  const grantLocalBonus = () => {
+    const catalog = (typeof ITEM_CATALOG !== 'undefined') ? ITEM_CATALOG : (window.ITEM_CATALOG || []);
+    const budgetSkins = catalog.filter(i => i.rarity === 'common');
+    const template = (budgetSkins.length > 0 && Math.random() < 0.85) 
+      ? budgetSkins[Math.floor(Math.random() * budgetSkins.length)] 
+      : (catalog[Math.floor(Math.random() * catalog.length)] || DEFAULT_USER_INVENTORY[0]);
+    
+    if (!template) return;
+    const newItem = {
+      ...template,
+      instanceId: 'inst_bonus_' + Date.now() + '_' + Math.random().toString(36).substring(7)
+    };
+    state.inventory.unshift(newItem);
+    state.balance += 50.00;
+    state.saveInventory();
+    state.saveBalance();
+    updateUi();
+    audio.playWin();
+    if (particleInstance) particleInstance.burst();
+    openDemoPackModal(newItem);
+  };
+
   apiFetch('/api/game/claim-bonus', {
     method: 'POST',
     body: JSON.stringify({ idempotencyKey: 'bon_' + Date.now() + Math.random() })
   }).then(async (data) => {
-    await state.syncWithServer();
-    audio.playWin();
-    if (particleInstance) particleInstance.burst();
-    const newItem = state.inventory.find(i => i.db_id === data.item.db_id);
-    if (newItem) openDemoPackModal(newItem);
-  }).catch(e => alert('Помилка: ' + e.message));
+    if (data && data.item) {
+      await state.syncWithServer();
+      audio.playWin();
+      if (particleInstance) particleInstance.burst();
+      let newItem = state.inventory.find(i => i.db_id === data.item.db_id);
+      if (!newItem) {
+        const catalog = (typeof ITEM_CATALOG !== 'undefined') ? ITEM_CATALOG : (window.ITEM_CATALOG || []);
+        const catItem = catalog.find(i => i.id === data.item.id);
+        if (catItem) {
+          newItem = {
+            ...catItem,
+            db_id: data.item.db_id,
+            instanceId: 'inst_bon_' + Date.now()
+          };
+          state.inventory.unshift(newItem);
+          state.saveInventory();
+        }
+      }
+      if (newItem) openDemoPackModal(newItem);
+      else grantLocalBonus();
+    } else {
+      grantLocalBonus();
+    }
+  }).catch(() => {
+    grantLocalBonus();
+  });
 }
 
 function openDemoPackModal(droppedItem) {

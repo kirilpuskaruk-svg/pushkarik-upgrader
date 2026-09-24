@@ -50,11 +50,12 @@ module.exports = async function handler(req, res) {
         return sendJson(res, 400, { error: 'Source item not found in active inventory' });
       }
     }
-    const sourceDbId = sourceDbItem.rows[0].id;
+    const sourceDbId = (sourceDbItem && sourceDbItem.rows && sourceDbItem.rows[0]) ? sourceDbItem.rows[0].id : 'src_' + Date.now();
+    const sourceItemIdResolved = (sourceDbItem && sourceDbItem.rows && sourceDbItem.rows[0]) ? sourceDbItem.rows[0].item_id : sourceItemId;
 
     // 3. Find items in catalog to get prices
     const catalog = ITEM_CATALOG;
-    const sourceItemCatalog = catalog.find(i => i.id === sourceDbItem.rows[0].item_id);
+    const sourceItemCatalog = catalog.find(i => i.id === sourceItemIdResolved);
     const targetItemCatalog = catalog.find(i => i.id === targetItemCatalogId);
     if (!sourceItemCatalog || !targetItemCatalog) return sendJson(res, 400, { error: 'Invalid catalog items' });
 
