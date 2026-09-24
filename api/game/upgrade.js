@@ -70,8 +70,18 @@ module.exports = async function handler(req, res) {
     const boostersResult = await sql`SELECT type FROM boosters WHERE user_id = ${googleId} AND expires_at > CURRENT_TIMESTAMP`;
     const activeBoosters = boostersResult.rows.map(b => b.type);
     
-    if (activeBoosters.includes('MEGA_LUCK')) pureChance *= 1.25;
-    else if (activeBoosters.includes('LUCK')) pureChance *= 1.10;
+    
+    const clientBoosters = req.body.clientBoosters;
+    if (Array.isArray(clientBoosters)) {
+      if (clientBoosters.includes('booster_luck_25')) activeBoosters.push('MEGA_LUCK');
+      else if (clientBoosters.includes('booster_luck_10')) activeBoosters.push('LUCK');
+      if (clientBoosters.includes('booster_shield')) activeBoosters.push('SHIELD');
+      if (clientBoosters.includes('booster_cashback')) activeBoosters.push('CASHBACK');
+    }
+
+    if (activeBoosters.includes('MEGA_LUCK')) pureChance += 25.0;
+    else if (activeBoosters.includes('LUCK')) pureChance += 10.0;
+
 
     let finalChance = Math.min(Math.max(pureChance, 0.01), 95.00);
 

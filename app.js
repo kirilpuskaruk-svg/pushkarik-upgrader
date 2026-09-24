@@ -1779,7 +1779,8 @@ async function handleUpgradeClick(e) {
       sourceItemId: state.selectedSource.id,
       targetItemCatalogId: state.selectedTarget.id,
       direction: state.rollDirection,
-      idempotencyKey: 'upg_' + Date.now() + Math.random().toString(36).substring(7)
+      idempotencyKey: 'upg_' + Date.now() + Math.random().toString(36).substring(7),
+      clientBoosters: (state.activeBoosters || []).map(b => b && b.id).filter(Boolean)
     })
   }).then(srvRes => {
     if (srvRes && typeof srvRes.roll === 'number') {
