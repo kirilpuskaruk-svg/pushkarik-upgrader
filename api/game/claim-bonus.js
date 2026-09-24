@@ -1,7 +1,7 @@
+const ITEM_CATALOG = require('../_catalog.json');
 const { sql } = require('../_db');
 const { getVerifiedUser, sendJson } = require('../_auth');
 const crypto = require('crypto');
-const items = require('../../items.js');
 
 // Ensure user exists in DB (upsert), required before any inventory operation
 async function ensureUserExists(googleId, email) {
@@ -36,7 +36,7 @@ module.exports = async function handler(req, res) {
     const idempotencyCheck = await sql`SELECT id FROM transactions WHERE idempotency_key = ${idempotencyKey}`;
     if (idempotencyCheck.rows.length > 0) return sendJson(res, 409, { error: 'Transaction already processed' });
 
-    const catalog = items.ITEM_CATALOG;
+    const catalog = ITEM_CATALOG;
     const budgetSkins = catalog.filter(i => i.rarity === 'common');
     const otherSkins = catalog.filter(i => i.rarity !== 'common' && i.rarity !== 'mythic' && i.rarity !== 'ancient');
 

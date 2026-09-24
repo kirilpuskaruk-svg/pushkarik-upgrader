@@ -1,7 +1,7 @@
+const ITEM_CATALOG = require('../_catalog.json');
 const { sql } = require('../_db');
 const { getVerifiedUser, sendJson } = require('../_auth');
 const crypto = require('crypto');
-const items = require('../../items.js');
 
 async function ensureUserExists(googleId, email) {
   try {
@@ -42,7 +42,7 @@ module.exports = async function handler(req, res) {
     // 2. Find source item in DB (or register starter/catalog item if not yet synced)
     let sourceDbItem = await sql`SELECT id, item_id FROM inventory WHERE user_id = ${googleId} AND item_id = ${sourceItemId} AND status = 'ACTIVE' LIMIT 1 FOR UPDATE`;
     if (sourceDbItem.rows.length === 0) {
-      const validItem = items.ITEM_CATALOG.find(i => i.id === sourceItemId);
+      const validItem = ITEM_CATALOG.find(i => i.id === sourceItemId);
       if (validItem) {
         const insertRes = await sql`INSERT INTO inventory (user_id, item_id, status) VALUES (${googleId}, ${sourceItemId}, 'ACTIVE') RETURNING id, item_id`;
         sourceDbItem = insertRes;
@@ -53,7 +53,7 @@ module.exports = async function handler(req, res) {
     const sourceDbId = sourceDbItem.rows[0].id;
 
     // 3. Find items in catalog to get prices
-    const catalog = items.ITEM_CATALOG;
+    const catalog = ITEM_CATALOG;
     const sourceItemCatalog = catalog.find(i => i.id === sourceDbItem.rows[0].item_id);
     const targetItemCatalog = catalog.find(i => i.id === targetItemCatalogId);
     if (!sourceItemCatalog || !targetItemCatalog) return sendJson(res, 400, { error: 'Invalid catalog items' });

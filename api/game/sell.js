@@ -1,6 +1,6 @@
+const ITEM_CATALOG = require('../_catalog.json');
 const { sql } = require('../_db');
 const { getVerifiedUser, sendJson } = require('../_auth');
-const items = require('../../items.js');
 
 async function ensureUserExists(googleId, email) {
   try {
@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
     if (itemResult.rows.length === 0) return sendJson(res, 400, { error: 'Item not found or already sold' });
     
     const dbItem = itemResult.rows[0];
-    const catalogItem = items.ITEM_CATALOG.find(i => i.id === dbItem.item_id);
+    const catalogItem = ITEM_CATALOG.find(i => i.id === dbItem.item_id);
     if (!catalogItem) return sendJson(res, 400, { error: 'Invalid catalog item' });
 
     // 3. Update DB

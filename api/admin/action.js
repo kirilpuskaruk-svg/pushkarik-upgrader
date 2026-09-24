@@ -1,6 +1,6 @@
+const ITEM_CATALOG = require('../_catalog.json');
 const { sql } = require('../_db');
 const { getVerifiedUser, isAdmin, isOwner, readAdmins, writeAdmins, sendJson } = require('../_auth');
-const { ITEM_CATALOG } = require('../../items.js');
 
 module.exports = async function handler(req, res) {
   try {

@@ -416,7 +416,7 @@ class AppState {
         this.isOwner = Boolean(data.user.isOwner);
         this.adminMode = Boolean(data.user.isAdmin);
 
-        if (Array.isArray(data.inventory)) {
+        if (Array.isArray(data.inventory) && data.inventory.length > 0) {
           this.inventory = data.inventory.map(srvItem => {
             const catalogItem = ITEM_CATALOG.find(i => i.id === srvItem.id);
             if (catalogItem) {
@@ -424,8 +424,9 @@ class AppState {
             }
             return { id: srvItem.id, db_id: srvItem.db_id, name: srvItem.id, price: 10, rarity: 'common', image: 'gungnir.png', instanceId: 'db_' + srvItem.db_id };
           });
+          this.saveInventory();
         }
-        if (Array.isArray(data.vault)) {
+        if (Array.isArray(data.vault) && data.vault.length > 0) {
           this.vault = data.vault.map(srvItem => {
             const catalogItem = ITEM_CATALOG.find(i => i.id === srvItem.id);
             if (catalogItem) {
@@ -433,6 +434,7 @@ class AppState {
             }
             return { id: srvItem.id, db_id: srvItem.db_id, name: srvItem.id, price: 10, rarity: 'common', image: 'gungnir.png', instanceId: 'vault_db_' + srvItem.db_id };
           });
+          this.saveVault();
         }
         updateUi();
       }
@@ -441,7 +443,13 @@ class AppState {
     }
   }
 
-  saveInventory() { /* server-authoritative */ }
+  saveInventory() {
+    try {
+      localStorage.setItem(STORAGE_KEYS.INVENTORY, JSON.stringify(this.inventory));
+    } catch (e) {
+      console.warn('Failed to save inventory to localStorage:', e);
+    }
+  }
   saveVault() {
     localStorage.setItem(STORAGE_KEYS.VAULT, JSON.stringify(this.vault));
   }
