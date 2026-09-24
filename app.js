@@ -397,7 +397,7 @@ class AppState {
     }
     const now = Date.now();
     const initialLen = this.activeBoosters.length;
-    this.activeBoosters = this.activeBoosters.filter(b => b.expiresAt > now);
+    this.activeBoosters = this.activeBoosters.filter(b => b && b.expiresAt > now);
     if (this.activeBoosters.length !== initialLen) {
       this.saveBoosters();
     }
@@ -492,11 +492,11 @@ class AppState {
     
     // Apply Active Temporary Boosters
     this.cleanExpiredBoosters();
-    const luckBooster = (this.activeBoosters || []).find(b => b.id === 'booster_luck_10');
+    const luckBooster = (this.activeBoosters || []).find(b => b && b.id === 'booster_luck_10');
     if (luckBooster) {
       pureChance += 10.0; // +10% Chance Booster
     }
-    const megaLuckBooster = (this.activeBoosters || []).find(b => b.id === 'booster_luck_25');
+    const megaLuckBooster = (this.activeBoosters || []).find(b => b && b.id === 'booster_luck_25');
     if (megaLuckBooster) {
       pureChance += 25.0; // +25% Mega Chance Booster
     }
@@ -2468,7 +2468,7 @@ function renderBoosterShopModalBody() {
   const now = Date.now();
 
   const cardsHtml = BOOSTER_CATALOG.map(booster => {
-    const active = (state.activeBoosters || []).find(b => b.id === booster.id && b.expiresAt > now);
+    const active = (state.activeBoosters || []).find(b => b && b.id === booster.id && b.expiresAt > now);
     const timeLeftSec = active ? Math.max(0, Math.floor((active.expiresAt - now) / 1000)) : 0;
     const mins = Math.floor(timeLeftSec / 60);
     const secs = timeLeftSec % 60;
@@ -2528,7 +2528,7 @@ function renderBoosterShopModalBody() {
 }
 
 window.buyTemporaryBooster = function(boosterId) {
-  const booster = BOOSTER_CATALOG.find(b => b.id === boosterId);
+  const booster = BOOSTER_CATALOG.find(b => b && b.id === boosterId);
   if (!booster) return;
 
   if (state.balance < booster.price) {
@@ -2540,7 +2540,7 @@ window.buyTemporaryBooster = function(boosterId) {
   state.saveBalance();
 
   state.cleanExpiredBoosters();
-  const existing = (state.activeBoosters || []).find(b => b.id === boosterId);
+  const existing = (state.activeBoosters || []).find(b => b && b.id === boosterId);
   const now = Date.now();
 
   if (existing && existing.expiresAt > now) {
