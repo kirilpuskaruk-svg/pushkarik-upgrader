@@ -8,42 +8,42 @@
 const COSMETIC_RARITIES = {
   common: {
     id: "common",
-    name: "Армійське (Mil-Spec)",
+    name: "РђСЂРјС–Р№СЃСЊРєРµ (Mil-Spec)",
     color: "#4b69ff",
     glow: "rgba(75, 105, 255, 0.25)",
     border: "#4b69ff"
   },
   rare: {
     id: "rare",
-    name: "Заборонене (Restricted)",
+    name: "Р—Р°Р±РѕСЂРѕРЅРµРЅРµ (Restricted)",
     color: "#8847ff",
     glow: "rgba(136, 71, 255, 0.35)",
     border: "#8847ff"
   },
   epic: {
     id: "epic",
-    name: "Засекречене (Classified)",
+    name: "Р—Р°СЃРµРєСЂРµС‡РµРЅРµ (Classified)",
     color: "#d32ce6",
     glow: "rgba(211, 44, 230, 0.5)",
     border: "#d32ce6"
   },
   legendary: {
     id: "legendary",
-    name: "Таємне (Covert)",
+    name: "РўР°С”РјРЅРµ (Covert)",
     color: "#eb4b4b",
     glow: "rgba(235, 75, 75, 0.6)",
     border: "#eb4b4b"
   },
   mythic: {
     id: "mythic",
-    name: "Надзвичайне (★ Special)",
+    name: "РќР°РґР·РІРёС‡Р°Р№РЅРµ (в… Special)",
     color: "#ffd700",
     glow: "rgba(255, 215, 0, 0.7)",
     border: "#ffd700"
   },
   ancient: {
     id: "ancient",
-    name: "Контрабанда / Grail",
+    name: "РљРѕРЅС‚СЂР°Р±Р°РЅРґР° / Grail",
     color: "#ffaa00",
     glow: "rgba(255, 170, 0, 0.8)",
     border: "#ffaa00"
@@ -52,16 +52,16 @@ const COSMETIC_RARITIES = {
 
 // 2. WEAPON CATEGORIES & COLLECTIONS
 const WEAPON_CATEGORIES = {
-  pistol: "Пістолети",
-  rifle: "Штурмові гвинтівки",
-  sniper: "Снайперські гвинтівки",
-  smg: "Пістолети-кулемети",
-  heavy: "Важка зброя",
-  knife: "Ножі (★)",
-  gloves: "Рукавиці (★)",
-  agent: "Агенти",
-  sticker: "Наклейки",
-  charm: "Брелоки"
+  pistol: "РџС–СЃС‚РѕР»РµС‚Рё",
+  rifle: "РЁС‚СѓСЂРјРѕРІС– РіРІРёРЅС‚С–РІРєРё",
+  sniper: "РЎРЅР°Р№РїРµСЂСЃСЊРєС– РіРІРёРЅС‚С–РІРєРё",
+  smg: "РџС–СЃС‚РѕР»РµС‚Рё-РєСѓР»РµРјРµС‚Рё",
+  heavy: "Р’Р°Р¶РєР° Р·Р±СЂРѕСЏ",
+  knife: "РќРѕР¶С– (в…)",
+  gloves: "Р СѓРєР°РІРёС†С– (в…)",
+  agent: "РђРіРµРЅС‚Рё",
+  sticker: "РќР°РєР»РµР№РєРё",
+  charm: "Р‘СЂРµР»РѕРєРё"
 };
 
 const CS_COLLECTIONS = [
@@ -80,11 +80,11 @@ const CS_COLLECTIONS = [
 
 // 3. WEAR (FLOAT) RANGES
 const WEAPON_WEARS = [
-  { code: "FN", name: "Factory New", nameUa: "Прямо з заводу", min: 0.00, max: 0.07, color: "#00ff88" },
-  { code: "MW", name: "Minimal Wear", nameUa: "Трохи поношене", min: 0.07, max: 0.15, color: "#00f0ff" },
-  { code: "FT", name: "Field-Tested", nameUa: "Після польових випробувань", min: 0.15, max: 0.38, color: "#ffb703" },
-  { code: "WW", name: "Well-Worn", nameUa: "Добре поношене", min: 0.38, max: 0.45, color: "#ff7700" },
-  { code: "BS", name: "Battle-Scarred", nameUa: "Загартоване в боях", min: 0.45, max: 1.00, color: "#ff2a5f" }
+  { code: "FN", name: "Factory New", nameUa: "РџСЂСЏРјРѕ Р· Р·Р°РІРѕРґСѓ", min: 0.00, max: 0.07, color: "#00ff88" },
+  { code: "MW", name: "Minimal Wear", nameUa: "РўСЂРѕС…Рё РїРѕРЅРѕС€РµРЅРµ", min: 0.07, max: 0.15, color: "#00f0ff" },
+  { code: "FT", name: "Field-Tested", nameUa: "РџС–СЃР»СЏ РїРѕР»СЊРѕРІРёС… РІРёРїСЂРѕР±СѓРІР°РЅСЊ", min: 0.15, max: 0.38, color: "#ffb703" },
+  { code: "WW", name: "Well-Worn", nameUa: "Р”РѕР±СЂРµ РїРѕРЅРѕС€РµРЅРµ", min: 0.38, max: 0.45, color: "#ff7700" },
+  { code: "BS", name: "Battle-Scarred", nameUa: "Р—Р°РіР°СЂС‚РѕРІР°РЅРµ РІ Р±РѕСЏС…", min: 0.45, max: 1.00, color: "#ff2a5f" }
 ];
 
 function getWearByFloat(floatVal) {
@@ -106,7 +106,7 @@ const STICKERS_CATALOG = [
     rarity: "ancient",
     price: 45000.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0P27V6VsOf-fC2O52_J0uL9qSnK-rBhptWzZy936In-Tbw8kB9QjE947f_s2YIrg7g",
-    description: "Легендарна голографічна наклейка Katowice 2014 з насиченим блакитним сяйвом."
+    description: "Р›РµРіРµРЅРґР°СЂРЅР° РіРѕР»РѕРіСЂР°С„С–С‡РЅР° РЅР°РєР»РµР№РєР° Katowice 2014 Р· РЅР°СЃРёС‡РµРЅРёРј Р±Р»Р°РєРёС‚РЅРёРј СЃСЏР№РІРѕРј."
   },
   {
     id: "sticker_ibuypower_holo",
@@ -117,7 +117,7 @@ const STICKERS_CATALOG = [
     rarity: "ancient",
     price: 52000.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0Pu7V6VsOf-fC2O6wfp1vbFzTnu_rBhptWzZy9r6InOUPlYqDZR1E7U5f_tnYIoWbL7",
-    description: "Одна з найбажаніших та найдорожчих червоних голографічних наклейок у грі."
+    description: "РћРґРЅР° Р· РЅР°Р№Р±Р°Р¶Р°РЅС–С€РёС… С‚Р° РЅР°Р№РґРѕСЂРѕР¶С‡РёС… С‡РµСЂРІРѕРЅРёС… РіРѕР»РѕРіСЂР°С„С–С‡РЅРёС… РЅР°РєР»РµР№РѕРє Сѓ РіСЂС–."
   },
   {
     id: "sticker_howling_dawn",
@@ -128,7 +128,7 @@ const STICKERS_CATALOG = [
     rarity: "ancient",
     price: 1850.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0Pu3V6VsOf-fC2O7w-N0u7N0SHW_rBhptWzZyNn9JX6RaVIqCZR2QuM6ffszYIorGz19",
-    description: "Контрабандна наклейка з зображенням палаючого вовка з легендарного M4A4 Howl."
+    description: "РљРѕРЅС‚СЂР°Р±Р°РЅРґРЅР° РЅР°РєР»РµР№РєР° Р· Р·РѕР±СЂР°Р¶РµРЅРЅСЏРј РїР°Р»Р°СЋС‡РѕРіРѕ РІРѕРІРєР° Р· Р»РµРіРµРЅРґР°СЂРЅРѕРіРѕ M4A4 Howl."
   },
   {
     id: "sticker_crown_foil",
@@ -139,7 +139,7 @@ const STICKERS_CATALOG = [
     rarity: "legendary",
     price: 680.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW-V6VsOf-fC2O7wfBxuL9sSHW4rBhptWzZyNv7I36XPw8qCJRyQ7U7ceU2YIoxQ-Bf",
-    description: "Золота металізована корона Foil, класичний символ престижу."
+    description: "Р—РѕР»РѕС‚Р° РјРµС‚Р°Р»С–Р·РѕРІР°РЅР° РєРѕСЂРѕРЅР° Foil, РєР»Р°СЃРёС‡РЅРёР№ СЃРёРјРІРѕР» РїСЂРµСЃС‚РёР¶Сѓ."
   },
   {
     id: "sticker_navi_gold_stockholm",
@@ -150,7 +150,7 @@ const STICKERS_CATALOG = [
     rarity: "legendary",
     price: 240.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW7V6ZqMvCWBG7n1fN_tON_Ti-m8lh9t2iH84_5cneRbgV0D5NzE7ZcuhG6x4awZe6n4FHR2Y8",
-    description: "Золота наклейка NAVI на честь тріумфального чемпіонства на мейджорі в Стокгольмі."
+    description: "Р—РѕР»РѕС‚Р° РЅР°РєР»РµР№РєР° NAVI РЅР° С‡РµСЃС‚СЊ С‚СЂС–СѓРјС„Р°Р»СЊРЅРѕРіРѕ С‡РµРјРїС–РѕРЅСЃС‚РІР° РЅР° РјРµР№РґР¶РѕСЂС– РІ РЎС‚РѕРєРіРѕР»СЊРјС–."
   },
   {
     id: "sticker_cloud9_holo_cologne",
@@ -161,7 +161,7 @@ const STICKERS_CATALOG = [
     rarity: "epic",
     price: 135.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW4V6ZsOf-dC3Ov0vp5vuR-Tjq7qhEutDWR1Nr6IHuXOgMkWcQiQ7YK5hG7wYfgYuOx5gSN2YNCyHn-2Cof5i5isL0cEf1yJefVwLI",
-    description: "Яскравий блакитний голографічний логотип Cloud9 з Cologne 2014."
+    description: "РЇСЃРєСЂР°РІРёР№ Р±Р»Р°РєРёС‚РЅРёР№ РіРѕР»РѕРіСЂР°С„С–С‡РЅРёР№ Р»РѕРіРѕС‚РёРї Cloud9 Р· Cologne 2014."
   },
   {
     id: "sticker_liquid_fire_holo",
@@ -172,7 +172,7 @@ const STICKERS_CATALOG = [
     rarity: "rare",
     price: 45.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW6V6ZsOf-dC3Ov0vp5vuR-Tjq7qhEutDWR1Nr6IHuXOgMkWcQiQ7YK5hG7wYfgYuOx5gSN2YNCyHn-2Cof5i5isL0cEf1yJefVwLI",
-    description: "Голографічний переливчастий кінь Team Liquid у полум'ї."
+    description: "Р“РѕР»РѕРіСЂР°С„С–С‡РЅРёР№ РїРµСЂРµР»РёРІС‡Р°СЃС‚РёР№ РєС–РЅСЊ Team Liquid Сѓ РїРѕР»СѓРј'С—."
   },
   {
     id: "sticker_headhunter_foil",
@@ -183,7 +183,7 @@ const STICKERS_CATALOG = [
     rarity: "epic",
     price: 95.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0P24V6VsOf-fC2O6w_VxuLBzTnW_rBhptWzZyNvyJHyXbwYqDZR2ROo_e_U0YIovrW3j",
-    description: "Сяючий золотий череп з мішенню — класичний вибір для снайперів."
+    description: "РЎСЏСЋС‡РёР№ Р·РѕР»РѕС‚РёР№ С‡РµСЂРµРї Р· РјС–С€РµРЅРЅСЋ вЂ” РєР»Р°СЃРёС‡РЅРёР№ РІРёР±С–СЂ РґР»СЏ СЃРЅР°Р№РїРµСЂС–РІ."
   },
   {
     id: "sticker_flammable_foil",
@@ -194,7 +194,7 @@ const STICKERS_CATALOG = [
     rarity: "rare",
     price: 78.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0Pu4V6VsOf-fC2O6wfB1uLBzTne_rBhptWzZyNn9J3-TP1IqCZR0ROg6fftnYIoq61e4",
-    description: "Небезпечний знак вогню у металевому виконанні Foil."
+    description: "РќРµР±РµР·РїРµС‡РЅРёР№ Р·РЅР°Рє РІРѕРіРЅСЋ Сѓ РјРµС‚Р°Р»РµРІРѕРјСѓ РІРёРєРѕРЅР°РЅРЅС– Foil."
   },
   {
     id: "sticker_battle_scarred_holo",
@@ -205,7 +205,29 @@ const STICKERS_CATALOG = [
     rarity: "common",
     price: 18.50,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW-V6ZqMvCWBG7n1fN_tON_Ti-m8lh9t2iH84_5cneRbgV0D5NzE7ZcuhG6x4awZe6n4FHR2Y8",
-    description: "Імітація глибоких кігтів із райдужним переливом."
+    description: "Р†РјС–С‚Р°С†С–СЏ РіР»РёР±РѕРєРёС… РєС–РіС‚С–РІ С–Р· СЂР°Р№РґСѓР¶РЅРёРј РїРµСЂРµР»РёРІРѕРј."
+  },
+  {
+    id: "sticker_kato14_reason_holo",
+    name: "Sticker | Reason Gaming (Holo) | Katowice 2014",
+    type: "sticker",
+    category: "Sticker",
+    subType: "Holo",
+    rarity: "ancient",
+    price: 60000.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW-V6VsOf-fC2O6w_V1ur9sSHa8qBlwsWjWyNr6In-Tbw8kB9QjE947f_s2YIrg7g",
+    description: "РќР°РґР·РІРёС‡Р°Р№РЅРѕ СЂС–РґРєС–СЃРЅР° РіРѕР»РѕРіСЂР°С„С–С‡РЅР° РЅР°РєР»РµР№РєР°."
+  },
+  {
+    id: "sticker_kato14_vox_holo",
+    name: "Sticker | Vox Eminor (Holo) | Katowice 2014",
+    type: "sticker",
+    category: "Sticker",
+    subType: "Holo",
+    rarity: "ancient",
+    price: 35000.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzn4_v8ydP0PW8V6VsOf-fC2O6w_J-vbN1SnW-qBlwsWjWyNv4IXmXPlAnDcVyRbA6ceqyYIoZqL4v",
+    description: "Р›РµРіРµРЅРґР°СЂРЅР° РіРѕР»РѕРіСЂР°С„С–С‡РЅР° РЅР°РєР»РµР№РєР° Р· РљР°С‚РѕРІС–С†Рµ 2014."
   }
 ];
 
@@ -219,7 +241,7 @@ const CHARMS_CATALOG = [
     rarity: "legendary",
     price: 320.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOip3u9CRe0PG8cbd5IfzdXT_Bwr4u4rU9GSrrx09042TUm4z7eXOVbFcgC5J4Q7QL4BW_x4CzMPSiuVKoeSA8mg",
-    description: "Дорогоцінний кристал у металевій оправі, що прикріплюється до ствольної коробки зброї."
+    description: "Р”РѕСЂРѕРіРѕС†С–РЅРЅРёР№ РєСЂРёСЃС‚Р°Р» Сѓ РјРµС‚Р°Р»РµРІС–Р№ РѕРїСЂР°РІС–, С‰Рѕ РїСЂРёРєСЂС–РїР»СЋС”С‚СЊСЃСЏ РґРѕ СЃС‚РІРѕР»СЊРЅРѕС— РєРѕСЂРѕР±РєРё Р·Р±СЂРѕС—."
   },
   {
     id: "charm_baby_karat_ct",
@@ -229,7 +251,7 @@ const CHARMS_CATALOG = [
     rarity: "legendary",
     price: 245.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOnYLr8ytd6s2pZ6hpbqGVXWOWwLoktLFtHnDmwU4l4jnUwt6pInqSO1AiWJp1QuVeu0S4kt35d7S1otZRy58",
-    description: "Мініатюрна золота фігурка бійця спецпідрозділу з рухомими ніжками."
+    description: "РњС–РЅС–Р°С‚СЋСЂРЅР° Р·РѕР»РѕС‚Р° С„С–РіСѓСЂРєР° Р±С–Р№С†СЏ СЃРїРµС†РїС–РґСЂРѕР·РґС–Р»Сѓ Р· СЂСѓС…РѕРјРёРјРё РЅС–Р¶РєР°РјРё."
   },
   {
     id: "charm_baby_karat_t",
@@ -239,7 +261,7 @@ const CHARMS_CATALOG = [
     rarity: "legendary",
     price: 260.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOip3u9CRe0PWhZKAjJPOXWDGWlOgm47QxTH7jwExy5zmAw977cinCbgcgCJNzFLID50bsw8qnab1NtMpc9Q",
-    description: "Мініатюрна золота фігурка терориста з фірмовою маскою."
+    description: "РњС–РЅС–Р°С‚СЋСЂРЅР° Р·РѕР»РѕС‚Р° С„С–РіСѓСЂРєР° С‚РµСЂРѕСЂРёСЃС‚Р° Р· С„С–СЂРјРѕРІРѕСЋ РјР°СЃРєРѕСЋ."
   },
   {
     id: "charm_hot_howl",
@@ -249,7 +271,7 @@ const CHARMS_CATALOG = [
     rarity: "epic",
     price: 110.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IWsPGiE7Fhy-I764RbsQiL8l4Xz9Cxc4_ugY5tlL-efQGKTmbxztbJoFnvjkBtw4zjcw9v8ICiTOwcpDpZyF-FYsBO9k4W2Nbn8p1uJTS_m1eQ",
-    description: "Вогняний міні-вовк у стилі культового Howl, що гойдається під час стрільби."
+    description: "Р’РѕРіРЅСЏРЅРёР№ РјС–РЅС–-РІРѕРІРє Сѓ СЃС‚РёР»С– РєСѓР»СЊС‚РѕРІРѕРіРѕ Howl, С‰Рѕ РіРѕР№РґР°С”С‚СЊСЃСЏ РїС–Рґ С‡Р°СЃ СЃС‚СЂС–Р»СЊР±Рё."
   },
   {
     id: "charm_die_cast_ak",
@@ -259,7 +281,7 @@ const CHARMS_CATALOG = [
     rarity: "rare",
     price: 65.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOn53f9ydX4-vgPvw_efKXXzWWkL0ksrQwGCjmlBl24DjUyNipcS-WOFQoDsd2Te9Zsg74zIPxCozwxw",
-    description: "Металевий міні-автомат Калашникова на кільці для кріплення."
+    description: "РњРµС‚Р°Р»РµРІРёР№ РјС–РЅС–-Р°РІС‚РѕРјР°С‚ РљР°Р»Р°С€РЅРёРєРѕРІР° РЅР° РєС–Р»СЊС†С– РґР»СЏ РєСЂС–РїР»РµРЅРЅСЏ."
   },
   {
     id: "charm_lil_monster",
@@ -269,7 +291,7 @@ const CHARMS_CATALOG = [
     rarity: "rare",
     price: 42.00,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IWsPGiE7Fhy-I764RbsQiL8l4Xz9Cxc4_ugY5tgL_6AGmKCj79wtOVrTijixU0m5m3UntioI3PEZldzCpd1FOJfsxXtmtCxNezk5gTAy9USJfGXAGI",
-    description: "Кумедний монстрик, що додає зброї унікальної харизми."
+    description: "РљСѓРјРµРґРЅРёР№ РјРѕРЅСЃС‚СЂРёРє, С‰Рѕ РґРѕРґР°С” Р·Р±СЂРѕС— СѓРЅС–РєР°Р»СЊРЅРѕС— С…Р°СЂРёР·РјРё."
   },
   {
     id: "charm_stitch_loaded",
@@ -279,7 +301,47 @@ const CHARMS_CATALOG = [
     rarity: "common",
     price: 19.50,
     image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOi4Xwwjta_fzgPvNoJfPLDDDHwLcjtrdsGS3lwxwl52qGm9b_eHiVO1IgCMR4QO5Yuw74zIPBDwTYVQ",
-    description: "Текстильний брелок ручної роботи у вигляді патрона."
+    description: "РўРµРєСЃС‚РёР»СЊРЅРёР№ Р±СЂРµР»РѕРє СЂСѓС‡РЅРѕС— СЂРѕР±РѕС‚Рё Сѓ РІРёРіР»СЏРґС– РїР°С‚СЂРѕРЅР°."
+  },
+  {
+    id: "charm_small_arms",
+    name: "Charm | Small Arms",
+    type: "charm",
+    category: "Charm",
+    rarity: "epic",
+    price: 140.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IWsPGiE7Fhy-I764RbsQiL8l4Xz9Cxc4_ugY5tjLaaWQGeXz_8HsnxR37JowgE6m4m3Um-ioI6SCAU8z1J4QONZvUS-nLaxNbSj4yZCy9USJQeH6Hnb",
+    description: "РњС–РЅС–Р°С‚СЋСЂРЅР° РіСЂР°РЅР°С‚Р°."
+  },
+  {
+    id: "charm_missing_link",
+    name: "Charm | Missing Link",
+    type: "charm",
+    category: "Charm",
+    rarity: "legendary",
+    price: 420.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IW2MHqH6lhKpcj_6WbwURPOip3u9CRe0PWhZKAjJPOXWDGWlOgm47QxTH7jwExy5zmAw977cinCbgcgCJNzFLID50bsw8qnab1NtMpc9Q",
+    description: "РЎРµРєСЂРµС‚РЅРёР№ РєРѕРІР±Р°СЃРЅРёР№ С‡РѕР»РѕРІС–С‡РѕРє."
+  },
+  {
+    id: "charm_diner_dog",
+    name: "Charm | Diner Dog",
+    type: "charm",
+    category: "Charm",
+    rarity: "rare",
+    price: 85.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IWsPGiE7Fhy-I764RbsQiL8l4Xz9Cxc4_ugY5tlL-efQGKTmbxztbJoFnvjkBtw4zjcw9v8ICiTOwcpDpZyF-FYsBO9k4W2Nbn8p1uJTS_m1eQ",
+    description: "РЎРѕСЃРёСЃРєР° РІ С‚С–СЃС‚С–."
+  },
+  {
+    id: "charm_glock_time",
+    name: "Charm | Glock Time",
+    type: "charm",
+    category: "Charm",
+    rarity: "epic",
+    price: 125.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGI6zwki4Uf_a0IWsPGiE7Fhy-I764RbsQiL8l4Xz9Cxc4_ugY5tgL_6AGmKCj79wtOVrTijixU0m5m3UntioI3PEZldzCpd1FOJfsxXtmtCxNezk5gTAy9USJfGXAGI",
+    description: "РњС–РЅС–Р°С‚СЋСЂРЅРёР№ Glock-18."
   }
 ];
 
@@ -364,11 +426,11 @@ function getItemBroadType(item) {
   if (!item) return 'weapon';
   if (item.type) return item.type;
   const cat = (item.category || '').toLowerCase();
-  if (cat.includes('knife') || cat.includes('нож')) return 'knife';
-  if (cat.includes('glove') || cat.includes('рукавиц')) return 'gloves';
-  if (cat.includes('agent') || cat.includes('агент')) return 'agent';
-  if (cat.includes('sticker') || cat.includes('наклей')) return 'sticker';
-  if (cat.includes('charm') || cat.includes('брелок')) return 'charm';
+  if (cat.includes('knife') || cat.includes('РЅРѕР¶')) return 'knife';
+  if (cat.includes('glove') || cat.includes('СЂСѓРєР°РІРёС†')) return 'gloves';
+  if (cat.includes('agent') || cat.includes('Р°РіРµРЅС‚')) return 'agent';
+  if (cat.includes('sticker') || cat.includes('РЅР°РєР»РµР№')) return 'sticker';
+  if (cat.includes('charm') || cat.includes('Р±СЂРµР»РѕРє')) return 'charm';
   return 'weapon';
 }
 
@@ -444,6 +506,7 @@ if (typeof window !== 'undefined') {
   window.CS_COLLECTIONS = CS_COLLECTIONS;
   window.STICKERS_CATALOG = STICKERS_CATALOG;
   window.CHARMS_CATALOG = CHARMS_CATALOG;
+  window.CASES_CATALOG = CASES_CATALOG;
   window.EXPANDED_WEAPON_SKINS = EXPANDED_WEAPON_SKINS;
   window.getItemBroadType = getItemBroadType;
   window.enrichWeaponProperties = enrichWeaponProperties;
@@ -459,6 +522,7 @@ if (typeof module !== 'undefined' && module.exports) {
     CS_COLLECTIONS,
     STICKERS_CATALOG,
     CHARMS_CATALOG,
+    CASES_CATALOG,
     EXPANDED_WEAPON_SKINS,
     getItemBroadType,
     enrichWeaponProperties,
@@ -466,3 +530,44 @@ if (typeof module !== 'undefined' && module.exports) {
     mergeAllCosmeticsIntoCatalog
   };
 }
+
+// 7. CASES CATALOG
+const CASES_CATALOG = [
+  {
+    id: "case_charms",
+    name: "The Armory Charms Case",
+    price: 350.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQUvIR-j81c3yWFRxMwlzr7j2d1c3y_DLez9B-o7iwILZw_T-ar_SmzsEu8FyibHEoIn2iVGx8kQ9MTrxdYLGdQM9ZlyF8gK4kO3ohpG97czHmyBnpiQ8pA/256fx256f",
+    description: "Містить випадковий брелок. Можливий дроп ексклюзивних золотих брелоків.",
+    type: "case",
+    containsType: "charm"
+  },
+  {
+    id: "case_stickers",
+    name: "Sticker Capsule Premium",
+    price: 150.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulReQ0DFQOqhwZ-CCBVpIAt-qbuxIVRj07zJdDVJ7czildXax_L0NbrWzjNUv8Aoj-zDrdqi31GxqEE9YWihJ4PHIgZvMwzUrFG6wb-6g8G6vZzJyHI1uiYk4CqLnUe_iEo/256fx256f",
+    description: "Капсула з преміальними наклейками. Може містити наклейки з Катовіце 2014.",
+    type: "case",
+    containsType: "sticker"
+  },
+  {
+    id: "case_dreams",
+    name: "Dreams & Nightmares Case",
+    price: 450.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1VnnaecJGsMvtylwtSExPPyNrbXkGwFscp12-qSoInyigDgqUpuNTzxLIGRdlQ7ZFqE-lTtxuy6jJ676p2bzSdqvic8pSdd1-8S2A/256fx256f",
+    description: "Містить яскраві скіни. Головний приз - ножі Gamma Doppler.",
+    type: "case",
+    containsType: "dreams"
+  },
+  {
+    id: "case_grail",
+    name: "Grail Weapons Case",
+    price: 2500.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1R3l_b3eD5G7I3im4uPzvLxZb2AwD5UupV1j7rA8Nmmi1Cw8hBsNWjwJNHEdFBsZliE-1Tsl-7shsfotZ3IzHIxsicn4y6InETj1RgaP-c71-veFwt5vSM4/256fx256f",
+    description: "Тільки найрідкісніші скіни Таємної (Covert) та Контрабандної рідкості.",
+    type: "case",
+    containsType: "grail"
+  }
+];
+

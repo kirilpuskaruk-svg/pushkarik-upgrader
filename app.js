@@ -3941,3 +3941,159 @@ window.detachCharmFromWeapon = function(weaponInstId) {
   openCustomizeModal(weaponInstId);
   audio.playClick();
 };
+
+
+// ==================== CASES LOGIC ====================
+function renderCasesShop() {
+  const container = document.getElementById('casesDisplayContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  if (typeof CASES_CATALOG === 'undefined') return;
+
+  CASES_CATALOG.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'item-card';
+    card.style.borderColor = 'var(--neon-cyan)';
+    
+    card.innerHTML = `
+      <div class="item-wear-badge" style="background:var(--neon-cyan)">📦 Кейс</div>
+      <div class="item-name">${c.name}</div>
+      <img src="${c.image}" alt="${c.name}" />
+      <div class="item-price">${c.price.toFixed(2)} DP</div>
+      <div style="font-size: 10px; color: #aaa; margin: 10px 0; text-align: center;">${c.description}</div>
+      <button class="select-btn" style="background:var(--neon-cyan); border:none; margin-top: auto; padding: 10px; color: #000; font-weight: bold; border-radius: 4px; cursor: pointer;">
+        Відкрити (${c.price} DP)
+      </button>
+    `;
+    
+    card.querySelector('button').addEventListener('click', () => {
+      startCaseOpening(c);
+    });
+    container.appendChild(card);
+  });
+}
+
+function startCaseOpening(caseObj) {
+  if (state.balance < caseObj.price) {
+    if (typeof showNotification === 'function') {
+      showNotification('Недостатньо DP для відкриття кейсу!', 'error');
+    } else {
+      alert('Недостатньо DP для відкриття кейсу!');
+    }
+    return;
+  }
+  
+  state.balance -= caseObj.price;
+  if (typeof updateBalanceDisplay === 'function') updateBalanceDisplay();
+  if (typeof saveGameState === 'function') saveGameState();
+  
+  // Determine drops based on caseObj.containsType
+  let dropPool = ITEM_CATALOG.filter(i => {
+    if (caseObj.containsType === 'charm') return i.type === 'charm';
+    if (caseObj.containsType === 'sticker') return i.type === 'sticker';
+    if (caseObj.containsType === 'grail') return ['legendary', 'mythic', 'ancient'].includes(i.rarity);
+    if (caseObj.containsType === 'dreams') return ['common', 'rare', 'epic'].includes(i.rarity);
+    return true; // default pool
+  });
+  
+  if (dropPool.length === 0) dropPool = ITEM_CATALOG.filter(i => i.rarity === 'common');
+  
+  // Generate random items for the strip
+  const TOTAL_ITEMS = 40;
+  const WIN_INDEX = 35; // 35th item is the winner
+  
+  // Weighted winning item
+  const rand = Math.random() * 100;
+  let targetRarity = 'common';
+  if (rand > 70) targetRarity = 'rare';
+  if (rand > 90) targetRarity = 'epic';
+  if (rand > 98) targetRarity = 'legendary';
+  if (rand > 99.5) targetRarity = 'mythic';
+  
+  let rarityPool = dropPool.filter(i => i.rarity === targetRarity);
+  if (rarityPool.length === 0) rarityPool = dropPool; // fallback
+  
+  const wonItemTemplate = rarityPool[Math.floor(Math.random() * rarityPool.length)];
+  const wonItem = { ...wonItemTemplate, instanceId: 'inst_won_' + Date.now() + '_' + Math.floor(Math.random() * 1000) };
+  if (window.enrichWeaponProperties) window.enrichWeaponProperties(wonItem);
+
+  const stripItems = [];
+  for (let i = 0; i < TOTAL_ITEMS; i++) {
+    if (i === WIN_INDEX) {
+      stripItems.push(wonItem);
+    } else {
+      const junk = dropPool[Math.floor(Math.random() * dropPool.length)];
+      stripItems.push(junk);
+    }
+  }
+  
+  // Build UI
+  const modal = document.createElement('div');
+  modal.className = 'case-opening-modal';
+  
+  const title = document.createElement('h2');
+  title.innerText = 'Відкриття ' + caseObj.name;
+  title.style.color = 'var(--neon-cyan)';
+  title.style.marginBottom = '20px';
+  modal.appendChild(title);
+  
+  const windowDiv = document.createElement('div');
+  windowDiv.className = 'case-opening-window';
+  
+  const stripDiv = document.createElement('div');
+  stripDiv.className = 'case-opening-strip';
+  
+  stripItems.forEach(i => {
+    const itemDiv = document.createElement('div');
+    itemDiv.className = 'case-strip-item';
+    const rarColor = RARITIES[i.rarity] ? RARITIES[i.rarity].color : '#fff';
+    itemDiv.style.borderBottom = '4px solid ' + rarColor;
+    
+    itemDiv.innerHTML = `<img src="${i.image}" /><span style="color:${rarColor}">${i.name}</span>`;
+    stripDiv.appendChild(itemDiv);
+  });
+  
+  const centerLine = document.createElement('div');
+  centerLine.className = 'case-opening-center-line';
+  
+  windowDiv.appendChild(stripDiv);
+  windowDiv.appendChild(centerLine);
+  modal.appendChild(windowDiv);
+  
+  document.body.appendChild(modal);
+  
+  // Animate
+  if (typeof audio !== 'undefined' && audio.playStart) audio.playStart();
+  setTimeout(() => {
+    const jitter = Math.floor(Math.random() * 100) - 50; 
+    const offset = (WIN_INDEX * 150) + 75 - (windowDiv.offsetWidth / 2) + jitter;
+    
+    stripDiv.style.transform = 'translateX(-' + offset + 'px)';
+  }, 100);
+  
+  setTimeout(() => {
+    if (typeof audio !== 'undefined' && audio.playWin) audio.playWin();
+    const wonModal = document.createElement('div');
+    wonModal.className = 'case-won-modal';
+    const rarCol = RARITIES[wonItem.rarity] ? RARITIES[wonItem.rarity].color : '#fff';
+    wonModal.innerHTML = `
+      <h2 style="color:${rarCol}">${wonItem.name}</h2>
+      <img src="${wonItem.image}" />
+      <p style="margin: 15px 0;">Вартість: ${wonItem.price.toFixed(2)} DP</p>
+      <button class="primary-btn" style="margin-top: 15px; border-color:var(--neon-green); color:var(--neon-green);">
+        Забрати в інвентар
+      </button>
+    `;
+    
+    wonModal.querySelector('button').addEventListener('click', () => {
+      state.inventory.push(wonItem);
+      if (typeof saveInventory === 'function') saveInventory();
+      if (typeof updateTotalItemsBadges === 'function') updateTotalItemsBadges();
+      if (state.activeTab === 'inventory') renderTabContent();
+      modal.remove();
+    });
+    
+    modal.appendChild(wonModal);
+  }, 8100);
+}
+// =====================================================
