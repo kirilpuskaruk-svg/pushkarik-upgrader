@@ -1,7 +1,22 @@
 const { sql } = require('../_db');
 const { getVerifiedUser, sendJson } = require('../_auth');
 const crypto = require('crypto');
-const items = require('../../items.js'); // Assuming items.js exports ITEM_CATALOG
+const items = require('../../items.js');
+
+async function ensureUserExists(googleId, email) {
+  try {
+    const existing = await sql`SELECT id FROM users WHERE id = ${googleId} LIMIT 1`;
+    if (existing.rows.length === 0) {
+      await sql`
+        INSERT INTO users (id, email, balance, role)
+        VALUES (${googleId}, ${email}, 10000, 'user')
+        ON CONFLICT (id) DO NOTHING
+      `;
+    }
+  } catch (e) {
+    // Ignore if user already exists (race condition)
+  }
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
@@ -9,12 +24,14 @@ module.exports = async function handler(req, res) {
   try {
     const googleUser = await getVerifiedUser(req);
     if (!googleUser) return sendJson(res, 401, { error: 'Unauthorized' });
-    const { sub: googleId } = googleUser;
+    const { sub: googleId, email } = googleUser;
 
     const { sourceItemId, targetItemCatalogId, direction, idempotencyKey } = req.body;
     if (!sourceItemId || !targetItemCatalogId || !direction || !idempotencyKey) {
       return sendJson(res, 400, { error: 'Missing parameters' });
     }
+
+    await ensureUserExists(googleId, email || googleId + '@guest.pushkarik');
 
     // 1. Check idempotency (prevent double upgrade)
     const idempotencyCheck = await sql`SELECT id FROM transactions WHERE idempotency_key = ${idempotencyKey}`;
@@ -115,6 +132,6 @@ module.exports = async function handler(req, res) {
 
   } catch (error) {
     console.error('Upgrade Error:', error);
-    return sendJson(res, 500, { error: 'Internal Server Error' });
+    return sendJson(res, 500, { error: 'Internal Server Error', details: error.message });
   }
 };
