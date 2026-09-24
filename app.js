@@ -2132,7 +2132,24 @@ function renderTabContent() {
     return;
   }
 
+  const casesContainer = document.getElementById('casesDisplayContainer');
+  if (casesContainer) casesContainer.style.display = 'none';
+
+  if (state.activeTab === 'cases') {
+    grid.style.display = 'none';
+    if (invStatsBar) invStatsBar.style.display = 'none';
+    if (vaultStatsBar) vaultStatsBar.style.display = 'none';
+    historyContainer.style.display = 'none';
+    if (casesContainer) {
+      casesContainer.style.display = 'grid';
+      renderCasesShop();
+    }
+    return;
+  }
+
   historyContainer.style.display = 'none';
+  const cc = document.getElementById('casesDisplayContainer');
+  if(cc) cc.style.display = 'none';
   grid.style.display = 'grid';
 
   if (state.activeTab === 'inventory') {
