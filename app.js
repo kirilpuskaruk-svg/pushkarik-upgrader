@@ -416,26 +416,7 @@ class AppState {
         this.isOwner = Boolean(data.user.isOwner);
         this.adminMode = Boolean(data.user.isAdmin);
 
-        if (Array.isArray(data.inventory) && data.inventory.length > 0) {
-          this.inventory = data.inventory.map(srvItem => {
-            const catalogItem = ITEM_CATALOG.find(i => i.id === srvItem.id);
-            if (catalogItem) {
-              return { ...catalogItem, db_id: srvItem.db_id, instanceId: 'db_' + srvItem.db_id };
-            }
-            return { id: srvItem.id, db_id: srvItem.db_id, name: srvItem.id, price: 10, rarity: 'common', image: 'gungnir.png', instanceId: 'db_' + srvItem.db_id };
-          });
-          this.saveInventory();
-        }
-        if (Array.isArray(data.vault) && data.vault.length > 0) {
-          this.vault = data.vault.map(srvItem => {
-            const catalogItem = ITEM_CATALOG.find(i => i.id === srvItem.id);
-            if (catalogItem) {
-              return { ...catalogItem, db_id: srvItem.db_id, instanceId: 'vault_db_' + srvItem.db_id };
-            }
-            return { id: srvItem.id, db_id: srvItem.db_id, name: srvItem.id, price: 10, rarity: 'common', image: 'gungnir.png', instanceId: 'vault_db_' + srvItem.db_id };
-          });
-          this.saveVault();
-        }
+/* Server inventory sync disabled to preserve local cosmetics/vault state */
         updateUi();
       }
     } catch(err) {
@@ -558,6 +539,12 @@ class RadialWheel {
 
     ctx.clearRect(0, 0, this.size, this.size);
 
+    ctx.save();
+    // Rotate the entire ring counter-clockwise by currentAngle
+    ctx.translate(center, center);
+    ctx.rotate(-this.currentAngle * Math.PI / 180);
+    ctx.translate(-center, -center);
+
     // Track ring
     ctx.beginPath();
     ctx.arc(center, center, radius, 0, Math.PI * 2);
@@ -612,7 +599,10 @@ class RadialWheel {
       ctx.stroke();
     }
 
-    this.drawNeedle(this.currentAngle);
+    ctx.restore();
+
+    // Draw static needle always pointing up (0 degrees logic for drawNeedle means top)
+    this.drawNeedle(0); 
   }
 
   drawNeedle(angleDeg) {
@@ -3993,58 +3983,48 @@ function renderCasesShop() {
 
 function startCaseOpening(caseObj) {
   if (state.balance < caseObj.price) {
-    if (typeof showNotification === 'function') {
-      showNotification('Недостатньо DP для відкриття кейсу!', 'error');
-    } else {
-      alert('Недостатньо DP для відкриття кейсу!');
-    }
+    if (typeof showNotification === 'function') showNotification('Недостатньо DP для відкриття кейсу!', 'error');
+    else alert('Недостатньо DP для відкриття кейсу!');
     return;
   }
   
   state.balance -= caseObj.price;
-  if (typeof updateBalanceDisplay === 'function') updateBalanceDisplay();
-  if (typeof saveGameState === 'function') saveGameState();
-  
-  // Determine drops based on caseObj.containsType
+  updateUi();
+  state.saveBalance();
+
+  const TOTAL_ITEMS = 40;
+  const WIN_INDEX = 35;
+
   let dropPool = ITEM_CATALOG.filter(i => {
     if (caseObj.containsType === 'charm') return i.type === 'charm';
     if (caseObj.containsType === 'sticker') return i.type === 'sticker';
     if (caseObj.containsType === 'grail') return ['legendary', 'mythic', 'ancient'].includes(i.rarity);
     if (caseObj.containsType === 'dreams') return ['common', 'rare', 'epic'].includes(i.rarity);
-    return true; // default pool
+    return true;
   });
-  
   if (dropPool.length === 0) dropPool = ITEM_CATALOG.filter(i => i.rarity === 'common');
-  
-  // Generate random items for the strip
-  const TOTAL_ITEMS = 40;
-  const WIN_INDEX = 35; // 35th item is the winner
-  
-  // Weighted winning item
-  const rand = Math.random() * 100;
-  let targetRarity = 'common';
-  if (rand > 70) targetRarity = 'rare';
-  if (rand > 90) targetRarity = 'epic';
-  if (rand > 98) targetRarity = 'legendary';
-  if (rand > 99.5) targetRarity = 'mythic';
-  
-  let rarityPool = dropPool.filter(i => i.rarity === targetRarity);
-  if (rarityPool.length === 0) rarityPool = dropPool; // fallback
-  
-  const wonItemTemplate = rarityPool[Math.floor(Math.random() * rarityPool.length)];
-  const wonItem = { ...wonItemTemplate, instanceId: 'inst_won_' + Date.now() + '_' + Math.floor(Math.random() * 1000) };
-  if (window.enrichWeaponProperties) window.enrichWeaponProperties(wonItem);
+
+  // Fast client-side fallback roll in case server fails
+  let fallbackItemTemplate = dropPool[Math.floor(Math.random() * dropPool.length)];
+  let wonItem = { ...fallbackItemTemplate, instanceId: 'inst_won_' + Date.now() };
+
+  // Call server immediately but don't block the modal UI creation
+  const serverRollPromise = apiFetch('/api/game/open-case', {
+    method: 'POST',
+    body: JSON.stringify({ caseId: caseObj.id })
+  }).then(res => {
+    if (res && res.item) wonItem = res.item;
+  }).catch(() => {});
 
   const stripItems = [];
   for (let i = 0; i < TOTAL_ITEMS; i++) {
     if (i === WIN_INDEX) {
-      stripItems.push(wonItem);
+      stripItems.push(wonItem); // Placeholder, will be replaced before show
     } else {
-      const junk = dropPool[Math.floor(Math.random() * dropPool.length)];
-      stripItems.push(junk);
+      stripItems.push(dropPool[Math.floor(Math.random() * dropPool.length)]);
     }
   }
-  
+
   // Build UI
   const modal = document.createElement('div');
   modal.className = 'case-opening-modal';
@@ -4089,7 +4069,17 @@ function startCaseOpening(caseObj) {
     stripDiv.style.transform = 'translateX(-' + offset + 'px)';
   }, 100);
   
-  setTimeout(() => {
+  setTimeout(async () => {
+    try { await Promise.race([serverRollPromise, new Promise(r => setTimeout(r, 500))]); } catch(e){}
+
+    // Update the winning item visually in the DOM strip before it stops
+    const winItemDiv = stripDiv.children[WIN_INDEX];
+    if (winItemDiv) {
+      const rarColor = RARITIES[wonItem.rarity] ? RARITIES[wonItem.rarity].color : '#fff';
+      winItemDiv.style.borderBottom = '4px solid ' + rarColor;
+      winItemDiv.innerHTML = `<img src="${wonItem.image}" /><span style="color:${rarColor}">${wonItem.name}</span>`;
+    }
+
     if (typeof audio !== 'undefined' && audio.playWin) audio.playWin();
     const wonModal = document.createElement('div');
     wonModal.className = 'case-won-modal';
@@ -4105,8 +4095,8 @@ function startCaseOpening(caseObj) {
     
     wonModal.querySelector('button').addEventListener('click', () => {
       state.inventory.push(wonItem);
-      if (typeof saveInventory === 'function') saveInventory();
-      if (typeof updateTotalItemsBadges === 'function') updateTotalItemsBadges();
+      state.saveInventory();
+      updateUi();
       if (state.activeTab === 'inventory') renderTabContent();
       modal.remove();
     });
