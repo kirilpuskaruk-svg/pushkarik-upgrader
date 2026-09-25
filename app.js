@@ -539,12 +539,6 @@ class RadialWheel {
 
     ctx.clearRect(0, 0, this.size, this.size);
 
-    ctx.save();
-    // Rotate the entire ring counter-clockwise by currentAngle
-    ctx.translate(center, center);
-    ctx.rotate(-this.currentAngle * Math.PI / 180);
-    ctx.translate(-center, -center);
-
     // Track ring
     ctx.beginPath();
     ctx.arc(center, center, radius, 0, Math.PI * 2);
@@ -599,10 +593,7 @@ class RadialWheel {
       ctx.stroke();
     }
 
-    ctx.restore();
-
-    // Draw static needle always pointing up (0 degrees logic for drawNeedle means top)
-    this.drawNeedle(0); 
+    this.drawNeedle(this.currentAngle);
   }
 
   drawNeedle(angleDeg) {
