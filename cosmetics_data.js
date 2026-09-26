@@ -1,40 +1,40 @@
 // 7. CASES CATALOG
 const CASES_CATALOG = [
   {
-    id: 'case_charms',
-    name: 'Chroma 2 Case',
+    id: "case_charms",
+    name: "Chroma 2 Case",
     price: 350.00,
-    image: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fqmwOuKD2PqI6caDBWDeUkO8uteM9SnDglklw6miEn9j6IHKfblNxA5pxW6dU5UH4LtBe/256fx256f',
-    description: 'Оригінальний кейс із класичними скінами та шармиками.',
-    type: 'case',
-    containsType: 'charm'
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fqmwOuKD2PqI6caDBWDeUkO8uteM9SnDglklw6miEn9j6IHKfblNxA5pxW6dU5UH4LtBe",
+    description: "РћСЂРёРіС–РЅР°Р»СЊРЅРёР№ РєРµР№СЃ С–Р· РєР»Р°СЃРёС‡РЅРёРјРё СЃРєС–РЅР°РјРё С‚Р° С€Р°СЂРјРёРєР°РјРё.",
+    type: "case",
+    containsType: "charm"
   },
   {
-    id: 'case_stickers',
-    name: 'Gamma Case',
+    id: "case_stickers",
+    name: "Gamma Case",
     price: 150.00,
-    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFYxnPAceDHQxN6wwdXxxqelY-mJwD9Tvccij-_A9I_x31DnqEI_Zmzxd4fGcFE3NwzT_VK_xb-5hMDvyCNt/256fx256f',
-    description: 'Кейс із яскравими скінами та рідкісними наліпками.',
-    type: 'case',
-    containsType: 'sticker'
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frHEVtvP5bPZrd6XECmOSxe0v4bRoTnnjwBkitWrRm4yoeX3GagMnCZZ2FPlK7EcEv22BnQ",
+    description: "РљРµР№СЃ С–Р· СЏСЃРєСЂР°РІРёРјРё СЃРєС–РЅР°РјРё С‚Р° СЂС–РґРєС–СЃРЅРёРјРё РЅР°Р»С–РїРєР°РјРё.",
+    type: "case",
+    containsType: "sticker"
   },
   {
-    id: 'case_dreams',
-    name: 'Dreams & Nightmares Case',
+    id: "case_dreams",
+    name: "Dreams & Nightmares Case",
     price: 450.00,
-    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1VnnaecJGsMvtylwtSExPPyNrbXkGwFscp12-qSoInyigDgqUpuNTzxLIGRdlQ7ZFqE-lTtxuy6jJ676p2bzSdqvic8pSdd1-8S2A/256fx256f',
-    description: 'Ексклюзивний кейс із топовими скінами (Gamma Doppler).',
-    type: 'case',
-    containsType: 'dreams'
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frnIV7Kb5OaU-JqfHDzXFle0u4LY8Gy_kkRgisGzcm4v4J3vDOAQmDMdyRvlK7EcmeCU3yw",
+    description: "Р•РєСЃРєР»СЋР·РёРІРЅРёР№ РєРµР№СЃ С–Р· С‚РѕРїРѕРІРёРјРё СЃРєС–РЅР°РјРё (Gamma Doppler).",
+    type: "case",
+    containsType: "dreams"
   },
   {
-    id: 'case_grail',
-    name: 'Operation Bravo Case',
+    id: "case_grail",
+    name: "Operation Bravo Case",
     price: 2500.00,
-    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1R3l_b3eD5G7I3im4uPzvLxZb2AwD5UupV1j7rA8Nmmi1Cw8hBsNWjwJNHEdFBsZliE-1Tsl-7shsfotZ3IzHIxsicn4y6InETj1RgaP-c71-veFwt5vSM4/256fx256f',
-    description: 'Легендарний кейс. Високі шанси на Covert.',
-    type: 'case',
-    containsType: 'grail'
+    image: "https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj7-lz1QAn4kZjf9CsVuvf7OfQ5IabBVzbHlb915bcwHCjikEp_sTnTn4z6eH6RblQlC8RwFPlK7EdXSP0Ibg",
+    description: "Р›РµРіРµРЅРґР°СЂРЅРёР№ РєРµР№СЃ. Р’РёСЃРѕРєС– С€Р°РЅСЃРё РЅР° Covert.",
+    type: "case",
+    containsType: "grail"
   }
 ];
 
