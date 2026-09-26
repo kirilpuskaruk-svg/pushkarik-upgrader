@@ -42,6 +42,77 @@ function escapeHtml(str) {
   });
 }
 
+
+// ==========================================
+// UI NOTIFICATIONS & ALERTS
+// ==========================================
+function showNotification(msg, type = 'info') {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  toast.className = 'toast-message ' + type;
+  
+  let icon = 'ℹ️';
+  if (type === 'error') icon = '❌';
+  if (type === 'success') icon = '✅';
+  
+  toast.innerHTML = '<span>' + icon + '</span><span>' + escapeHtml(msg) + '</span>';
+  container.appendChild(toast);
+  
+  setTimeout(() => toast.classList.add('show'), 10);
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+window.showNotification = showNotification;
+
+function showConfirm(msg) {
+  return new Promise((resolve) => {
+    let overlay = document.getElementById('custom-confirm-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'custom-confirm-overlay';
+      overlay.className = 'custom-confirm-overlay';
+      overlay.innerHTML = `
+        <div class="custom-confirm-modal">
+          <div class="custom-confirm-msg" id="custom-confirm-msg"></div>
+          <div class="custom-confirm-btns">
+            <button class="btn-no" id="custom-confirm-no">Ні, скасувати</button>
+            <button class="btn-yes" id="custom-confirm-yes">Так, підтвердити</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+    }
+    
+    document.getElementById('custom-confirm-msg').innerText = msg;
+    overlay.classList.add('open');
+    
+    const onYes = () => { cleanup(); resolve(true); };
+    const onNo = () => { cleanup(); resolve(false); };
+    
+    const yesBtn = document.getElementById('custom-confirm-yes');
+    const noBtn = document.getElementById('custom-confirm-no');
+    
+    const cleanup = () => {
+      overlay.classList.remove('open');
+      yesBtn.removeEventListener('click', onYes);
+      noBtn.removeEventListener('click', onNo);
+    };
+    
+    yesBtn.addEventListener('click', onYes);
+    noBtn.addEventListener('click', onNo);
+  });
+}
+window.showConfirm = showConfirm;
+
 // ==========================================
 // GOOGLE AUTHENTICATION MANAGER
 // ==========================================
@@ -1270,7 +1341,7 @@ function initApp() {
         if (state.adminMode) {
           openAdminPanelModal();
         } else {
-          alert('🔒 Доступ заборонено! Для перегляду адмінки потрібен обліковий запис адміністратора.');
+          showNotification('🔒 Доступ заборонено! Для перегляду адмінки потрібен обліковий запис адміністратора.', 'info');
         }
       }
     });
@@ -1414,8 +1485,8 @@ function setupEventListeners() {
 
   const resetBtn = document.getElementById('invResetBtn');
   if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      if (confirm('Скинути демонстраційний інвентар та баланс до початкового стану?')) {
+    resetBtn.addEventListener('click', async () => {
+      if (await showConfirm('Скинути демонстраційний інвентар та баланс до початкового стану?')) {
         state.resetAll();
         updateUi();
         audio.playClick();
@@ -1560,7 +1631,7 @@ function setupEventListeners() {
 
 function applyMultiplierPreset(multTarget) {
   if (!state.selectedSource) {
-    alert('Спочатку оберіть скін із вашого інвентарю ліворуч!');
+    showNotification('Спочатку оберіть скін із вашого інвентарю ліворуч!', 'info');
     return;
   }
   const sourcePrice = state.selectedSource.price;
@@ -1723,11 +1794,11 @@ async function handleUpgradeClick(e) {
   }
 
   if (!state.selectedSource || !state.selectedTarget) {
-    alert('Оберіть предмети для апгрейду!');
+    showNotification('Оберіть предмети для апгрейду!', 'info');
     return;
   }
   if (state.selectedTarget.price <= state.selectedSource.price) {
-    alert('Апгрейд можливий тільки на дорожчий скін!');
+    showNotification('Апгрейд можливий тільки на дорожчий скін!', 'info');
     return;
   }
 
@@ -1831,7 +1902,7 @@ function finishUpgrade(isWin, roll, chance, serverData) {
     state.stats.losses++;
     audio.playFail();
     if (serverData && serverData.shieldUsed) {
-      alert('Shield used: Item preserved!');
+      showNotification('Shield used: Item preserved!', 'success');
     } else {
       // Remove source item on loss
       if (sourceItem) {
@@ -2404,13 +2475,13 @@ const BOOSTER_CATALOG = [
   }
 ];
 
-window.sellSkinFromVault = function(instanceId) {
+window.sellSkinFromVault = async function(instanceId) {
   if (!state.vault) state.vault = [];
   const index = state.vault.findIndex(i => i.instanceId === instanceId);
   if (index === -1) return;
 
   const item = state.vault[index];
-  if (!confirm(`Продати скін "${item.name}" за ${item.price.toFixed(2)} DP?\n(Отриману валюту можна використати для покупки тимчасових бустерів!)`)) {
+  if (!(await showConfirm(`Продати скін "${item.name}" за ${item.price.toFixed(2)} DP?\n(Отриману валюту можна використати для покупки тимчасових бустерів!)`))) {
     return;
   }
 
@@ -2425,15 +2496,15 @@ window.sellSkinFromVault = function(instanceId) {
   showToastNotification(`💰 Продано "${item.name}" за +${item.price.toFixed(2)} DP!`);
 };
 
-window.sellAllSkinsFromVault = function() {
+window.sellAllSkinsFromVault = async function() {
   if (!state.vault || state.vault.length === 0) {
-    alert('Віртуальний сейф порожній!');
+    showNotification('Віртуальний сейф порожній!', 'info');
     return;
   }
   const totalVal = state.vault.reduce((a, c) => a + c.price, 0);
   const count = state.vault.length;
 
-  if (!confirm(`Продати всі скіни з сейфу (${count} шт.) на суму ${totalVal.toFixed(2)} DP?`)) {
+  if (!(await showConfirm(`Продати всі скіни з сейфу (${count} шт.) на суму ${totalVal.toFixed(2)} DP?`))) {
     return;
   }
 
@@ -2527,7 +2598,7 @@ window.buyTemporaryBooster = function(boosterId) {
   if (!booster) return;
 
   if (state.balance < booster.price) {
-    alert(`Недостатньо валюти DP! Потрібно ${booster.price.toFixed(2)} DP. Продайте кілька скінів у Віртуальному Сейфі для поповнення балансу.`);
+    showNotification(`Недостатньо валюти DP! Потрібно ${booster.price.toFixed(2, 'info')} DP. Продайте кілька скінів у Віртуальному Сейфі для поповнення балансу.`);
     return;
   }
 
@@ -2637,7 +2708,7 @@ window.returnItemFromVault = function(instanceId) {
 
 window.withdrawAllToVault = function() {
   if (state.inventory.length === 0) {
-    alert('Ваш робочий інвентар порожній!');
+    showNotification('Ваш робочий інвентар порожній!', 'info');
     return;
   }
   const count = state.inventory.length;
@@ -2657,7 +2728,7 @@ window.withdrawAllToVault = function() {
 
 window.returnAllFromVault = function() {
   if (!state.vault || state.vault.length === 0) {
-    alert('Віртуальний сейф порожній!');
+    showNotification('Віртуальний сейф порожній!', 'info');
     return;
   }
   const count = state.vault.length;
@@ -2833,7 +2904,7 @@ window.selectTargetItem = function(itemId) {
     // STRICT RULE: Upgrade target must be strictly more expensive than source item!
     if (state.selectedSource && found.price <= state.selectedSource.price) {
       audio.playFail();
-      alert('❌ Неможливо обрати цей скін!\nВаш скін коштує ' + state.selectedSource.price.toFixed(2) + ' DP, а ціль — ' + found.price.toFixed(2) + ' DP.\nАпгрейд можливий ТІЛЬКИ на дорожчий скін!');
+      showNotification('❌ Неможливо обрати цей скін!\nВаш скін коштує ' + state.selectedSource.price.toFixed(2, 'info') + ' DP, а ціль — ' + found.price.toFixed(2) + ' DP.\nАпгрейд можливий ТІЛЬКИ на дорожчий скін!');
       return;
     }
     state.selectedTarget = found;
@@ -3106,7 +3177,7 @@ window.saveUserProfileChanges = function() {
   const avatar = avatarInput ? avatarInput.value.trim() : '';
 
   if (!nick) {
-    alert('Будь ласка, вкажіть ваш нікнейм!');
+    showNotification('Будь ласка, вкажіть ваш нікнейм!', 'info');
     return;
   }
 
@@ -3178,7 +3249,7 @@ async function openAdminPanelModal() {
     if (!sessionRes || !sessionRes.isAdmin) {
       state.adminMode = false;
       updateUi();
-      alert('🔒 Доступ заборонено! Для входу в адмін-панель потрібен обліковий запис адміністратора.');
+      showNotification('🔒 Доступ заборонено! Для входу в адмін-панель потрібен обліковий запис адміністратора.', 'info');
       return;
     }
     state.adminMode = true;
@@ -3187,7 +3258,7 @@ async function openAdminPanelModal() {
   } catch (err) {
     state.adminMode = false;
     updateUi();
-    alert('🔒 Доступ заборонено! Увійдіть через Google-акаунт адміністратора.');
+    showNotification('🔒 Доступ заборонено! Увійдіть через Google-акаунт адміністратора.', 'info');
     return;
   }
 
@@ -3371,7 +3442,7 @@ window.adminGrantByNickname = async function() {
   if (!input) return;
   const email = input.value.trim().toLowerCase();
   if (!email || !email.includes('@')) {
-    alert('Будь ласка, введіть валідний Google e-mail користувача!');
+    showNotification('Будь ласка, введіть валідний Google e-mail користувача!', 'info');
     return;
   }
   try {
@@ -3382,28 +3453,28 @@ window.adminGrantByNickname = async function() {
     input.value = '';
     await renderAdminModalBody();
     audio.playWin();
-    alert('👑 [ADMIN] Користувачу "' + email + '" успішно надано права Адміністратора!');
+    showNotification('👑 [ADMIN] Користувачу "' + email + '" успішно надано права Адміністратора!', 'info');
   } catch (err) {
-    alert('Помилка: ' + err.message);
+    showNotification('Помилка: ' + err.message, 'info');
   }
 };
 
 window.adminRevokeUser = async function(idx) {
   if (idx <= 0) {
-    alert('Головний власник не може позбавити себе прав!');
+    showNotification('Головний власник не може позбавити себе прав!', 'info');
     return;
   }
   const target = state.authorizedAdmins[idx];
-  if (!confirm('Ви впевнені, що хочете забрати права адміністратора у "' + target + '"?')) return;
+  if (!(await showConfirm('Ви впевнені, що хочете забрати права адміністратора у "' + target + '"?'))) return;
 
   try {
     await apiFetch('/api/admins?email=' + encodeURIComponent(target), { method: 'DELETE' });
     state.authorizedAdmins.splice(idx, 1);
     await renderAdminModalBody();
     audio.playClick();
-    alert('🗑️ Права адміністратора для "' + target + '" успішно анульовано!');
+    showNotification('🗑️ Права адміністратора для "' + target + '" успішно анульовано!', 'info');
   } catch (err) {
-    alert('Помилка видалення: ' + err.message);
+    showNotification('Помилка видалення: ' + err.message, 'info');
   }
 };
 
@@ -3412,17 +3483,17 @@ window.adminRevokeByNickname = async function() {
   if (!input) return;
   const name = input.value.trim();
   if (!name) {
-    alert('Будь ласка, введіть нікнейм або email!');
+    showNotification('Будь ласка, введіть нікнейм або email!', 'info');
     return;
   }
   const cleanName = name.toLowerCase();
   if (cleanName === 'кирило' || cleanName === 'kiril' || cleanName.includes('owner') || cleanName.includes('creator')) {
-    alert('Неможливо забрати права у головного власника!');
+    showNotification('Неможливо забрати права у головного власника!', 'info');
     return;
   }
   const idx = state.authorizedAdmins.findIndex((a, i) => i > 0 && a.toLowerCase() === cleanName);
   if (idx === -1) {
-    alert(`Користувача "${name}" не знайдено у списку додаткових адміністраторів.\n\nПеревірте правильність написання або видаліть через кнопку у списку нижче.`);
+    showNotification(`Користувача "${name}" не знайдено у списку додаткових адміністраторів.\n\nПеревірте правильність написання або видаліть через кнопку у списку нижче.`, 'info');
     return;
   }
   await window.adminRevokeUser(idx);
@@ -3430,7 +3501,7 @@ window.adminRevokeByNickname = async function() {
 };
 
 window.redeemAdminKey = function() {
-  alert('🔒 Реєстрація адміністраторів здійснюється виключно через офіційний сервер та Google OAuth головним власником проєкту.');
+  showNotification('🔒 Реєстрація адміністраторів здійснюється виключно через офіційний сервер та Google OAuth головним власником проєкту.', 'info');
 };
 
 window.adminToggleMode = async function() {
@@ -3441,13 +3512,13 @@ window.adminToggleMode = async function() {
         state.adminMode = true;
         state.isOwner = Boolean(sessionRes.isOwner);
         state.userRole = sessionRes.role || 'admin';
-        alert('👑 Права адміністратора підтверджено сервером!');
+        showNotification('👑 Права адміністратора підтверджено сервером!', 'info');
       } else {
-        alert('❌ У вашого облікового запису немає прав адміністратора.');
+        showNotification('❌ У вашого облікового запису немає прав адміністратора.', 'info');
         return;
       }
     } catch(e) {
-      alert('🔒 Потрібна авторизація облікового запису адміністратора.');
+      showNotification('🔒 Потрібна авторизація облікового запису адміністратора.', 'info');
       return;
     }
   } else {
@@ -3460,7 +3531,7 @@ window.adminToggleMode = async function() {
 
 window.adminToggleForceWin = async function() {
   if (!state.adminMode) {
-    alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
+    showNotification('🔒 Доступ заборонено! Потрібні права адміністратора.', 'info');
     return;
   }
   try {
@@ -3476,13 +3547,13 @@ window.adminToggleForceWin = async function() {
       showToastNotification(state.adminForceWin ? '🔥 FORCE WIN: Увімкнено 100% виграш на сервері!' : '❌ FORCE WIN: Вимкнено. Чесний шанс!');
     }
   } catch (err) {
-    alert('Помилка сервера: ' + err.message);
+    showNotification('Помилка сервера: ' + err.message, 'info');
   }
 };
 
 window.adminAddBalance = async function(amount) {
   if (!state.adminMode) {
-    alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
+    showNotification('🔒 Доступ заборонено! Потрібні права адміністратора.', 'info');
     return;
   }
   try {
@@ -3496,16 +3567,16 @@ window.adminAddBalance = async function(amount) {
       renderAdminModalBody();
       audio.playWin();
       if (particleInstance) particleInstance.burst();
-      alert('👑 Баланс успішно поповнено на ' + amount + ' DP!');
+      showNotification('👑 Баланс успішно поповнено на ' + amount + ' DP!', 'info');
     }
   } catch (err) {
-    alert('Помилка сервера: ' + err.message);
+    showNotification('Помилка сервера: ' + err.message, 'info');
   }
 };
 
 window.adminSetInfiniteBalance = async function() {
   if (!state.adminMode) {
-    alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
+    showNotification('🔒 Доступ заборонено! Потрібні права адміністратора.', 'info');
     return;
   }
   try {
@@ -3519,16 +3590,16 @@ window.adminSetInfiniteBalance = async function() {
       renderAdminModalBody();
       audio.playWin();
       if (particleInstance) particleInstance.burst();
-      alert('👑 Встановлено баланс 999,999.00 DP!');
+      showNotification('👑 Встановлено баланс 999,999.00 DP!', 'info');
     }
   } catch (err) {
-    alert('Помилка сервера: ' + err.message);
+    showNotification('Помилка сервера: ' + err.message, 'info');
   }
 };
 
 window.adminSpawnSelectedSkin = async function() {
   if (!state.adminMode) {
-    alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
+    showNotification('🔒 Доступ заборонено! Потрібні права адміністратора.', 'info');
     return;
   }
   const select = document.getElementById('adminItemSelect');
@@ -3543,16 +3614,16 @@ window.adminSpawnSelectedSkin = async function() {
       await state.syncWithServer();
       audio.playWin();
       if (particleInstance) particleInstance.burst();
-      alert('👑 [ADMIN] Успішно додано "' + res.spawnedItem.name + '" в інвентар!');
+      showNotification('👑 [ADMIN] Успішно додано "' + res.spawnedItem.name + '" в інвентар!', 'info');
     }
   } catch (err) {
-    alert('Помилка сервера: ' + err.message);
+    showNotification('Помилка сервера: ' + err.message, 'info');
   }
 };
 
 window.adminSpawnGrailPack = async function() {
   if (!state.adminMode) {
-    alert('🔒 Доступ заборонено! Потрібні права адміністратора.');
+    showNotification('🔒 Доступ заборонено! Потрібні права адміністратора.', 'info');
     return;
   }
   try {
@@ -3564,10 +3635,10 @@ window.adminSpawnGrailPack = async function() {
       await state.syncWithServer();
       audio.playWin();
       if (particleInstance) particleInstance.burst();
-      alert('👑 [ADMIN] Спавнено ' + res.count + ' топових ножів та рукавиць!');
+      showNotification('👑 [ADMIN] Спавнено ' + res.count + ' топових ножів та рукавиць!', 'info');
     }
   } catch (err) {
-    alert('Помилка сервера: ' + err.message);
+    showNotification('Помилка сервера: ' + err.message, 'info');
   }
 };
 
@@ -3844,14 +3915,14 @@ window.promptApplySticker = function(weaponInstId, stickerInstId) {
   const applied = weapon.appliedStickers || [];
   const availableSlots = [1, 2, 3, 4].filter(pos => !applied.some(s => s.position === pos));
   if (availableSlots.length === 0) {
-    alert('❌ На цій зброї вже наклеєно максимум (4 наклейки)! Здеріть одну, щоб наклеїти нову.');
+    showNotification('❌ На цій зброї вже наклеєно максимум (4 наклейки)! Здеріть одну, щоб наклеїти нову.', 'info');
     return;
   }
 
   const slotStr = prompt(`Оберіть вільну позицію для наклейки (${availableSlots.join(', ')}):`, availableSlots[0]);
   const chosenPos = parseInt(slotStr, 10);
   if (!availableSlots.includes(chosenPos)) {
-    alert('❌ Невірна позиція!');
+    showNotification('❌ Невірна позиція!', 'info');
     return;
   }
 
@@ -3999,7 +4070,7 @@ async function startCaseOpening(caseObj) {
   window.isOpeningCase = true;
   if (state.balance < caseObj.price) {
     if (typeof showNotification === 'function') showNotification('Недостатньо DP для відкриття кейсу!', 'error');
-    else alert('Недостатньо DP для відкриття кейсу!');
+    else showNotification('Недостатньо DP для відкриття кейсу!', 'error');
     window.isOpeningCase = false;
     return;
   }
@@ -4015,7 +4086,7 @@ async function startCaseOpening(caseObj) {
     wonItem = res.item;
   } catch (err) {
     if (typeof showNotification === 'function') showNotification(err.message || 'Помилка відкриття кейсу', 'error');
-    else alert(err.message || 'Помилка відкриття кейсу');
+    else showNotification(err.message || 'Помилка відкриття кейсу', 'error');
     window.isOpeningCase = false;
     return;
   }
