@@ -1,3 +1,43 @@
+// 7. CASES CATALOG
+const CASES_CATALOG = [
+  {
+    id: "case_charms",
+    name: "The Armory Charms Case",
+    price: 350.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQUvIR-j81c3yWFRxMwlzr7j2d1c3y_DLez9B-o7iwILZw_T-ar_SmzsEu8FyibHEoIn2iVGx8kQ9MTrxdYLGdQM9ZlyF8gK4kO3ohpG97czHmyBnpiQ8pA/256fx256f",
+    description: "Містить випадковий брелок. Можливий дроп ексклюзивних золотих брелоків.",
+    type: "case",
+    containsType: "charm"
+  },
+  {
+    id: "case_stickers",
+    name: "Sticker Capsule Premium",
+    price: 150.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulReQ0DFQOqhwZ-CCBVpIAt-qbuxIVRj07zJdDVJ7czildXax_L0NbrWzjNUv8Aoj-zDrdqi31GxqEE9YWihJ4PHIgZvMwzUrFG6wb-6g8G6vZzJyHI1uiYk4CqLnUe_iEo/256fx256f",
+    description: "Капсула з преміальними наклейками. Може містити наклейки з Катовіце 2014.",
+    type: "case",
+    containsType: "sticker"
+  },
+  {
+    id: "case_dreams",
+    name: "Dreams & Nightmares Case",
+    price: 450.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1VnnaecJGsMvtylwtSExPPyNrbXkGwFscp12-qSoInyigDgqUpuNTzxLIGRdlQ7ZFqE-lTtxuy6jJ676p2bzSdqvic8pSdd1-8S2A/256fx256f",
+    description: "Містить яскраві скіни. Головний приз - ножі Gamma Doppler.",
+    type: "case",
+    containsType: "dreams"
+  },
+  {
+    id: "case_grail",
+    name: "Grail Weapons Case",
+    price: 2500.00,
+    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1R3l_b3eD5G7I3im4uPzvLxZb2AwD5UupV1j7rA8Nmmi1Cw8hBsNWjwJNHEdFBsZliE-1Tsl-7shsfotZ3IzHIxsicn4y6InETj1RgaP-c71-veFwt5vSM4/256fx256f",
+    description: "Тільки найрідкісніші скіни Таємної (Covert) та Контрабандної рідкості.",
+    type: "case",
+    containsType: "grail"
+  }
+];
+
 /**
  * PUSHKARIK UPGRADER - Modular CS2 Cosmetics Architecture
  * Weapon Skins, Stickers, Charms, Collections & Wear Data
@@ -531,43 +571,5 @@ if (typeof module !== 'undefined' && module.exports) {
   };
 }
 
-// 7. CASES CATALOG
-const CASES_CATALOG = [
-  {
-    id: "case_charms",
-    name: "The Armory Charms Case",
-    price: 350.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQUvIR-j81c3yWFRxMwlzr7j2d1c3y_DLez9B-o7iwILZw_T-ar_SmzsEu8FyibHEoIn2iVGx8kQ9MTrxdYLGdQM9ZlyF8gK4kO3ohpG97czHmyBnpiQ8pA/256fx256f",
-    description: "Містить випадковий брелок. Можливий дроп ексклюзивних золотих брелоків.",
-    type: "case",
-    containsType: "charm"
-  },
-  {
-    id: "case_stickers",
-    name: "Sticker Capsule Premium",
-    price: 150.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulReQ0DFQOqhwZ-CCBVpIAt-qbuxIVRj07zJdDVJ7czildXax_L0NbrWzjNUv8Aoj-zDrdqi31GxqEE9YWihJ4PHIgZvMwzUrFG6wb-6g8G6vZzJyHI1uiYk4CqLnUe_iEo/256fx256f",
-    description: "Капсула з преміальними наклейками. Може містити наклейки з Катовіце 2014.",
-    type: "case",
-    containsType: "sticker"
-  },
-  {
-    id: "case_dreams",
-    name: "Dreams & Nightmares Case",
-    price: 450.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1VnnaecJGsMvtylwtSExPPyNrbXkGwFscp12-qSoInyigDgqUpuNTzxLIGRdlQ7ZFqE-lTtxuy6jJ676p2bzSdqvic8pSdd1-8S2A/256fx256f",
-    description: "Містить яскраві скіни. Головний приз - ножі Gamma Doppler.",
-    type: "case",
-    containsType: "dreams"
-  },
-  {
-    id: "case_grail",
-    name: "Grail Weapons Case",
-    price: 2500.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1R3l_b3eD5G7I3im4uPzvLxZb2AwD5UupV1j7rA8Nmmi1Cw8hBsNWjwJNHEdFBsZliE-1Tsl-7shsfotZ3IzHIxsicn4y6InETj1RgaP-c71-veFwt5vSM4/256fx256f",
-    description: "Тільки найрідкісніші скіни Таємної (Covert) та Контрабандної рідкості.",
-    type: "case",
-    containsType: "grail"
-  }
-];
+
 

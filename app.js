@@ -287,6 +287,7 @@ const STORAGE_KEYS = {
 };
 
 class AppState {
+
   constructor() {
     this.loadState();
     // Auto-select starting items so the user can immediately see and run the upgrade animation
@@ -307,36 +308,34 @@ class AppState {
   }
 
   loadState() {
-    // Inventory with auto-upgrade to real photos and cosmetics
+    // 1. User Inventory (with float & cosmetics enrichment)
     const savedInv = localStorage.getItem(STORAGE_KEYS.INVENTORY);
     if (savedInv !== null) {
       try {
         const parsed = JSON.parse(savedInv);
         if (Array.isArray(parsed)) {
-          let loaded = parsed.map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
-          // Seamless migration: If existing user has zero stickers/charms in inventory or vault, give them sample starter cosmetics
-          const hasSticker = loaded.some(i => (typeof getItemBroadType === 'function' ? getItemBroadType(i) : '') === 'sticker');
-          const hasCharm = loaded.some(i => (typeof getItemBroadType === 'function' ? getItemBroadType(i) : '') === 'charm');
-          if (!hasSticker && DEFAULT_USER_INVENTORY[7]) {
-            loaded.push({ ...DEFAULT_USER_INVENTORY[7], instanceId: 'inst_stk_seed_' + Date.now() });
-          }
-          if (!hasCharm && DEFAULT_USER_INVENTORY[8]) {
-            loaded.push({ ...DEFAULT_USER_INVENTORY[8], instanceId: 'inst_chm_seed_' + Date.now() });
-          }
-          this.inventory = loaded;
+          this.inventory = parsed.map(item => {
+            const enriched = typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item;
+            if (!enriched.instanceId) {
+              enriched.instanceId = 'inst_' + (enriched.id || 'item') + '_' + Math.random().toString(36).slice(2, 8);
+            }
+            return enriched;
+          });
         } else {
           this.inventory = [...DEFAULT_USER_INVENTORY].map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
           this.saveInventory();
         }
       } catch(e) {
+        console.warn('Failed to parse saved inventory:', e);
         this.inventory = [...DEFAULT_USER_INVENTORY].map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
+        this.saveInventory();
       }
     } else {
       this.inventory = [...DEFAULT_USER_INVENTORY].map(item => typeof enrichWeaponProperties === 'function' ? enrichWeaponProperties(item) : item);
       this.saveInventory();
     }
 
-    // Virtual Vault Inventory
+    // 2. Virtual Vault Inventory
     const savedVault = localStorage.getItem(STORAGE_KEYS.VAULT);
     if (savedVault !== null) {
       try {
@@ -349,9 +348,9 @@ class AppState {
       this.vault = [];
     }
 
-    // Balance
+    // 3. Balance
     const savedBal = localStorage.getItem(STORAGE_KEYS.BALANCE);
-    this.balance = savedBal ? parseFloat(savedBal) : 100.00;
+    this.balance = (savedBal !== null && !isNaN(parseFloat(savedBal))) ? parseFloat(savedBal) : 100.00;
 
     // Admin Authorization: Strictly server-verified
     this.adminMode = false;
@@ -362,7 +361,7 @@ class AppState {
     const savedForceWin = localStorage.getItem('upgrader_demo_admin_force_win');
     this.adminForceWin = savedForceWin !== null ? JSON.parse(savedForceWin) : false;
 
-    // Stats
+    // 4. Stats
     const savedStats = localStorage.getItem(STORAGE_KEYS.STATS);
     this.stats = savedStats ? JSON.parse(savedStats) : {
       total: 0,
@@ -495,6 +494,7 @@ class AppState {
 
 const state = new AppState();
 window.state = state;
+window.AppState = AppState;
 
 
 // ==========================================
@@ -1787,8 +1787,10 @@ async function handleUpgradeClick(e) {
   }, 700);
 }
 window.handleUpgradeClick = handleUpgradeClick;
+window.finishUpgrade = finishUpgrade;
 
 function finishUpgrade(isWin, roll, chance, serverData) {
+  window.finishUpgrade = finishUpgrade;
   const sourceItem = state.selectedSource;
   const targetItem = state.selectedTarget;
   const mult = targetItem ? (targetItem.price / (sourceItem ? sourceItem.price : 1)) : 1.0;
@@ -1803,29 +1805,40 @@ function finishUpgrade(isWin, roll, chance, serverData) {
     audio.playWin();
     if (particleInstance) particleInstance.burst();
 
-    // Add target item to local inventory
+    // 1. Remove source item from local inventory first
+    if (sourceItem) {
+      const idx = state.inventory.findIndex(i => {
+        if (sourceItem.instanceId && i.instanceId) return i.instanceId === sourceItem.instanceId;
+        return i.id === sourceItem.id;
+      });
+      if (idx !== -1) state.inventory.splice(idx, 1);
+    }
+
+    // 2. Add won target item to local inventory
     if (targetItem) {
       const wonSkin = {
         ...targetItem,
         instanceId: 'inst_' + Date.now() + '_' + Math.random().toString(36).substring(7)
       };
+      if (typeof enrichWeaponProperties === 'function') {
+        enrichWeaponProperties(wonSkin);
+      }
       state.inventory.unshift(wonSkin);
     }
-    // Remove source item from local inventory
-    if (sourceItem) {
-      const idx = state.inventory.findIndex(i => (i.instanceId && i.instanceId === sourceItem.instanceId) || i.id === sourceItem.id);
-      if (idx !== -1) state.inventory.splice(idx, 1);
-    }
+
     state.saveInventory();
   } else {
     state.stats.losses++;
     audio.playFail();
     if (serverData && serverData.shieldUsed) {
-      alert('🛡️ ЩИТ СПАСІННЯ ВРЯТУВАВ ВАШ СКІН: Скін збережено в інвентарі!');
+      alert('Shield used: Item preserved!');
     } else {
       // Remove source item on loss
       if (sourceItem) {
-        const idx = state.inventory.findIndex(i => (i.instanceId && i.instanceId === sourceItem.instanceId) || i.id === sourceItem.id);
+        const idx = state.inventory.findIndex(i => {
+          if (sourceItem.instanceId && i.instanceId) return i.instanceId === sourceItem.instanceId;
+          return i.id === sourceItem.id;
+        });
         if (idx !== -1) state.inventory.splice(idx, 1);
         state.saveInventory();
       }
@@ -4096,3 +4109,6 @@ function startCaseOpening(caseObj) {
   }, 8100);
 }
 // =====================================================
+
+
+
