@@ -25,7 +25,7 @@ module.exports = async function handler(req, res) {
 
     let balance = 10000; // Mock balance
     if (hasPostgres) {
-      const userDb = await sqlSELECT balance FROM users WHERE id = \;
+      const userDb = await sql`SELECT balance FROM users WHERE id = ${googleId}`;
       if (userDb.rows.length > 0) balance = userDb.rows[0].balance / 100;
     }
 
@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
 
     if (hasPostgres) {
       const priceCents = Math.floor(caseObj.price * 100);
-      await sqlUPDATE users SET balance = balance - \ WHERE id = \;
+      await sql`UPDATE users SET balance = balance - ${priceCents} WHERE id = ${googleId}`;
     }
 
     let dropPool = ITEM_CATALOG.filter(i => {
@@ -66,8 +66,8 @@ module.exports = async function handler(req, res) {
     };
 
     if (hasPostgres) {
-      await sqlINSERT INTO inventory (user_id, item_id, status) VALUES (\, \, 'ACTIVE');
-      await sqlINSERT INTO transactions (user_id, action, cost, result_item) VALUES (\, 'OPEN_CASE', \, \);
+      await sql`INSERT INTO inventory (user_id, item_id, status) VALUES (${googleId}, ${wonItem.id}, 'ACTIVE')`;
+      await sql`INSERT INTO transactions (user_id, action, cost, result_item) VALUES (${googleId}, 'OPEN_CASE', ${caseObj.price * 100}, ${wonItem.id})`;
     }
 
     return sendJson(res, 200, { item: wonItem });

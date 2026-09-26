@@ -3970,9 +3970,18 @@ function renderCasesShop() {
     card.innerHTML = `
       <div class="item-wear-badge" style="background:var(--neon-cyan)">📦 Кейс</div>
       <div class="item-name">${c.name}</div>
-      <img src="${c.image}" alt="${c.name}" />
+      <img src="${c.image}" alt="${c.name}" style="max-height: 120px;" />
       <div class="item-price">${c.price.toFixed(2)} DP</div>
-      <div style="font-size: 10px; color: #aaa; margin: 10px 0; text-align: center;">${c.description}</div>
+      <div style="font-size: 10px; color: #aaa; margin: 5px 0; text-align: center;">${c.description}</div>
+      
+      <div style="font-size: 9px; text-align: center; margin-bottom: 10px; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 4px;">
+        <span style="color:#b0c3d9">Звичайні: 70%</span> | 
+        <span style="color:#5e98d9">Рідкісні: 20%</span> <br/>
+        <span style="color:#8847ff">Епічні: 8%</span> | 
+        <span style="color:#d32ce6">Легендарні: 1.5%</span> | 
+        <span style="color:#eb4b4b">Міфічні: 0.5%</span>
+      </div>
+
       <button class="select-btn" style="background:var(--neon-cyan); border:none; margin-top: auto; padding: 10px; color: #000; font-weight: bold; border-radius: 4px; cursor: pointer;">
         Відкрити (${c.price} DP)
       </button>
@@ -3985,13 +3994,32 @@ function renderCasesShop() {
   });
 }
 
-function startCaseOpening(caseObj) {
+async function startCaseOpening(caseObj) {
+  if (window.isOpeningCase) return;
+  window.isOpeningCase = true;
   if (state.balance < caseObj.price) {
     if (typeof showNotification === 'function') showNotification('Недостатньо DP для відкриття кейсу!', 'error');
     else alert('Недостатньо DP для відкриття кейсу!');
+    window.isOpeningCase = false;
     return;
   }
   
+  // Call server securely first before local state update
+  let wonItem = null;
+  try {
+    const res = await apiFetch('/api/game/open-case', {
+      method: 'POST',
+      body: JSON.stringify({ caseId: caseObj.id })
+    });
+    if (!res || !res.item) throw new Error('Помилка сервера');
+    wonItem = res.item;
+  } catch (err) {
+    if (typeof showNotification === 'function') showNotification(err.message || 'Помилка відкриття кейсу', 'error');
+    else alert(err.message || 'Помилка відкриття кейсу');
+    window.isOpeningCase = false;
+    return;
+  }
+
   state.balance -= caseObj.price;
   updateUi();
   state.saveBalance();
@@ -4008,22 +4036,10 @@ function startCaseOpening(caseObj) {
   });
   if (dropPool.length === 0) dropPool = ITEM_CATALOG.filter(i => i.rarity === 'common');
 
-  // Fast client-side fallback roll in case server fails
-  let fallbackItemTemplate = dropPool[Math.floor(Math.random() * dropPool.length)];
-  let wonItem = { ...fallbackItemTemplate, instanceId: 'inst_won_' + Date.now() };
-
-  // Call server immediately but don't block the modal UI creation
-  const serverRollPromise = apiFetch('/api/game/open-case', {
-    method: 'POST',
-    body: JSON.stringify({ caseId: caseObj.id })
-  }).then(res => {
-    if (res && res.item) wonItem = res.item;
-  }).catch(() => {});
-
   const stripItems = [];
   for (let i = 0; i < TOTAL_ITEMS; i++) {
     if (i === WIN_INDEX) {
-      stripItems.push(wonItem); // Placeholder, will be replaced before show
+      stripItems.push(wonItem);
     } else {
       stripItems.push(dropPool[Math.floor(Math.random() * dropPool.length)]);
     }
@@ -4062,29 +4078,22 @@ function startCaseOpening(caseObj) {
   windowDiv.appendChild(centerLine);
   modal.appendChild(windowDiv);
   
+  const skipBtn = document.createElement('button');
+  skipBtn.className = 'primary-btn';
+  skipBtn.style.marginTop = '20px';
+  skipBtn.style.borderColor = '#fff';
+  skipBtn.style.color = '#fff';
+  skipBtn.innerText = 'Пропустити анімацію';
+  modal.appendChild(skipBtn);
+  
   document.body.appendChild(modal);
   
-  // Animate
-  if (typeof audio !== 'undefined' && audio.playStart) audio.playStart();
-  setTimeout(() => {
-    const jitter = Math.floor(Math.random() * 100) - 50; 
-    const offset = (WIN_INDEX * 150) + 75 - (windowDiv.offsetWidth / 2) + jitter;
-    
-    stripDiv.style.transform = 'translateX(-' + offset + 'px)';
-  }, 100);
+  let isSkipped = false;
+  let animTimeout;
   
-  setTimeout(async () => {
-    try { await Promise.race([serverRollPromise, new Promise(r => setTimeout(r, 500))]); } catch(e){}
-
-    // Update the winning item visually in the DOM strip before it stops
-    const winItemDiv = stripDiv.children[WIN_INDEX];
-    if (winItemDiv) {
-      const rarColor = RARITIES[wonItem.rarity] ? RARITIES[wonItem.rarity].color : '#fff';
-      winItemDiv.style.borderBottom = '4px solid ' + rarColor;
-      winItemDiv.innerHTML = `<img src="${wonItem.image}" /><span style="color:${rarColor}">${wonItem.name}</span>`;
-    }
-
+  const finishOpening = () => {
     if (typeof audio !== 'undefined' && audio.playWin) audio.playWin();
+    skipBtn.remove();
     const wonModal = document.createElement('div');
     wonModal.className = 'case-won-modal';
     const rarCol = RARITIES[wonItem.rarity] ? RARITIES[wonItem.rarity].color : '#fff';
@@ -4098,17 +4107,42 @@ function startCaseOpening(caseObj) {
     `;
     
     wonModal.querySelector('button').addEventListener('click', () => {
-      state.inventory.push(wonItem);
+      state.inventory.unshift(wonItem); // Add to beginning
       state.saveInventory();
       updateUi();
       if (state.activeTab === 'inventory') renderTabContent();
       modal.remove();
+      window.isOpeningCase = false;
     });
     
     modal.appendChild(wonModal);
+  };
+
+  skipBtn.addEventListener('click', () => {
+    isSkipped = true;
+    clearTimeout(animTimeout);
+    stripDiv.style.transition = 'none';
+    const offset = (WIN_INDEX * 150) + 75 - (windowDiv.offsetWidth / 2);
+    stripDiv.style.transform = 'translateX(-' + offset + 'px)';
+    finishOpening();
+  });
+
+  // Animate
+  if (typeof audio !== 'undefined' && audio.playStart) audio.playStart();
+  setTimeout(() => {
+    if (isSkipped) return;
+    const jitter = Math.floor(Math.random() * 100) - 50; 
+    const offset = (WIN_INDEX * 150) + 75 - (windowDiv.offsetWidth / 2) + jitter;
+    
+    stripDiv.style.transform = 'translateX(-' + offset + 'px)';
+  }, 100);
+  
+  animTimeout = setTimeout(() => {
+    if (!isSkipped) finishOpening();
   }, 8100);
 }
 // =====================================================
+
 
 
 
