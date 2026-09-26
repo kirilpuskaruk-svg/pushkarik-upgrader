@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
@@ -7,8 +7,8 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <title>PUSHKARIK UPGRADER вЂ” Р”РµРјРѕРЅСЃС‚СЂР°С†С–Р№РЅРёР№ СЃРёРјСѓР»СЏС‚РѕСЂ Р°РїРіСЂРµР№РґСѓ</title>
-  <link rel="stylesheet" href="styles.css?v=57.0.0" />
+  <title>PUSHKARIK UPGRADER — Демонстраційний симулятор апгрейду</title>
+  <link rel="stylesheet" href="styles.css?v=58.0.0" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/></svg>" />
 </head>
 <body>
@@ -16,7 +16,7 @@
   <!-- 100% DEMO DISCLAIMER TOP BAR -->
   <aside class="demo-disclaimer-bar">
     <span class="badge">DEMO VERSION</span>
-    <span>вљ пёЏ <strong>DEMO вЂ” No real money</strong>. РЈСЃС– СЃРєС–РЅРё, РєРѕРµС„С–С†С–С”РЅС‚Рё С‚Р° Р±Р°Р»Р°РЅСЃ С” РІРёРіР°РґР°РЅРёРјРё С– РїСЂРёР·РЅР°С‡РµРЅС– РІРёРєР»СЋС‡РЅРѕ РґР»СЏ СЂРѕР·РІР°РіРё. Р–РѕРґРЅРёС… СЃС‚Р°РІРѕРє, РїРѕРїРѕРІРЅРµРЅСЊ С‡Рё РІРёРІРµРґРµРЅРЅСЏ РєРѕС€С‚С–РІ.</span>
+    <span>⚠️ <strong>DEMO — No real money</strong>. Усі скіни, коефіцієнти та баланс є вигаданими і призначені виключно для розваги. Жодних ставок, поповнень чи виведення коштів.</span>
   </aside>
 
   <!-- APP HEADER -->
@@ -36,16 +36,16 @@
       <!-- Online Counters Group -->
       <div class="header-counters-group">
         <div class="counter-chip">
-          <span style="color: #00ff88; font-size: 8px;">в—Џ</span> Live: <span class="val" id="onlineCounter">РўС–Р»СЊРєРё СЂРµР°Р»СЊРЅС– РіСЂР°РІС†С–</span>
+          <span style="color: #00ff88; font-size: 8px;">●</span> Live: <span class="val" id="onlineCounter">Тільки реальні гравці</span>
         </div>
         <div class="counter-chip">
-          вљЎ РђРїРіСЂРµР№РґС–РІ: <span class="val" id="totalUpgradesCounter">0</span>
+          ⚡ Апгрейдів: <span class="val" id="totalUpgradesCounter">0</span>
         </div>
       </div>
 
       <div class="header-actions">
         <!-- Audio Sound Toggle -->
-        <button id="soundToggleBtn" class="sound-toggle-btn active" title="РЈРІС–РјРєРЅСѓС‚Рё/Р’РёРјРєРЅСѓС‚Рё Р·РІСѓРє" aria-label="Р—РІСѓРє">
+        <button id="soundToggleBtn" class="sound-toggle-btn active" title="Увімкнути/Вимкнути звук" aria-label="Звук">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
           </svg>
@@ -53,19 +53,19 @@
 
         <!-- Claim Demo Pack Bonus -->
         <button id="claimFreeBtn" class="claim-free-btn">
-          <span>рџЋЃ</span> Р”РµРјРѕ-РїР°Рє +50 DP
+          <span>🎁</span> Демо-пак +50 DP
         </button>
 
         <!-- Virtual Balance -->
         <div class="user-balance-chip">
-          <div class="balance-icon">вљЎ</div>
+          <div class="balance-icon">⚡</div>
           <div class="balance-amount" id="userBalanceAmount">100.00</div>
           <div class="balance-unit">DP</div>
         </div>
 
         <!-- Admin Panel Toggle Button (Visible only to Admin) -->
-        <button id="adminPanelBtn" class="admin-panel-btn" title="РџР°РЅРµР»СЊ РђРґРјС–РЅС–СЃС‚СЂР°С‚РѕСЂР° (Ctrl + Shift + A)" style="display: none;">
-          рџ‘‘ ADMIN
+        <button id="adminPanelBtn" class="admin-panel-btn" title="Панель Адміністратора (Ctrl + Shift + A)" style="display: none;">
+          👑 ADMIN
         </button>
 
         <!-- Google Auth Container / User Profile Button -->
@@ -92,8 +92,8 @@
           <!-- LEFT: Source Item Slot (User's Selected Item) -->
           <div class="slot-column">
             <div class="slot-header">
-              <span class="slot-title source"><span class="dot"></span> РўРІС–Р№ РїСЂРµРґРјРµС‚</span>
-              <span style="font-size: 11px; color: var(--text-dim);">Р’С…С–РґРЅРёР№ СЃРєС–РЅ</span>
+              <span class="slot-title source"><span class="dot"></span> Твій предмет</span>
+              <span style="font-size: 11px; color: var(--text-dim);">Вхідний скін</span>
             </div>
             <div id="sourceSlotCard" class="slot-item-card source">
               <!-- Rendered via JavaScript -->
@@ -102,20 +102,20 @@
 
           <!-- CENTER: Radial Upgrade Wheel / Gauge -->
           <div class="radial-center-wrap">
-            <div id="gaugeCanvasContainer" class="gauge-canvas-container" title="РќР°С‚РёСЃРЅС–С‚СЊ РґР»СЏ Р·Р°РїСѓСЃРєСѓ Р°РїРіСЂРµР№РґСѓ">
+            <div id="gaugeCanvasContainer" class="gauge-canvas-container" title="Натисніть для запуску апгрейду">
               <canvas id="radialCanvas"></canvas>
               <div class="gauge-core-info">
-                <span class="gauge-chance-label">РЁР°РЅСЃ СѓСЃРїС–С…Сѓ</span>
+                <span class="gauge-chance-label">Шанс успіху</span>
                 <span id="gaugeChanceValue" class="gauge-chance-value">0.00%</span>
                 <span id="gaugeMultiplierChip" class="gauge-multiplier-chip">x 1.00</span>
-                <span id="gaugeClickHint" class="gauge-click-hint" style="margin-top: 6px; font-size: 10px; font-weight: 800; color: var(--neon-cyan); letter-spacing: 1px; text-transform: uppercase; display: none;">вљЎ РљР›Р†РљРќР†РўР¬ Р”Р›РЇ РљР РЈРўР†РќРќРЇ</span>
+                <span id="gaugeClickHint" class="gauge-click-hint" style="margin-top: 6px; font-size: 10px; font-weight: 800; color: var(--neon-cyan); letter-spacing: 1px; text-transform: uppercase; display: none;">⚡ КЛІКНІТЬ ДЛЯ КРУТІННЯ</span>
               </div>
             </div>
 
             <!-- Controls: Direction Toggle & Multiplier Presets -->
             <div class="gauge-controls-bar">
-              <button id="directionToggleBtn" class="direction-toggle-btn" title="Р—РјС–РЅРёС‚Рё СЃРµРєС‚РѕСЂ РІРёРіСЂР°С€Сѓ">
-                в–ј РњРµРЅС€Рµ (&lt; Under)
+              <button id="directionToggleBtn" class="direction-toggle-btn" title="Змінити сектор виграшу">
+                ▼ Менше (&lt; Under)
               </button>
               <button class="preset-btn" data-mult="1.5">1.5x</button>
               <button class="preset-btn" data-mult="2.0">2x</button>
@@ -132,7 +132,7 @@
             <!-- Giant UPGRADE Action Button -->
             <div class="upgrade-cta-wrapper">
               <button id="upgradeBtn" class="upgrade-big-btn" disabled>
-                РћР‘Р•Р Р†РўР¬ РџР Р•Р”РњР•РўР
+                ОБЕРІТЬ ПРЕДМЕТИ
               </button>
             </div>
           </div>
@@ -140,8 +140,8 @@
           <!-- RIGHT: Target Item Slot (Desired Item to Obtain) -->
           <div class="slot-column">
             <div class="slot-header">
-              <span class="slot-title target"><span class="dot"></span> Р‘Р°Р¶Р°РЅРёР№ СЃРєС–РЅ</span>
-              <span style="font-size: 11px; color: var(--text-dim);">Р¦С–Р»СЊ РґР»СЏ РѕС‚СЂРёРјР°РЅРЅСЏ</span>
+              <span class="slot-title target"><span class="dot"></span> Бажаний скін</span>
+              <span style="font-size: 11px; color: var(--text-dim);">Ціль для отримання</span>
             </div>
             <div id="targetSlotCard" class="slot-item-card target">
               <!-- Rendered via JavaScript -->
@@ -161,57 +161,58 @@
       <div class="tabs-navigation">
         <div class="tabs-list">
           <button class="tab-btn active" data-tab="inventory">
-            рџЋ’ РњС–Р№ Р†РЅРІРµРЅС‚Р°СЂ <span class="badge" id="invTotalItemsCount">0</span>
+            🎒 Мій Інвентар <span class="badge" id="invTotalItemsCount">0</span>
           </button>
           <button class="tab-btn" data-tab="vault">
-            рџЏ¦ Р’С–СЂС‚СѓР°Р»СЊРЅРёР№ РЎРµР№С„ <span class="badge" id="vaultTotalItemsCount" style="background: rgba(0, 255, 136, 0.2); color: var(--neon-green); border: 1px solid rgba(0, 255, 136, 0.4);">0</span>
+            🏦 Віртуальний Сейф <span class="badge" id="vaultTotalItemsCount" style="background: rgba(0, 255, 136, 0.2); color: var(--neon-green); border: 1px solid rgba(0, 255, 136, 0.4);">0</span>
           </button>
           <button class="tab-btn" data-tab="catalog">
-            рџЋЇ РљР°С‚Р°Р»РѕРі С†С–Р»РµР№
+            🎯 Каталог цілей
           </button>
           <button class="tab-btn" data-tab="history">
-            рџ“њ Р†СЃС‚РѕСЂС–СЏ Р°РїРіСЂРµР№РґС–РІ
+            📜 Історія апгрейдів
           </button>
           <button class="tab-btn" data-tab="cases" style="color: #00f0ff; border-color: #00f0ff;">
-            ?? пїЅпїЅпїЅпїЅпїЅ
+            ?? �����
           </button>
-          <button class="tab-btn" data-tab="bonus" style="color: var(--neon-orange); border-color: var(--neon-orange);">
-            🎁 БОНУСИ ТА БУСТЕРИ
-          </button>
+            <button class="tab-btn" data-tab="bonus" style="color: var(--neon-orange); border-color: var(--neon-orange);">
+              🎁 БОНУСИ ТА БУСТЕРИ
+            </button>
+
         </div>
 
         <!-- Search & Filter Controls -->
         <div class="filters-toolbar">
           <div class="search-input-wrap">
-            <span class="search-icon">рџ”Ќ</span>
-            <input type="text" id="itemSearchInput" placeholder="РџРѕС€СѓРє СЃРєС–РЅР° Р·Р° РЅР°Р·РІРѕСЋ..." />
+            <span class="search-icon">🔍</span>
+            <input type="text" id="itemSearchInput" placeholder="Пошук скіна за назвою..." />
           </div>
 
           <!-- Cosmetic Type Filter Pills -->
           <div class="type-pills-wrap">
-            <button class="type-pill active" data-type="all">вњЁ Р’СЃС– С‚РёРїРё</button>
-            <button class="type-pill" data-type="weapon">рџ”« Р—Р±СЂРѕСЏ</button>
-            <button class="type-pill" data-type="sticker">рџЏ·пёЏ РќР°РєР»РµР№РєРё</button>
-            <button class="type-pill" data-type="charm">рџ§ё Р‘СЂРµР»РѕРєРё</button>
-            <button class="type-pill" data-type="knife_gloves">рџ—ЎпёЏ РќРѕР¶С– & Р СѓРєР°РІРёС†С–</button>
+            <button class="type-pill active" data-type="all">✨ Всі типи</button>
+            <button class="type-pill" data-type="weapon">🔫 Зброя</button>
+            <button class="type-pill" data-type="sticker">🏷️ Наклейки</button>
+            <button class="type-pill" data-type="charm">🧸 Брелоки</button>
+            <button class="type-pill" data-type="knife_gloves">🗡️ Ножі & Рукавиці</button>
           </div>
 
           <div class="rarity-pills-wrap">
-            <button class="rarity-pill active" data-rarity="all">Р’СЃС–</button>
-            <button class="rarity-pill" data-rarity="common">РђСЂРјС–Р№СЃСЊРєРµ</button>
-            <button class="rarity-pill" data-rarity="rare">Р—Р°Р±РѕСЂРѕРЅРµРЅРµ</button>
-            <button class="rarity-pill" data-rarity="epic">Р—Р°СЃРµРєСЂРµС‡РµРЅРµ</button>
-            <button class="rarity-pill" data-rarity="legendary">РўР°С”РјРЅРµ</button>
-            <button class="rarity-pill" data-rarity="mythic">РќР°РґР·РІРёС‡Р°Р№РЅРµ (в…)</button>
-            <button class="rarity-pill" data-rarity="ancient">РљРѕРЅС‚СЂР°Р±Р°РЅРґР°</button>
+            <button class="rarity-pill active" data-rarity="all">Всі</button>
+            <button class="rarity-pill" data-rarity="common">Армійське</button>
+            <button class="rarity-pill" data-rarity="rare">Заборонене</button>
+            <button class="rarity-pill" data-rarity="epic">Засекречене</button>
+            <button class="rarity-pill" data-rarity="legendary">Таємне</button>
+            <button class="rarity-pill" data-rarity="mythic">Надзвичайне (★)</button>
+            <button class="rarity-pill" data-rarity="ancient">Контрабанда</button>
           </div>
 
           <div class="sort-select-wrap">
             <select id="itemSortSelect">
-              <option value="price_desc">Р¦С–РЅР°: РІС–Рґ РґРѕСЂРѕРіРёС…</option>
-              <option value="price_asc">Р¦С–РЅР°: РІС–Рґ РґРµС€РµРІРёС…</option>
-              <option value="name">Р—Р° РЅР°Р·РІРѕСЋ (A-Z)</option>
-              <option value="float_asc">Р—Р° Float (РЅР°Р№С‡РёСЃС‚С–С€С– FN)</option>
+              <option value="price_desc">Ціна: від дорогих</option>
+              <option value="price_asc">Ціна: від дешевих</option>
+              <option value="name">За назвою (A-Z)</option>
+              <option value="float_asc">За Float (найчистіші FN)</option>
             </select>
           </div>
         </div>
@@ -220,50 +221,310 @@
       <!-- Inventory Bar Meta -->
       <div id="inventoryStatsBar" class="inventory-stats-bar">
         <div>
-          Р—Р°РіР°Р»СЊРЅР° РѕС†С–РЅРєР° С–РЅРІРµРЅС‚Р°СЂСЋ: <strong id="invTotalValue" style="color: var(--neon-green);">0.00</strong> <strong>DP</strong>
+          Загальна оцінка інвентарю: <strong id="invTotalValue" style="color: var(--neon-green);">0.00</strong> <strong>DP</strong>
         </div>
         <div class="inv-quick-btns">
-          <button id="invWithdrawAllBtn" class="quick-action-btn" style="border-color: var(--neon-green); color: var(--neon-green);">рџЏ¦ Р’РёРІРµСЃС‚Рё РІСЃРµ РІ РЎРµР№С„</button>
-          <button id="invClaimBonusBtn" class="quick-action-btn">+ РћС‚СЂРёРјР°С‚Рё Р”РµРјРѕ-Р”СЂРѕРї</button>
-          <button id="invResetBtn" class="quick-action-btn danger">РЎРєРёРЅСѓС‚Рё С–РЅРІРµРЅС‚Р°СЂ</button>
+          <button id="invWithdrawAllBtn" class="quick-action-btn" style="border-color: var(--neon-green); color: var(--neon-green);">🏦 Вивести все в Сейф</button>
+          <button id="invClaimBonusBtn" class="quick-action-btn">+ Отримати Демо-Дроп</button>
+          <button id="invResetBtn" class="quick-action-btn danger">Скинути інвентар</button>
         </div>
       </div>
 
       <!-- Vault Bar Meta (Shown in Vault tab) -->
       <div id="vaultStatsBar" class="inventory-stats-bar" style="display: none; background: linear-gradient(90deg, rgba(0, 255, 136, 0.08), rgba(0, 240, 255, 0.04)); border-color: rgba(0, 255, 136, 0.3);">
         <div>
-          рџЏ¦ Р—Р°РіР°Р»СЊРЅР° РІР°СЂС‚С–СЃС‚СЊ Р·Р±РµСЂРµР¶РµРЅРёС… СЃРєС–РЅС–РІ: <strong id="vaultTotalValue" style="color: var(--neon-green);">0.00</strong> <strong>DP</strong>
+          🏦 Загальна вартість збережених скінів: <strong id="vaultTotalValue" style="color: var(--neon-green);">0.00</strong> <strong>DP</strong>
         </div>
         <div class="inv-quick-btns">
-          <!-- BOOSTER SHOP MODAL -->
-  <div id="boosterShopModal" class="modal-backdrop">
-    <div class="modal-dialog" style="max-width: 640px;">
-      <div class="modal-header" style="border-bottom-color: rgba(255, 183, 3, 0.4);">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 22px;">вљЎ</span>
-          <span class="modal-title" style="color: var(--neon-amber);">РњР°РіР°Р·РёРЅ РўРёРјС‡Р°СЃРѕРІРёС… Р‘СѓСЃС‚РµСЂС–РІ</span>
+          
+          <button id="vaultSellAllBtn" class="quick-action-btn" style="border-color: var(--neon-amber); color: var(--neon-amber);">
+            💰 Продати весь сейф за DP
+          </button>
+          <button id="vaultReturnAllBtn" class="quick-action-btn" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">
+            🎒 Повернути все в робочий інвентар
+          </button>
         </div>
-        <button id="closeBoosterShopBtn" class="modal-close-btn">вњ•</button>
       </div>
-      <div class="modal-body" id="boosterShopModalBody">
-        <!-- Injected via JS renderBoosterShopModalBody() -->
+
+      <!-- Items Grid (Dynamic Cards) -->
+      <div id="itemsDisplayGrid" class="items-grid">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- History Table (Hidden by default, shown in History tab) -->
+      <div id="casesDisplayContainer" class="items-grid" style="display: none;"></div>
+      <div id="bonusDisplayContainer" style="display: none; padding-top: 20px;"></div>
+
+      <div id="bonusDisplayContainer" style="display: none; padding-top: 20px;"></div>
+
+      <div id="historyDisplayContainer" style="display: none;">
+        <!-- Injected via JavaScript -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RESULT MODAL -->
+  <div id="resultModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span class="modal-title">Результат Демо-Апгрейду</span>
+        <button id="closeResultBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="result-display-wrap">
+          <div id="resultStatusTitle" class="result-status-title win">
+            🎉 УСПІШНИЙ UPGRADE!
+          </div>
+          <div id="resultRollInfo" class="result-roll-info">
+            Випало число 34.20% (Шанс був 45.00%)
+          </div>
+
+          <div id="resultItemShowcase" class="result-item-showcase win">
+            <div id="resultItemSvgBox" class="result-item-svg-box"></div>
+            <h4 id="resultItemName" class="item-title" style="margin-top: 10px;">Item Name</h4>
+            <div id="resultItemPrice" class="item-price-chip" style="margin-top: 6px;">0.00 <span>DP</span></div>
+          </div>
+
+          <div class="modal-actions-row">
+            <button id="resultKeepBtn" class="modal-btn secondary">
+              🎒 В інвентар
+            </button>
+            <button id="resultWithdrawBtn" class="modal-btn" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 240, 255, 0.2)); border: 1px solid var(--neon-green); color: var(--neon-green);">
+              🏦 Вивести в Сейф
+            </button>
+            <button id="resultUpgradeAgainBtn" class="modal-btn primary">
+              Апгрейдити цей предмет ➔
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="cosmetics_data.js?v=57.0.0"></script>
-  <script src="items.js?v=57.0.0"></script>
-  <script src="bonus_system.js?v=57.0.0"></script>
-    <script src="app.js?v=57.0.0"></script>
+  <!-- PROFILE & STATS MODAL -->
+  <div id="profileModal" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span class="modal-title">Профіль гравця (Демо-статистика)</span>
+        <button id="closeProfileBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Google User Info Banner -->
+        <div id="googleProfileBanner" style="margin-bottom: 16px; padding: 12px; background: rgba(66, 133, 244, 0.08); border: 1px solid rgba(66, 133, 244, 0.3); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <!-- Rendered via JS -->
+        </div>
+
+        <div class="profile-stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Всього апгрейдів</div>
+            <div class="stat-val" id="statTotalUpgrades">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Успішних (Win)</div>
+            <div class="stat-val" id="statWins" style="color: var(--neon-green);">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Невдалих (Loss)</div>
+            <div class="stat-val" id="statLosses" style="color: var(--neon-red);">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Вінрейт</div>
+            <div class="stat-val" id="statWinRate" style="color: var(--neon-cyan);">0.0%</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Найвищий множник</div>
+            <div class="stat-val" id="statBestMult" style="color: var(--neon-amber);">x1.00</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Виграно цінностей</div>
+            <div class="stat-val" id="statTotalWonVal">0.00 DP</div>
+          </div>
+        </div>
+        <p style="font-size: 12px; color: var(--text-dim); text-align: center; margin-top: 10px;">
+          Усі дані зберігаються локально у вашому браузері (localStorage).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFETTI / PARTICLE CANVAS -->
+  
+  <!-- GOOGLE AUTH LOGIN MODAL -->
+  <div id="googleAuthModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 420px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span class="modal-title">Вхід через Google</span>
+        </div>
+        <button id="closeGoogleAuthBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" style="text-align: center;">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
+          Авторизуйтесь через ваш Google акаунт для збереження балансу та прогресу апгрейдів:
+        </p>
+        
+        <!-- Official Google OAuth 2.0 / OIDC Flow -->
+        <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px;">
+          <a href="/api/auth/google/login" class="google-login-btn" style="width: 100%; justify-content: center; padding: 12px 18px; font-size: 15px; font-weight: 700; background: #ffffff; color: #1f1f1f; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.3); transition: transform 0.2s ease;">
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Увійти через Google (Офіційний OIDC)</span>
+          </a>
+
+          <!-- GIS One Tap / Popup Button Container -->
+          <div id="googleGisButtonDiv" style="display: flex; justify-content: center; min-height: 44px;"></div>
+        </div>
+
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: 10px; line-height: 1.5;">
+          🔒 Офіційний OpenID Connect Flow. Усі токени та ролі верифікуються виключно на сервері.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER PROFILE & CUSTOM NICK/AVATAR EDIT MODAL -->
+  <div id="profileEditModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 480px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">👤</span>
+          <span class="modal-title">Налаштування Профілю</span>
+        </div>
+        <button id="closeProfileModalBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="profileModalBody">
+        <!-- Injected via JS renderProfileModalBody() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- DROP DETAIL MODAL -->
+  <div id="dropDetailModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 500px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 18px;">📋</span>
+          <span class="modal-title">Деталі Дропу та Профіль</span>
+        </div>
+        <button id="closeDropDetailBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="dropDetailModalBody">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- DEMO PACK DROP REVEAL MODAL -->
+  <div id="demoPackModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 440px; text-align: center;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">🎁</span>
+          <span class="modal-title">Відкриття Демо-Паку</span>
+        </div>
+        <button id="closeDemoPackBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="demoPackModalBody">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN CONTROL PANEL MODAL -->
+  <div id="adminModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 520px; border: 1px solid rgba(255, 215, 0, 0.5); box-shadow: 0 0 35px rgba(255, 215, 0, 0.3);">
+      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 215, 0, 0.3);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 22px;">👑</span>
+          <span class="modal-title" style="color: #ffd700; font-weight: 900; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">PUSHKARIK ADMIN CONTROL PANEL</span>
+        </div>
+        <button id="closeAdminModalBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="adminModalBody">
+        <!-- Rendered dynamically via JS renderAdminModalBody() -->
+      </div>
+    </div>
+  </div>
+
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <div class="container footer-inner">
+      <div style="font-weight: 700; color: #fff;">PUSHKARIK UPGRADER &bull; 2026</div>
+      <p class="footer-disclaimer-note">
+        Цей проєкт є виключно візуальною демонстрацією концепції інтерфейсу апгрейдів ігрових предметів (case upgrade UI demo).
+        На сайті відсутній функціонал поповнення балансу, виведення коштів, реальних грошей або криптовалют. Усі предмети є віртуальними 3D/векторними моделями без фінансової вартості.
+      </p>
+    </div>
+  </footer>
+
+  <!-- INSPECT ITEM MODAL (Detailed Float, Wear, Stickers & Charm View) -->
+  <div id="itemInspectModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 540px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">🔍</span>
+          <span class="modal-title" id="inspectModalTitle">Огляд предмета</span>
+        </div>
+        <button id="closeInspectModalBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="itemInspectModalBody">
+        <!-- Injected via JavaScript renderInspectModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- WEAPON CUSTOMIZATION MODAL (Apply Stickers & Attach Charm) -->
+  <div id="weaponCustomizeModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 520px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">🎨</span>
+          <span class="modal-title">Кастомізація зброї</span>
+        </div>
+        <button id="closeCustomizeModalBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="weaponCustomizeModalBody">
+        <!-- Injected via JavaScript renderCustomizeModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- WITHDRAWAL TO VIRTUAL VAULT SUCCESS MODAL -->
+  <div id="vaultWithdrawModal" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 480px;">
+      <div class="modal-header" style="border-bottom-color: rgba(0, 255, 136, 0.3);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 20px;">🏦</span>
+          <span class="modal-title" style="color: var(--neon-green);">Виведення у Віртуальний Сейф</span>
+        </div>
+        <button id="closeWithdrawModalBtn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body" id="vaultWithdrawModalBody">
+        <!-- Injected via JS renderWithdrawModalBody() -->
+      </div>
+    </div>
+  </div>
+
+  <script src="cosmetics_data.js?v=58.0.0"></script>
+  <script src="items.js?v=58.0.0"></script>
+    <script src="bonus_system.js?v=58.0.0"></script>
+    <script src="bonus_system.js?v=58.0.0"></script>
+  <script src="app.js?v=58.0.0"></script>
 </body>
 </html>
-
-
-
-
-
-
 
 
 
