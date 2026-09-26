@@ -372,6 +372,8 @@ class AppState {
       this.selectedTarget = null;
     }
     this.isSpinning = false;
+    if(window.bonusSystem) window.bonusSystem.load();
+
     this.rollDirection = 'under';
     this.activeTab = 'inventory';
     this.inventoryFilter = { search: '', rarity: 'all', type: 'all', sort: 'price_desc' };
@@ -485,6 +487,10 @@ class AppState {
         this.userRole = data.user.role || 'user';
         this.isOwner = Boolean(data.user.isOwner);
         this.adminMode = Boolean(data.user.isAdmin);
+        if (data.user.bonusData) {
+          this.bonusData = { ...this.bonusData, ...data.user.bonusData };
+          if (window.bonusSystem) window.bonusSystem.render();
+        }
 
 /* Server inventory sync disabled to preserve local cosmetics/vault state */
         updateUi();
@@ -564,6 +570,9 @@ class AppState {
 }
 
 const state = new AppState();
+window.bonusSystem = new BonusSystem(state);
+window.bonusSystem.load();
+window.bonusSystem.trackTask('login');
 window.state = state;
 window.AppState = AppState;
 
@@ -1869,6 +1878,9 @@ function finishUpgrade(isWin, roll, chance, serverData) {
   state.stats.total++;
   if (isWin) {
     state.stats.wins++;
+    window.bonusSystem.trackTask('upgrades');
+    window.bonusSystem.addXp(10);
+
     state.stats.totalWonValue += (targetItem ? targetItem.price : 0);
     if (mult > state.stats.bestMultiplier) {
       state.stats.bestMultiplier = mult;
@@ -1901,6 +1913,9 @@ function finishUpgrade(isWin, roll, chance, serverData) {
   } else {
     state.stats.losses++;
     audio.playFail();
+    window.bonusSystem.trackTask('upgrades');
+    window.bonusSystem.addXp(5);
+
     if (serverData && serverData.shieldUsed) {
       showNotification('Shield used: Item preserved!', 'success');
     } else {
@@ -2200,6 +2215,24 @@ function renderTabContent() {
 
   const casesContainer = document.getElementById('casesDisplayContainer');
   if (casesContainer) casesContainer.style.display = 'none';
+  const bc = document.getElementById('bonusDisplayContainer');
+  if (bc) bc.style.display = 'none';
+
+
+  
+  if (state.activeTab === 'bonus') {
+    grid.style.display = 'none';
+    if (invStatsBar) invStatsBar.style.display = 'none';
+    if (vaultStatsBar) vaultStatsBar.style.display = 'none';
+    historyContainer.style.display = 'none';
+    if (casesContainer) casesContainer.style.display = 'none';
+    const bonusContainer = document.getElementById('bonusDisplayContainer');
+    if (bonusContainer) {
+      bonusContainer.style.display = 'block';
+      window.bonusSystem.render();
+    }
+    return;
+  }
 
   if (state.activeTab === 'cases') {
     grid.style.display = 'none';
@@ -4084,6 +4117,9 @@ async function startCaseOpening(caseObj) {
     });
     if (!res || !res.item) throw new Error('Помилка сервера');
     wonItem = res.item;
+    window.bonusSystem.trackTask('cases');
+    window.bonusSystem.addXp(15);
+
   } catch (err) {
     if (typeof showNotification === 'function') showNotification(err.message || 'Помилка відкриття кейсу', 'error');
     else showNotification(err.message || 'Помилка відкриття кейсу', 'error');

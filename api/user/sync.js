@@ -1,4 +1,4 @@
-const { sql } = require('../_db');
+﻿const { sql } = require('../_db');
 const { getVerifiedUser, isOwner, isAdmin, sendJson } = require('../_auth');
 
 let tablesEnsured = false;
@@ -17,6 +17,7 @@ async function ensureTables() {
   try {
     await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS force_win BOOLEAN DEFAULT FALSE;`;
   } catch(e) {}
+  try { await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS bonus_data JSONB DEFAULT '{}'::jsonb;`; } catch(e) {}
   await sql`
     CREATE TABLE IF NOT EXISTS inventory (
       id SERIAL PRIMARY KEY,
@@ -133,7 +134,8 @@ module.exports = async function handler(req, res) {
         role: user.role,
         isAdmin: adminCheck,
         isOwner: isProjectOwner,
-        forceWin: Boolean(user.force_win)
+        forceWin: Boolean(user.force_win),
+        bonusData: user.bonus_data || {}
       },
       inventory,
       vault,
@@ -145,3 +147,5 @@ module.exports = async function handler(req, res) {
     return sendJson(res, 500, { error: 'Internal Server Error', details: error.message });
   }
 };
+
+
