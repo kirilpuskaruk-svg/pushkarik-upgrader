@@ -1,40 +1,40 @@
 // 7. CASES CATALOG
 const CASES_CATALOG = [
   {
-    id: "case_charms",
-    name: "The Armory Charms Case",
+    id: 'case_charms',
+    name: 'Chroma 2 Case',
     price: 350.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQUvIR-j81c3yWFRxMwlzr7j2d1c3y_DLez9B-o7iwILZw_T-ar_SmzsEu8FyibHEoIn2iVGx8kQ9MTrxdYLGdQM9ZlyF8gK4kO3ohpG97czHmyBnpiQ8pA/256fx256f",
-    description: "РњС–СЃС‚РёС‚СЊ РІРёРїР°РґРєРѕРІРёР№ Р±СЂРµР»РѕРє. РњРѕР¶Р»РёРІРёР№ РґСЂРѕРї РµРєСЃРєР»СЋР·РёРІРЅРёС… Р·РѕР»РѕС‚РёС… Р±СЂРµР»РѕРєС–РІ.",
-    type: "case",
-    containsType: "charm"
+    image: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fqmwOuKD2PqI6caDBWDeUkO8uteM9SnDglklw6miEn9j6IHKfblNxA5pxW6dU5UH4LtBe/256fx256f',
+    description: 'Оригінальний кейс із класичними скінами та шармиками.',
+    type: 'case',
+    containsType: 'charm'
   },
   {
-    id: "case_stickers",
-    name: "Sticker Capsule Premium",
+    id: 'case_stickers',
+    name: 'Gamma Case',
     price: 150.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulReQ0DFQOqhwZ-CCBVpIAt-qbuxIVRj07zJdDVJ7czildXax_L0NbrWzjNUv8Aoj-zDrdqi31GxqEE9YWihJ4PHIgZvMwzUrFG6wb-6g8G6vZzJyHI1uiYk4CqLnUe_iEo/256fx256f",
-    description: "РљР°РїСЃСѓР»Р° Р· РїСЂРµРјС–Р°Р»СЊРЅРёРјРё РЅР°РєР»РµР№РєР°РјРё. РњРѕР¶Рµ РјС–СЃС‚РёС‚Рё РЅР°РєР»РµР№РєРё Р· РљР°С‚РѕРІС–С†Рµ 2014.",
-    type: "case",
-    containsType: "sticker"
+    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFYxnPAceDHQxN6wwdXxxqelY-mJwD9Tvccij-_A9I_x31DnqEI_Zmzxd4fGcFE3NwzT_VK_xb-5hMDvyCNt/256fx256f',
+    description: 'Кейс із яскравими скінами та рідкісними наліпками.',
+    type: 'case',
+    containsType: 'sticker'
   },
   {
-    id: "case_dreams",
-    name: "Dreams & Nightmares Case",
+    id: 'case_dreams',
+    name: 'Dreams & Nightmares Case',
     price: 450.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1VnnaecJGsMvtylwtSExPPyNrbXkGwFscp12-qSoInyigDgqUpuNTzxLIGRdlQ7ZFqE-lTtxuy6jJ676p2bzSdqvic8pSdd1-8S2A/256fx256f",
-    description: "РњС–СЃС‚РёС‚СЊ СЏСЃРєСЂР°РІС– СЃРєС–РЅРё. Р“РѕР»РѕРІРЅРёР№ РїСЂРёР· - РЅРѕР¶С– Gamma Doppler.",
-    type: "case",
-    containsType: "dreams"
+    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1VnnaecJGsMvtylwtSExPPyNrbXkGwFscp12-qSoInyigDgqUpuNTzxLIGRdlQ7ZFqE-lTtxuy6jJ676p2bzSdqvic8pSdd1-8S2A/256fx256f',
+    description: 'Ексклюзивний кейс із топовими скінами (Gamma Doppler).',
+    type: 'case',
+    containsType: 'dreams'
   },
   {
-    id: "case_grail",
-    name: "Grail Weapons Case",
+    id: 'case_grail',
+    name: 'Operation Bravo Case',
     price: 2500.00,
-    image: "https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1R3l_b3eD5G7I3im4uPzvLxZb2AwD5UupV1j7rA8Nmmi1Cw8hBsNWjwJNHEdFBsZliE-1Tsl-7shsfotZ3IzHIxsicn4y6InETj1RgaP-c71-veFwt5vSM4/256fx256f",
-    description: "РўС–Р»СЊРєРё РЅР°Р№СЂС–РґРєС–СЃРЅС–С€С– СЃРєС–РЅРё РўР°С”РјРЅРѕС— (Covert) С‚Р° РљРѕРЅС‚СЂР°Р±Р°РЅРґРЅРѕС— СЂС–РґРєРѕСЃС‚С–.",
-    type: "case",
-    containsType: "grail"
+    image: 'https://community.akamai.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXQ9QVcJY8gulRYQU_bTvT_m86QW1B5NQx-rL2qJ1R3l_b3eD5G7I3im4uPzvLxZb2AwD5UupV1j7rA8Nmmi1Cw8hBsNWjwJNHEdFBsZliE-1Tsl-7shsfotZ3IzHIxsicn4y6InETj1RgaP-c71-veFwt5vSM4/256fx256f',
+    description: 'Легендарний кейс. Високі шанси на Covert.',
+    type: 'case',
+    containsType: 'grail'
   }
 ];
 
@@ -570,6 +570,7 @@ if (typeof module !== 'undefined' && module.exports) {
     mergeAllCosmeticsIntoCatalog
   };
 }
+
 
 
 

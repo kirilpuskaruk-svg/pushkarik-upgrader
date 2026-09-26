@@ -75,3 +75,4 @@ module.exports = async function handler(req, res) {
     return sendJson(res, 500, { error: 'Internal Server Error' });
   }
 };
+
