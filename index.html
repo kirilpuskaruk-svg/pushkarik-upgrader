@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <title>PUSHKARIK UPGRADER вЂ” Р”РµРјРѕРЅСЃС‚СЂР°С†С–Р№РЅРёР№ СЃРёРјСѓР»СЏС‚РѕСЂ Р°РїРіСЂРµР№РґСѓ</title>
-  <link rel="stylesheet" href="styles.css?v=56.0.0" />
+  <link rel="stylesheet" href="styles.css?v=57.0.0" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M13 2L3 14h9l-1 8 10-12h-9l1-8z'/></svg>" />
 </head>
 <body>
@@ -176,7 +176,7 @@
             ?? пїЅпїЅпїЅпїЅпїЅ
           </button>
           <button class="tab-btn" data-tab="bonus" style="color: var(--neon-orange); border-color: var(--neon-orange);">
-            🎁 БОНУСИ
+            🎁 БОНУСИ ТА БУСТЕРИ
           </button>
         </div>
 
@@ -235,288 +235,7 @@
           рџЏ¦ Р—Р°РіР°Р»СЊРЅР° РІР°СЂС‚С–СЃС‚СЊ Р·Р±РµСЂРµР¶РµРЅРёС… СЃРєС–РЅС–РІ: <strong id="vaultTotalValue" style="color: var(--neon-green);">0.00</strong> <strong>DP</strong>
         </div>
         <div class="inv-quick-btns">
-          <button id="openBoosterShopBtn" class="quick-action-btn" style="border-color: var(--neon-amber); color: var(--neon-amber); background: rgba(255, 183, 3, 0.1);">
-            вљЎ РњР°РіР°Р·РёРЅ РўРёРјС‡Р°СЃРѕРІРёС… Р‘СѓСЃС‚РµСЂС–РІ
-          </button>
-          <button id="vaultSellAllBtn" class="quick-action-btn" style="border-color: var(--neon-amber); color: var(--neon-amber);">
-            рџ’° РџСЂРѕРґР°С‚Рё РІРµСЃСЊ СЃРµР№С„ Р·Р° DP
-          </button>
-          <button id="vaultReturnAllBtn" class="quick-action-btn" style="border-color: var(--neon-cyan); color: var(--neon-cyan);">
-            рџЋ’ РџРѕРІРµСЂРЅСѓС‚Рё РІСЃРµ РІ СЂРѕР±РѕС‡РёР№ С–РЅРІРµРЅС‚Р°СЂ
-          </button>
-        </div>
-      </div>
-
-      <!-- Items Grid (Dynamic Cards) -->
-      <div id="itemsDisplayGrid" class="items-grid">
-        <!-- Injected via JavaScript -->
-      </div>
-
-      <!-- History Table (Hidden by default, shown in History tab) -->
-      <div id="casesDisplayContainer" class="items-grid" style="display: none;"></div>
-      <div id="bonusDisplayContainer" style="display: none; padding-top: 20px;"></div>
-      <div id="historyDisplayContainer" style="display: none;">
-        <!-- Injected via JavaScript -->
-      </div>
-
-    </div>
-  </section>
-
-  <!-- RESULT MODAL -->
-  <div id="resultModal" class="modal-backdrop">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <span class="modal-title">Р РµР·СѓР»СЊС‚Р°С‚ Р”РµРјРѕ-РђРїРіСЂРµР№РґСѓ</span>
-        <button id="closeResultBtn" class="modal-close-btn">вњ•</button>
-      </div>
-      <div class="modal-body">
-        <div class="result-display-wrap">
-          <div id="resultStatusTitle" class="result-status-title win">
-            рџЋ‰ РЈРЎРџР†РЁРќРР™ UPGRADE!
-          </div>
-          <div id="resultRollInfo" class="result-roll-info">
-            Р’РёРїР°Р»Рѕ С‡РёСЃР»Рѕ 34.20% (РЁР°РЅСЃ Р±СѓРІ 45.00%)
-          </div>
-
-          <div id="resultItemShowcase" class="result-item-showcase win">
-            <div id="resultItemSvgBox" class="result-item-svg-box"></div>
-            <h4 id="resultItemName" class="item-title" style="margin-top: 10px;">Item Name</h4>
-            <div id="resultItemPrice" class="item-price-chip" style="margin-top: 6px;">0.00 <span>DP</span></div>
-          </div>
-
-          <div class="modal-actions-row">
-            <button id="resultKeepBtn" class="modal-btn secondary">
-              рџЋ’ Р’ С–РЅРІРµРЅС‚Р°СЂ
-            </button>
-            <button id="resultWithdrawBtn" class="modal-btn" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 240, 255, 0.2)); border: 1px solid var(--neon-green); color: var(--neon-green);">
-              рџЏ¦ Р’РёРІРµСЃС‚Рё РІ РЎРµР№С„
-            </button>
-            <button id="resultUpgradeAgainBtn" class="modal-btn primary">
-              РђРїРіСЂРµР№РґРёС‚Рё С†РµР№ РїСЂРµРґРјРµС‚ вћ”
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PROFILE & STATS MODAL -->
-  <div id="profileModal" class="modal-backdrop">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <span class="modal-title">РџСЂРѕС„С–Р»СЊ РіСЂР°РІС†СЏ (Р”РµРјРѕ-СЃС‚Р°С‚РёСЃС‚РёРєР°)</span>
-        <button id="closeProfileBtn" class="modal-close-btn">вњ•</button>
-      </div>
-      <div class="modal-body">
-        <!-- Google User Info Banner -->
-        <div id="googleProfileBanner" style="margin-bottom: 16px; padding: 12px; background: rgba(66, 133, 244, 0.08); border: 1px solid rgba(66, 133, 244, 0.3); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-          <!-- Rendered via JS -->
-        </div>
-
-        <div class="profile-stats-grid">
-          <div class="stat-box">
-            <div class="stat-label">Р’СЃСЊРѕРіРѕ Р°РїРіСЂРµР№РґС–РІ</div>
-            <div class="stat-val" id="statTotalUpgrades">0</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">РЈСЃРїС–С€РЅРёС… (Win)</div>
-            <div class="stat-val" id="statWins" style="color: var(--neon-green);">0</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">РќРµРІРґР°Р»РёС… (Loss)</div>
-            <div class="stat-val" id="statLosses" style="color: var(--neon-red);">0</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Р’С–РЅСЂРµР№С‚</div>
-            <div class="stat-val" id="statWinRate" style="color: var(--neon-cyan);">0.0%</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">РќР°Р№РІРёС‰РёР№ РјРЅРѕР¶РЅРёРє</div>
-            <div class="stat-val" id="statBestMult" style="color: var(--neon-amber);">x1.00</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-label">Р’РёРіСЂР°РЅРѕ С†С–РЅРЅРѕСЃС‚РµР№</div>
-            <div class="stat-val" id="statTotalWonVal">0.00 DP</div>
-          </div>
-        </div>
-        <p style="font-size: 12px; color: var(--text-dim); text-align: center; margin-top: 10px;">
-          РЈСЃС– РґР°РЅС– Р·Р±РµСЂС–РіР°СЋС‚СЊСЃСЏ Р»РѕРєР°Р»СЊРЅРѕ Сѓ РІР°С€РѕРјСѓ Р±СЂР°СѓР·РµСЂС– (localStorage).
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <!-- CONFETTI / PARTICLE CANVAS -->
-  
-  <!-- GOOGLE AUTH LOGIN MODAL -->
-  <div id="googleAuthModal" class="modal-backdrop">
-    <div class="modal-dialog" style="max-width: 420px;">
-      <div class="modal-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.62z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-          </svg>
-          <span class="modal-title">Р’С…С–Рґ С‡РµСЂРµР· Google</span>
-        </div>
-        <button id="closeGoogleAuthBtn" class="modal-close-btn">вњ•</button>
-      </div>
-      <div class="modal-body" style="text-align: center;">
-        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">
-          РђРІС‚РѕСЂРёР·СѓР№С‚РµСЃСЊ С‡РµСЂРµР· РІР°С€ Google Р°РєР°СѓРЅС‚ РґР»СЏ Р·Р±РµСЂРµР¶РµРЅРЅСЏ Р±Р°Р»Р°РЅСЃСѓ С‚Р° РїСЂРѕРіСЂРµСЃСѓ Р°РїРіСЂРµР№РґС–РІ:
-        </p>
-        
-        <!-- Official Google OAuth 2.0 / OIDC Flow -->
-        <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px;">
-          <a href="/api/auth/google/login" class="google-login-btn" style="width: 100%; justify-content: center; padding: 12px 18px; font-size: 15px; font-weight: 700; background: #ffffff; color: #1f1f1f; border-radius: 8px; text-decoration: none; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.3); transition: transform 0.2s ease;">
-            <svg width="20" height="20" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.62z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            <span>РЈРІС–Р№С‚Рё С‡РµСЂРµР· Google (РћС„С–С†С–Р№РЅРёР№ OIDC)</span>
-          </a>
-
-          <!-- GIS One Tap / Popup Button Container -->
-          <div id="googleGisButtonDiv" style="display: flex; justify-content: center; min-height: 44px;"></div>
-        </div>
-
-        <div style="font-size: 11px; color: var(--text-dim); margin-top: 10px; line-height: 1.5;">
-          рџ”’ РћС„С–С†С–Р№РЅРёР№ OpenID Connect Flow. РЈСЃС– С‚РѕРєРµРЅРё С‚Р° СЂРѕР»С– РІРµСЂРёС„С–РєСѓСЋС‚СЊСЃСЏ РІРёРєР»СЋС‡РЅРѕ РЅР° СЃРµСЂРІРµСЂС–.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- USER PROFILE & CUSTOM NICK/AVATAR EDIT MODAL -->
-  <div id="profileEditModal" class="modal-backdrop">
-    <div class="modal-dialog" style="max-width: 480px;">
-      <div class="modal-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 20px;">рџ‘¤</span>
-          <span class="modal-title">РќР°Р»Р°С€С‚СѓРІР°РЅРЅСЏ РџСЂРѕС„С–Р»СЋ</span>
-        </div>
-        <button id="closeProfileModalBtn" class="modal-close-btn">вњ•</button>
-      </div>
-      <div class="modal-body" id="profileModalBody">
-        <!-- Injected via JS renderProfileModalBody() -->
-      </div>
-    </div>
-  </div>
-
-  <!-- DROP DETAIL MODAL -->
-  <div id="dropDetailModal" class="modal-backdrop">
-    <div class="modal-dialog" style="max-width: 500px;">
-      <div class="modal-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 18px;">рџ“‹</span>
-          <span class="modal-title">Р”РµС‚Р°Р»С– Р”СЂРѕРїСѓ С‚Р° РџСЂРѕС„С–Р»СЊ</span>
-        </div>
-        <button id="closeDropDetailBtn" class="modal-close-btn">вњ•</button>
-      </div>
-      <div class="modal-body" id="dropDetailModalBody">
-        <!-- Rendered dynamically via JS -->
-      </div>
-    </div>
-  </div>
-
-  <!-- DEMO PACK DROP REVEAL MODAL -->
-  <div id="demoPackModal" class="modal-backdrop">
-    <div class="modal-dialog" style="max-width: 440px; text-align: center;">
-      <div class="modal-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 20px;">рџЋЃ</span>
-          <span class="modal-title">Р’С–РґРєСЂРёС‚С‚СЏ Р”РµРјРѕ-РџР°РєСѓ</span>
-        </div>
-        <button id="closeDemoPackBtn" class="modal-close-btn">вњ•</button>
-      </div>
-      <div class="modal-body" id="demoPackModalBody">
-        <!-- Rendered dynamically via JS -->
-      </div>
-    </div>
-  </div>
-
-  <!-- ADMIN CONTROL PANEL MODAL -->
-  <div id="adminModal" class="modal-backdrop">
-    <div class="modal-dialog" style="max-width: 520px; border: 1px solid rgba(255, 215, 0, 0.5); box-shadow: 0 0 35px rgba(255, 215, 0, 0.3);">
-      <div class="modal-header" style="border-bottom: 1px solid rgba(255, 215, 0, 0.3);">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 22px;">рџ‘‘</span>
-          <span class="modal-title" style="color: #ffd700; font-weight: 900; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">PUSHKARIK ADMIN CONTROL PANEL</span>
-        </div>
-        <button id="closeAdminModalBtn" class="modal-close-btn">вњ•</button>
-      </div>
-      <div class="modal-body" id="adminModalBody">
-        <!-- Rendered dynamically via JS renderAdminModalBody() -->
-      </div>
-    </div>
-  </div>
-
-  <canvas id="particleCanvas"></canvas>
-
-  <!-- FOOTER -->
-  <footer class="app-footer">
-    <div class="container footer-inner">
-      <div style="font-weight: 700; color: #fff;">PUSHKARIK UPGRADER &bull; 2026</div>
-      <p class="footer-disclaimer-note">
-        Р¦РµР№ РїСЂРѕС”РєС‚ С” РІРёРєР»СЋС‡РЅРѕ РІС–Р·СѓР°Р»СЊРЅРѕСЋ РґРµРјРѕРЅСЃС‚СЂР°С†С–С”СЋ РєРѕРЅС†РµРїС†С–С— С–РЅС‚РµСЂС„РµР№СЃСѓ Р°РїРіСЂРµР№РґС–РІ С–РіСЂРѕРІРёС… РїСЂРµРґРјРµС‚С–РІ (case upgrade UI demo).
-        РќР° СЃР°Р№С‚С– РІС–РґСЃСѓС‚РЅС–Р№ С„СѓРЅРєС†С–РѕРЅР°Р» РїРѕРїРѕРІРЅРµРЅРЅСЏ Р±Р°Р»Р°РЅСЃСѓ, РІРёРІРµРґРµРЅРЅСЏ РєРѕС€С‚С–РІ, СЂРµР°Р»СЊРЅРёС… РіСЂРѕС€РµР№ Р°Р±Рѕ РєСЂРёРїС‚РѕРІР°Р»СЋС‚. РЈСЃС– РїСЂРµРґРјРµС‚Рё С” РІС–СЂС‚СѓР°Р»СЊРЅРёРјРё 3D/РІРµРєС‚РѕСЂРЅРёРјРё РјРѕРґРµР»СЏРјРё Р±РµР· С„С–РЅР°РЅСЃРѕРІРѕС— РІР°СЂС‚РѕСЃС‚С–.
-      </p>
-    </div>
-  </footer>
-
-  <!-- INSPECT ITEM MODAL (Detailed Float, Wear, Stickers & Charm View) -->
-  <div id="itemInspectModal" class="modal-backdrop">
-    <div class="modal-dialog" style="max-width: 540px;">
-      <div class="modal-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 20px;">рџ”Ќ</span>
-          <span class="modal-title" id="inspectModalTitle">РћРіР»СЏРґ РїСЂРµРґРјРµС‚Р°</span>
-        </div>
-        <button id="closeInspectModalBtn" class="modal-close-btn">вњ•</button>
-      </div>
-      <div class="modal-body" id="itemInspectModalBody">
-        <!-- Injected via JavaScript renderInspectModal() -->
-      </div>
-    </div>
-  </div>
-
-  <!-- WEAPON CUSTOMIZATION MODAL (Apply Stickers & Attach Charm) -->
-  <div id="weaponCustomizeModal" class="modal-backdrop">
-    <div class="modal-dialog" style="max-width: 520px;">
-      <div class="modal-header">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 20px;">рџЋЁ</span>
-          <span class="modal-title">РљР°СЃС‚РѕРјС–Р·Р°С†С–СЏ Р·Р±СЂРѕС—</span>
-        </div>
-        <button id="closeCustomizeModalBtn" class="modal-close-btn">вњ•</button>
-      </div>
-      <div class="modal-body" id="weaponCustomizeModalBody">
-        <!-- Injected via JavaScript renderCustomizeModal() -->
-      </div>
-    </div>
-  </div>
-
-  <!-- WITHDRAWAL TO VIRTUAL VAULT SUCCESS MODAL -->
-  <div id="vaultWithdrawModal" class="modal-backdrop">
-    <div class="modal-dialog" style="max-width: 480px;">
-      <div class="modal-header" style="border-bottom-color: rgba(0, 255, 136, 0.3);">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 20px;">рџЏ¦</span>
-          <span class="modal-title" style="color: var(--neon-green);">Р’РёРІРµРґРµРЅРЅСЏ Сѓ Р’С–СЂС‚СѓР°Р»СЊРЅРёР№ РЎРµР№С„</span>
-        </div>
-        <button id="closeWithdrawModalBtn" class="modal-close-btn">вњ•</button>
-      </div>
-      <div class="modal-body" id="vaultWithdrawModalBody">
-        <!-- Injected via JS renderWithdrawModalBody() -->
-      </div>
-    </div>
-  </div>
-
-  <!-- BOOSTER SHOP MODAL -->
+          <!-- BOOSTER SHOP MODAL -->
   <div id="boosterShopModal" class="modal-backdrop">
     <div class="modal-dialog" style="max-width: 640px;">
       <div class="modal-header" style="border-bottom-color: rgba(255, 183, 3, 0.4);">
@@ -533,12 +252,14 @@
   </div>
 
   <!-- Scripts -->
-  <script src="cosmetics_data.js?v=56.0.0"></script>
-  <script src="items.js?v=56.0.0"></script>
-  <script src="bonus_system.js?v=56.0.0"></script>
-    <script src="app.js?v=56.0.0"></script>
+  <script src="cosmetics_data.js?v=57.0.0"></script>
+  <script src="items.js?v=57.0.0"></script>
+  <script src="bonus_system.js?v=57.0.0"></script>
+    <script src="app.js?v=57.0.0"></script>
 </body>
 </html>
+
+
 
 
 

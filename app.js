@@ -770,7 +770,7 @@ class RadialWheel {
     // 3 complete fast spins + exact landing angle
     this.targetDelta = 3 * 360 + diff;
     this.stopStartTime = performance.now();
-    this.stopDuration = 3200;
+    this.stopDuration = window.state?.activeBoosters?.some(b => b && b.id === 'booster_turbo' && b.expiresAt > Date.now()) ? 1200 : 3200;
     this.spinState = 'stopping';
   }
 
@@ -1879,6 +1879,7 @@ function finishUpgrade(isWin, roll, chance, serverData) {
   if (isWin) {
     state.stats.wins++;
     window.bonusSystem.trackTask('upgrades');
+    if (window.bonusSystem.trackWin) window.bonusSystem.trackWin(true);
     window.bonusSystem.addXp(10);
 
     state.stats.totalWonValue += (targetItem ? targetItem.price : 0);
@@ -1915,6 +1916,7 @@ function finishUpgrade(isWin, roll, chance, serverData) {
     audio.playFail();
     window.bonusSystem.trackTask('upgrades');
     window.bonusSystem.addXp(5);
+    if (window.bonusSystem.trackWin) window.bonusSystem.trackWin(false);
 
     if (serverData && serverData.shieldUsed) {
       showNotification('Shield used: Item preserved!', 'success');
@@ -2469,7 +2471,7 @@ function renderVaultCards(grid) {
 }
 
 // Vault Selling & Booster Shop Catalog
-const BOOSTER_CATALOG = [
+window.window.BOOSTER_CATALOG = [
   {
     id: 'booster_luck_10',
     title: '🍀 Фартовий Бустер +10%',
@@ -2504,6 +2506,15 @@ const BOOSTER_CATALOG = [
     icon: '💎',
     price: 75.00,
     durationMs: 30 * 60 * 1000, // 30 minutes
+    durationLabel: '30 хв'
+  },
+  {
+    id: 'booster_turbo',
+    title: '⚡ Turbo Upgrade',
+    desc: 'Прискорює анімацію рулетки апгрейду в 3 рази!',
+    icon: '⚡',
+    price: 50.00,
+    durationMs: 30 * 60 * 1000,
     durationLabel: '30 хв'
   }
 ];
@@ -2566,14 +2577,13 @@ function renderBoosterShopModalBody() {
   state.cleanExpiredBoosters();
   const now = Date.now();
 
-  const cardsHtml = BOOSTER_CATALOG.map(booster => {
+  const cardsHtml = window.BOOSTER_CATALOG.map(booster => {
     const active = (state.activeBoosters || []).find(b => b && b.id === booster.id && b.expiresAt > now);
     const timeLeftSec = active ? Math.max(0, Math.floor((active.expiresAt - now) / 1000)) : 0;
     const mins = Math.floor(timeLeftSec / 60);
     const secs = timeLeftSec % 60;
 
-    return `
-      <div class="booster-shop-card ${active ? 'active-owned' : ''}">
+    return `<div class="booster-shop-card ${active ? 'active-owned' : ''}">
         <div>
           <div class="booster-icon-box">${booster.icon}</div>
           <div class="booster-title">${escapeHtml(booster.title)}</div>
@@ -2627,7 +2637,7 @@ function renderBoosterShopModalBody() {
 }
 
 window.buyTemporaryBooster = function(boosterId) {
-  const booster = BOOSTER_CATALOG.find(b => b && b.id === boosterId);
+  const booster = window.BOOSTER_CATALOG.find(b => b && b.id === boosterId);
   if (!booster) return;
 
   if (state.balance < booster.price) {
