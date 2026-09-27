@@ -146,7 +146,21 @@ class BonusSystem {
     for (let ach of this.ACHIEVEMENTS) {
       if (!this.state.bonusData.achievements.includes(ach.id) && ach.condition()) {
         this.state.bonusData.achievements.push(ach.id);
-        this.state.balance += ach.dp;
+        
+        try {
+          const res = await apiFetch('/api/game/bonus-action', {
+            method: 'POST',
+            body: JSON.stringify({ action: 'claim_achievement', payload: { achievementId: ach.id } })
+          });
+          if (res && typeof res.newBalance === 'number') {
+            this.state.balance = res.newBalance;
+          } else {
+            this.state.balance += ach.dp;
+          }
+        } catch(e) {
+          this.state.balance += ach.dp;
+        }
+
         this.state.saveBalance();
         showNotification(`🏆 ДОСЯГНЕННЯ РОЗБЛОКОВАНО: ${ach.name}! (+${ach.xp} XP, +${ach.dp} DP)`, 'success');
         if (window.audio) window.audio.playWin();
@@ -217,49 +231,37 @@ class BonusSystem {
   
   async claimMysteryBonus() {
     if (window.isClaimingMystery) return;
-    
-    const now = Date.now();
-    const lastMystery = this.state.bonusData.lastMystery || 0;
-    if (now - lastMystery < 6 * 60 * 60 * 1000) { // 6 hours
-      showNotification('🎁 Mystery Bonus ще не готовий! (раз на 6 годин)', 'error');
-      return;
-    }
-    
     window.isClaimingMystery = true;
-    
+
     try {
-      // Demo logic
-      this.state.bonusData.lastMystery = now;
-      const roll = Math.random() * 100;
-      let rewardText = '';
-      if (roll < 50) {
-        this.state.balance += 25;
-        rewardText = '+25 DP';
-      } else if (roll < 80) {
-        await this.addXp(100);
-        rewardText = '+100 XP';
+      const res = await apiFetch('/api/game/bonus-action', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'claim_mystery' })
+      });
+
+      this.state.bonusData.lastMystery = Date.now();
+
+      if (res && res.rewardText) {
+        if (typeof res.newBalance === 'number') {
+          this.state.balance = res.newBalance;
+        }
+        showNotification(`🎁 Знайдено Mystery Bonus: ${res.rewardText}!`, 'success');
       } else {
-        if (!this.state.activeBoosters) this.state.activeBoosters = [];
-        this.state.activeBoosters.push({
-          id: 'booster_luck_10',
-          title: '🍀 Фартовий Бустер +10%',
-          icon: '🍀',
-          expiresAt: Date.now() + 15 * 60 * 1000
-        });
-        this.state.saveBoosters();
-        rewardText = '🍀 Фартовий Бустер +10% (15хв)';
+        this.state.balance += 25;
+        showNotification(`🎁 Знайдено Mystery Bonus: +25 DP!`, 'success');
       }
-      
-      showNotification(`🎁 Знайдено Mystery Bonus: ${rewardText}!`, 'success');
+
       if (window.audio) window.audio.playWin();
       if (window.particleInstance) window.particleInstance.burst();
-      
+
       this.state.saveBalance();
       this.save();
       this.render();
       if (window.updateUi) window.updateUi();
-    } catch(e) {}
-    
+    } catch(e) {
+      showNotification(e.message || 'Mystery Bonus ще не готовий!', 'error');
+    }
+
     window.isClaimingMystery = false;
   }
 
@@ -342,23 +344,34 @@ class BonusSystem {
     }
   }
   
-  claimTask(taskId) {
+  async claimTask(taskId) {
     this.checkDailyReset();
     if (this.state.bonusData.tasks.claimed.includes(taskId)) return;
     
     const task = this.TASKS.find(t => t.id === taskId);
-    if (!task) return;
-    
-    if (task.progress >= task.goal) {
-      this.state.bonusData.tasks.claimed.push(taskId);
+    if (!task || task.progress < task.goal) return;
+
+    try {
+      const res = await apiFetch('/api/game/bonus-action', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'claim_task', payload: { taskId } })
+      });
+      if (res && typeof res.newBalance === 'number') {
+        this.state.balance = res.newBalance;
+      } else {
+        this.state.balance += task.dp;
+      }
+    } catch(e) {
       this.state.balance += task.dp;
-      this.state.saveBalance();
-      showNotification(`🎯 Завдання виконано! (+${task.xp} XP, +${task.dp} DP)`, 'success');
-      this.addXp(task.xp);
-      this.save();
-      this.render();
-      if (window.updateUi) window.updateUi();
     }
+
+    this.state.bonusData.tasks.claimed.push(taskId);
+    this.state.saveBalance();
+    showNotification(`🎯 Завдання виконано! (+${task.xp} XP, +${task.dp} DP)`, 'success');
+    await this.addXp(task.xp);
+    this.save();
+    this.render();
+    if (window.updateUi) window.updateUi();
   }
 
   

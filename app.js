@@ -1849,17 +1849,17 @@ async function handleUpgradeClick(e) {
     resultItem: isWin ? state.selectedTarget.id : null
   };
 
-  // 3. Authoritative server sync in background (wheel spins while waiting, never freezing)
-  const serverPromise = apiFetch('/api/game/upgrade', {
-    method: 'POST',
-    body: JSON.stringify({
-      sourceItemId: state.selectedSource.id,
-      targetItemCatalogId: state.selectedTarget.id,
-      direction: state.rollDirection,
-      idempotencyKey: 'upg_' + Date.now() + Math.random().toString(36).substring(7),
-      clientBoosters: (state.activeBoosters || []).map(b => b && b.id).filter(Boolean)
-    })
-  }).then(srvRes => {
+  // 3. Authoritative server sync
+  try {
+    const srvRes = await apiFetch('/api/game/upgrade', {
+      method: 'POST',
+      body: JSON.stringify({
+        sourceItemId: state.selectedSource.id,
+        targetItemCatalogId: state.selectedTarget.id,
+        direction: state.rollDirection,
+        idempotencyKey: 'upg_' + Date.now() + '_' + Math.random().toString(36).substring(7)
+      })
+    });
     if (srvRes && typeof srvRes.roll === 'number') {
       finalData.roll = srvRes.roll;
       finalData.isWin = srvRes.isWin;
@@ -1867,20 +1867,16 @@ async function handleUpgradeClick(e) {
       finalData.resultItem = srvRes.resultItem;
       finalData.shieldUsed = srvRes.shieldUsed;
     }
-  }).catch(() => {});
+  } catch (err) {
+    console.warn('Upgrade server sync note:', err.message);
+  }
 
   // 4. Smoothly decelerate to final authoritative roll
-  setTimeout(async () => {
-    try {
-      await Promise.race([serverPromise, new Promise(r => setTimeout(r, 600))]);
-    } catch(e) {}
-
-    wheelInstance.landOn(finalData.roll, () => {
-      state.isSpinning = false;
-      if (particleInstance) particleInstance.stopSpeed();
-      finishUpgrade(finalData.isWin, finalData.roll, finalData.chance, finalData);
-    });
-  }, 700);
+  wheelInstance.landOn(finalData.roll, () => {
+    state.isSpinning = false;
+    if (particleInstance) particleInstance.stopSpeed();
+    finishUpgrade(finalData.isWin, finalData.roll, finalData.chance, finalData);
+  });
 }
 window.handleUpgradeClick = handleUpgradeClick;
 window.finishUpgrade = finishUpgrade;
@@ -2665,8 +2661,8 @@ function renderBoosterShopModalBody() {
   `;
 }
 
-window.buyTemporaryBooster = function(boosterId) {
-  const booster = window.BOOSTER_CATALOG.find(b => b && b.id === boosterId);
+window.buyTemporaryBooster = async function(boosterId) {
+  const booster = (window.BOOSTER_CATALOG || []).find(b => b && b.id === boosterId);
   if (!booster) return;
 
   if (state.balance < booster.price) {
@@ -2674,7 +2670,23 @@ window.buyTemporaryBooster = function(boosterId) {
     return;
   }
 
-  state.balance -= booster.price;
+  // Authoritative server deduction & booster registration
+  try {
+    const res = await apiFetch('/api/game/buy-booster', {
+      method: 'POST',
+      body: JSON.stringify({
+        boosterId,
+        idempotencyKey: 'buy_bst_' + Date.now() + '_' + Math.random().toString(36).substring(7)
+      })
+    });
+    if (res && typeof res.newBalance === 'number') {
+      state.balance = res.newBalance;
+    } else {
+      state.balance -= booster.price;
+    }
+  } catch(e) {
+    state.balance -= booster.price;
+  }
   state.saveBalance();
 
   state.cleanExpiredBoosters();
@@ -2696,6 +2708,7 @@ window.buyTemporaryBooster = function(boosterId) {
   state.saveBoosters();
   updateUi();
   renderBoosterShopModalBody();
+  if (window.bonusSystem && state.activeTab === 'bonus') window.bonusSystem.render();
   audio.playWin();
   if (particleInstance) particleInstance.burst();
 

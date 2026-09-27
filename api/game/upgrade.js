@@ -1,6 +1,6 @@
 const ITEM_CATALOG = require('../_catalog.json');
-const { sql } = require('../_db');
-const { getVerifiedUser, sendJson } = require('../_auth');
+const { sql, hasPostgres } = require('../_db');
+const { getVerifiedUser, sendJson, isAdmin } = require('../_auth');
 const crypto = require('crypto');
 
 async function ensureUserExists(googleId, email) {
@@ -13,9 +13,7 @@ async function ensureUserExists(googleId, email) {
         ON CONFLICT (id) DO NOTHING
       `;
     }
-  } catch (e) {
-    // Ignore if user already exists (race condition)
-  }
+  } catch (e) {}
 }
 
 module.exports = async function handler(req, res) {
@@ -26,79 +24,85 @@ module.exports = async function handler(req, res) {
     if (!googleUser) return sendJson(res, 401, { error: 'Unauthorized' });
     const { sub: googleId, email } = googleUser;
 
-    const { sourceItemId, targetItemCatalogId, direction, idempotencyKey } = req.body;
+    const { sourceItemId, targetItemCatalogId, direction, idempotencyKey } = req.body || {};
     if (!sourceItemId || !targetItemCatalogId || !direction || !idempotencyKey) {
-      return sendJson(res, 400, { error: 'Missing parameters' });
+      return sendJson(res, 400, { error: 'Missing required parameters' });
     }
 
-    await ensureUserExists(googleId, email || googleId + '@guest.pushkarik');
-
-    // 1. Check idempotency (prevent double upgrade)
-    const idempotencyCheck = await sql`SELECT id FROM transactions WHERE idempotency_key = ${idempotencyKey}`;
-    if (idempotencyCheck.rows.length > 0) {
-      return sendJson(res, 409, { error: 'Transaction already processed' });
+    if (direction !== 'under' && direction !== 'over') {
+      return sendJson(res, 400, { error: 'Invalid roll direction' });
     }
 
-    // 2. Find source item in DB (or register starter/catalog item if not yet synced)
-    let sourceDbItem = await sql`SELECT id, item_id FROM inventory WHERE user_id = ${googleId} AND item_id = ${sourceItemId} AND status = 'ACTIVE' LIMIT 1 FOR UPDATE`;
-    if (sourceDbItem.rows.length === 0) {
-      const validItem = ITEM_CATALOG.find(i => i.id === sourceItemId);
-      if (validItem) {
-        const insertRes = await sql`INSERT INTO inventory (user_id, item_id, status) VALUES (${googleId}, ${sourceItemId}, 'ACTIVE') RETURNING id, item_id`;
-        sourceDbItem = insertRes;
-      } else {
-        return sendJson(res, 400, { error: 'Source item not found in active inventory' });
-      }
+    // 1. Verify Catalog Items and Calculate Authoritative Chance
+    const sourceItemCatalog = ITEM_CATALOG.find(i => i.id === sourceItemId);
+    const targetItemCatalog = ITEM_CATALOG.find(i => i.id === targetItemCatalogId);
+    if (!sourceItemCatalog || !targetItemCatalog) {
+      return sendJson(res, 400, { error: 'Invalid catalog items' });
     }
-    const sourceDbId = (sourceDbItem && sourceDbItem.rows && sourceDbItem.rows[0]) ? sourceDbItem.rows[0].id : 'src_' + Date.now();
-    const sourceItemIdResolved = (sourceDbItem && sourceDbItem.rows && sourceDbItem.rows[0]) ? sourceDbItem.rows[0].item_id : sourceItemId;
-
-    // 3. Find items in catalog to get prices
-    const catalog = ITEM_CATALOG;
-    const sourceItemCatalog = catalog.find(i => i.id === sourceItemIdResolved);
-    const targetItemCatalog = catalog.find(i => i.id === targetItemCatalogId);
-    if (!sourceItemCatalog || !targetItemCatalog) return sendJson(res, 400, { error: 'Invalid catalog items' });
 
     if (targetItemCatalog.price <= sourceItemCatalog.price) {
-      return sendJson(res, 400, { error: 'Cannot downgrade' });
+      return sendJson(res, 400, { error: 'Cannot upgrade to cheaper or equal item' });
     }
 
-    // 4. Calculate chance
     let pureChance = (sourceItemCatalog.price / targetItemCatalog.price) * 100;
-    
-    // Check boosters (LUCK, MEGA_LUCK)
-    const boostersResult = await sql`SELECT type FROM boosters WHERE user_id = ${googleId} AND expires_at > CURRENT_TIMESTAMP`;
-    const activeBoosters = boostersResult.rows.map(b => b.type);
-    
-    
-    const clientBoosters = req.body.clientBoosters;
-    if (Array.isArray(clientBoosters)) {
-      if (clientBoosters.includes('booster_luck_25')) activeBoosters.push('MEGA_LUCK');
-      else if (clientBoosters.includes('booster_luck_10')) activeBoosters.push('LUCK');
-      if (clientBoosters.includes('booster_shield')) activeBoosters.push('SHIELD');
-      if (clientBoosters.includes('booster_cashback')) activeBoosters.push('CASHBACK');
+
+    let activeBoosters = [];
+    let sourceDbId = 'src_' + Date.now();
+
+    if (hasPostgres) {
+      await ensureUserExists(googleId, email || googleId + '@guest.pushkarik');
+
+      // 2. Check Idempotency (prevent duplicate or replayed upgrade requests)
+      const idempotencyCheck = await sql`SELECT id FROM transactions WHERE idempotency_key = ${idempotencyKey} LIMIT 1`;
+      if (idempotencyCheck.rows.length > 0) {
+        return sendJson(res, 409, { error: 'Transaction already processed' });
+      }
+
+      // 3. Authoritatively Query Active Boosters from Database (NEVER trust clientBoosters body)
+      const boostersResult = await sql`
+        SELECT type FROM boosters 
+        WHERE user_id = ${googleId} AND expires_at > CURRENT_TIMESTAMP
+      `;
+      activeBoosters = boostersResult.rows.map(b => b.type);
+
+      // 4. Verify Source Item Ownership in Database
+      let sourceDbItem = await sql`
+        SELECT id, item_id FROM inventory 
+        WHERE user_id = ${googleId} AND item_id = ${sourceItemId} AND status = 'ACTIVE' 
+        LIMIT 1 FOR UPDATE
+      `;
+      if (sourceDbItem.rows.length === 0) {
+        // Auto register starter item if player just began
+        const insertRes = await sql`
+          INSERT INTO inventory (user_id, item_id, status) 
+          VALUES (${googleId}, ${sourceItemId}, 'ACTIVE') 
+          RETURNING id, item_id
+        `;
+        sourceDbId = insertRes.rows[0].id;
+      } else {
+        sourceDbId = sourceDbItem.rows[0].id;
+      }
     }
 
+    // 5. Apply Active Boosters to Chance
     if (activeBoosters.includes('MEGA_LUCK')) pureChance += 25.0;
     else if (activeBoosters.includes('LUCK')) pureChance += 10.0;
 
+    const finalChance = Math.min(Math.max(pureChance, 0.01), 95.00);
 
-    let finalChance = Math.min(Math.max(pureChance, 0.01), 95.00);
+    // 6. Cryptographically Secure Server-side RNG (0.00 to 99.99)
+    let roll = crypto.randomInt(0, 10000) / 100;
 
-    // 5. Generate Secure RNG (0 to 100)
-    let roll = crypto.randomInt(0, 10000) / 100; // 0.00 to 99.99
-
-    // Check if user is verified admin with force_win enabled
-    const { isAdmin } = require('../_auth');
-    const userIsAdmin = await isAdmin(googleUser);
+    // Check if verified project admin has force_win enabled
     let isForceWin = false;
-    if (userIsAdmin) {
+    const userIsAdmin = await isAdmin(googleUser);
+    if (userIsAdmin && hasPostgres) {
       const userDb = await sql`SELECT force_win FROM users WHERE id = ${googleId} LIMIT 1`;
       if (userDb.rows.length > 0 && userDb.rows[0].force_win) {
         isForceWin = true;
       }
     }
-    
+
     let isWin = false;
     if (isForceWin) {
       isWin = true;
@@ -109,40 +113,44 @@ module.exports = async function handler(req, res) {
       isWin = roll >= (100 - finalChance);
     }
 
-    // 6. Apply outcome
-    if (isWin) {
-      // Burn source, give target
-      await sql`UPDATE inventory SET status = 'UPGRADED' WHERE id = ${sourceDbId}`;
-      await sql`INSERT INTO inventory (user_id, item_id, status) VALUES (${googleId}, ${targetItemCatalogId}, 'ACTIVE')`;
-      await sql`INSERT INTO transactions (user_id, action, result_item, idempotency_key) VALUES (${googleId}, 'UPGRADE_WIN', ${targetItemCatalogId}, ${idempotencyKey})`;
-    } else {
-      if (activeBoosters.includes('SHIELD')) {
-        // Shield saves the item, just consume the transaction
-        await sql`INSERT INTO transactions (user_id, action, result_item, idempotency_key) VALUES (${googleId}, 'UPGRADE_LOSS_SHIELDED', 'NONE', ${idempotencyKey})`;
-        // Do not update inventory status
-      } else {
-        // Burn source
+    // 7. Atomic Outcome Execution in Database
+    let cashbackGranted = 0;
+    let shieldUsed = false;
+
+    if (hasPostgres) {
+      if (isWin) {
         await sql`UPDATE inventory SET status = 'UPGRADED' WHERE id = ${sourceDbId}`;
-        
-        let cashback = 0;
-        if (activeBoosters.includes('CASHBACK')) {
-          cashback = Math.floor(sourceItemCatalog.price * 100 * 0.2); // 20% in DP
-          await sql`UPDATE users SET balance = balance + ${cashback} WHERE id = ${googleId}`;
+        await sql`INSERT INTO inventory (user_id, item_id, status) VALUES (${googleId}, ${targetItemCatalogId}, 'ACTIVE')`;
+        await sql`INSERT INTO transactions (user_id, action, result_item, idempotency_key) VALUES (${googleId}, 'UPGRADE_WIN', ${targetItemCatalogId}, ${idempotencyKey})`;
+      } else {
+        if (activeBoosters.includes('SHIELD')) {
+          shieldUsed = true;
+          await sql`INSERT INTO transactions (user_id, action, result_item, idempotency_key) VALUES (${googleId}, 'UPGRADE_LOSS_SHIELDED', 'NONE', ${idempotencyKey})`;
+        } else {
+          await sql`UPDATE inventory SET status = 'UPGRADED' WHERE id = ${sourceDbId}`;
+          if (activeBoosters.includes('CASHBACK')) {
+            cashbackGranted = Math.floor(sourceItemCatalog.price * 100 * 0.20); // 20% in cents
+            await sql`UPDATE users SET balance = balance + ${cashbackGranted} WHERE id = ${googleId}`;
+          }
+          await sql`INSERT INTO transactions (user_id, action, cost, result_item, idempotency_key) VALUES (${googleId}, 'UPGRADE_LOSS', ${cashbackGranted}, 'NONE', ${idempotencyKey})`;
         }
-        await sql`INSERT INTO transactions (user_id, action, cost, result_item, idempotency_key) VALUES (${googleId}, 'UPGRADE_LOSS', ${cashback}, 'NONE', ${idempotencyKey})`;
       }
+    } else {
+      shieldUsed = !isWin && activeBoosters.includes('SHIELD');
     }
 
     return sendJson(res, 200, {
+      success: true,
       isWin,
       roll,
       chance: finalChance,
       resultItem: isWin ? targetItemCatalogId : null,
-      shieldUsed: !isWin && activeBoosters.includes('SHIELD')
+      shieldUsed,
+      cashbackGranted: cashbackGranted / 100
     });
 
   } catch (error) {
-    console.error('Upgrade Error:', error);
+    console.error('Authoritative Upgrade Error:', error);
     return sendJson(res, 500, { error: 'Internal Server Error', details: error.message });
   }
 };
