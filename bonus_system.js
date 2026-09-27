@@ -15,9 +15,12 @@ class BonusSystem {
       };
     }
     
-    this.checkDailyReset();
-    if (!this.renderInterval) this.renderInterval = setInterval(() => { if (this.state.activeTab === 'bonus') this.render(); }, 1000);
-    
+    if (!this.renderInterval) {
+      this.renderInterval = setInterval(() => { if (this.state && this.state.activeTab === 'bonus') this.render(); }, 1000);
+      if (this.renderInterval && typeof this.renderInterval.unref === 'function') {
+        this.renderInterval.unref();
+      }
+    }
     // DOM Elements
     this.container = document.getElementById('bonusDisplayContainer');
     
@@ -439,8 +442,9 @@ class BonusSystem {
     
     // Boosters HTML
     let boostersHtml = '';
-    if (window.window.BOOSTER_CATALOG) {
-      boostersHtml = window.window.BOOSTER_CATALOG.map(booster => {
+    const boosterList = (typeof window !== 'undefined' && window.BOOSTER_CATALOG) || (typeof BOOSTER_CATALOG !== 'undefined' ? BOOSTER_CATALOG : []);
+    if (boosterList && boosterList.length > 0) {
+      boostersHtml = boosterList.map(booster => {
         const active = (this.state.activeBoosters || []).find(b => b && b.id === booster.id && b.expiresAt > now);
         const timeLeftSec = active ? Math.max(0, Math.floor((active.expiresAt - now) / 1000)) : 0;
         const mins = Math.floor(timeLeftSec / 60);

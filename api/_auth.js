@@ -4,7 +4,10 @@ const crypto = require('crypto');
 const GOOGLE_TOKENINFO_URL = 'https://oauth2.googleapis.com/tokeninfo?id_token=';
 
 function sendJson(res, status, payload) {
-  res.status(status).setHeader('Cache-Control', 'no-store').json(payload);
+  res.status(status)
+     .setHeader('Content-Type', 'application/json; charset=utf-8')
+     .setHeader('Cache-Control', 'no-store')
+     .json(payload);
 }
 
 function parseCookies(req) {

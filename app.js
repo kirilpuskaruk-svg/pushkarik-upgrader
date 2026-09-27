@@ -483,13 +483,29 @@ class AppState {
     try {
       const data = await apiFetch('/api/user/sync', { method: 'POST' });
       if (data && data.user) {
-        this.balance = data.user.balance / 100;
+        const token = typeof getAuthToken === 'function' ? getAuthToken() : '';
+        const isGuest = !token || token.startsWith('guest_');
+        if (!isGuest) {
+          this.balance = data.user.balance / 100;
+          this.saveBalance();
+        } else {
+          const savedBal = localStorage.getItem(STORAGE_KEYS.BALANCE);
+          if (savedBal !== null && !isNaN(parseFloat(savedBal))) {
+            this.balance = parseFloat(savedBal);
+          } else {
+            this.balance = data.user.balance / 100;
+            this.saveBalance();
+          }
+        }
         this.userRole = data.user.role || 'user';
         this.isOwner = Boolean(data.user.isOwner);
         this.adminMode = Boolean(data.user.isAdmin);
-        if (data.user.bonusData) {
+        if (data.user.bonusData && Object.keys(data.user.bonusData).length > 0) {
           this.bonusData = { ...this.bonusData, ...data.user.bonusData };
-          if (window.bonusSystem) window.bonusSystem.render();
+          if (window.bonusSystem) {
+            window.bonusSystem.save();
+            window.bonusSystem.render();
+          }
         }
 
 /* Server inventory sync disabled to preserve local cosmetics/vault state */
@@ -1918,9 +1934,22 @@ function finishUpgrade(isWin, roll, chance, serverData) {
     window.bonusSystem.addXp(5);
     if (window.bonusSystem.trackWin) window.bonusSystem.trackWin(false);
 
-    if (serverData && serverData.shieldUsed) {
-      showNotification('Shield used: Item preserved!', 'success');
+    state.cleanExpiredBoosters();
+    const activeShield = (state.activeBoosters || []).find(b => b && b.id === 'booster_shield' && b.expiresAt > Date.now());
+    const shieldPreserved = Boolean((serverData && serverData.shieldUsed) || activeShield);
+
+    if (shieldPreserved) {
+      showNotification('🛡️ Shield спрацював — скін збережено!', 'success');
     } else {
+      // Check 20% Cashback booster
+      const activeCashback = (state.activeBoosters || []).find(b => b && b.id === 'booster_cashback' && b.expiresAt > Date.now());
+      if (activeCashback && sourceItem) {
+        const cashbackAmount = Math.max(Math.floor(sourceItem.price * 0.20), 1);
+        state.balance += cashbackAmount;
+        state.saveBalance();
+        showNotification(`💎 Подвійний кешбек 20%: +${cashbackAmount.toFixed(2)} DP повернено на баланс!`, 'success');
+      }
+
       // Remove source item on loss
       if (sourceItem) {
         const idx = state.inventory.findIndex(i => {
@@ -2641,7 +2670,7 @@ window.buyTemporaryBooster = function(boosterId) {
   if (!booster) return;
 
   if (state.balance < booster.price) {
-    showNotification(`Недостатньо валюти DP! Потрібно ${booster.price.toFixed(2, 'info')} DP. Продайте кілька скінів у Віртуальному Сейфі для поповнення балансу.`);
+    showNotification(`Недостатньо валюти DP! Потрібно ${booster.price.toFixed(2)} DP. Продайте кілька скінів у Віртуальному Сейфі для поповнення балансу.`, 'error');
     return;
   }
 
@@ -2947,7 +2976,7 @@ window.selectTargetItem = function(itemId) {
     // STRICT RULE: Upgrade target must be strictly more expensive than source item!
     if (state.selectedSource && found.price <= state.selectedSource.price) {
       audio.playFail();
-      showNotification('❌ Неможливо обрати цей скін!\nВаш скін коштує ' + state.selectedSource.price.toFixed(2, 'info') + ' DP, а ціль — ' + found.price.toFixed(2) + ' DP.\nАпгрейд можливий ТІЛЬКИ на дорожчий скін!');
+      showNotification('❌ Неможливо обрати цей скін!\nВаш скін коштує ' + state.selectedSource.price.toFixed(2) + ' DP, а ціль — ' + found.price.toFixed(2) + ' DP.\nАпгрейд можливий ТІЛЬКИ на дорожчий скін!', 'error');
       return;
     }
     state.selectedTarget = found;
@@ -4224,6 +4253,9 @@ async function startCaseOpening(caseObj) {
     `;
     
     wonModal.querySelector('button').addEventListener('click', () => {
+      if (typeof enrichWeaponProperties === 'function') {
+        enrichWeaponProperties(wonItem);
+      }
       state.inventory.unshift(wonItem); // Add to beginning
       state.saveInventory();
       updateUi();
